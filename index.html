@@ -135,7 +135,6 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
     <button id="bMq" title="框選模式：拖曳空白處框選多個項目（也可按住 Shift 拖曳）">框選</button>
     <button id="bImg" title="上傳圖片（也可直接貼上或拖入）">圖片</button>
     <button id="bVid" title="加入影片連結縮圖（也可直接貼上網址）">影片</button>
-    <button id="bArr" title="自動整理版面">整理</button>
     <span class="sep"></span>
     <button class="tg on" data-t="fill" title="修改節點內部顏色">填滿</button><button class="tg" data-t="tc" title="修改文字顏色">文字</button><button class="tg" data-t="bd" title="修改邊框與連線顏色">邊框</button>
     <button class="sw" data-c="var(--c0)" style="background:var(--c0)" aria-label="顏色 1"></button><button class="sw" data-c="var(--c1)" style="background:var(--c1)" aria-label="顏色 2"></button><button class="sw" data-c="var(--c2)" style="background:var(--c2)" aria-label="顏色 3"></button><button class="sw" data-c="var(--c3)" style="background:var(--c3)" aria-label="顏色 4"></button><button class="sw" data-c="var(--c4)" style="background:var(--c4)" aria-label="顏色 5"></button><button class="sw" data-c="var(--c5)" style="background:var(--c5)" aria-label="顏色 6"></button><input type="color" id="cpick" value="#2f6fed" aria-label="自訂顏色" title="自訂顏色"><button id="bClr" title="還原目前項目的預設色">還原</button>
@@ -147,7 +146,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <div id="hint"><button id="hintTog" aria-expanded="false">操作說明 ▾</button><div id="hintBody">
   <kbd>Tab</kbd> 新增子節點　<kbd>Enter</kbd> 新增同層　<kbd>F2</kbd>／雙擊 編輯<br>
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
-  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>圖片可上傳、拖入或直接貼上（Ctrl／⌘＋V），點影片縮圖即播放<br>把節點拖到圖片或影片上即可連結；「取消連結」可分開<br>「框選」鈕或 Shift＋拖曳框選多個，Shift／Ctrl＋點擊可加減選<br>拖曳空白處平移，滾輪縮放<br>點右下角的頁面名稱開啟圖庫，檢視、新增、複製或刪除頁面
+  選取節點後點旁邊的 <kbd>＋</kbd> 新增子節點（中心節點兩側都有，其他節點往外延伸）<br>拖曳節點：放到另一節點上會變成它的子節點；放在同層節點之間可調整順序（中心節點的子節點可拖到左右兩側）<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>圖片可上傳、拖入或直接貼上（Ctrl／⌘＋V），點影片縮圖即播放<br>把節點拖到圖片或影片上即可連結；「取消連結」可分開<br>「框選」鈕或 Shift＋拖曳框選多個，Shift／Ctrl＋點擊可加減選<br>拖曳空白處平移，滾輪縮放<br>點右下角的頁面名稱開啟圖庫，檢視、新增、複製或刪除頁面
 </div></div>
 <div id="pages"><button id="bGal" title="開啟圖庫，檢視所有頁面">▦ <span id="curname"></span></button></div>
 <input id="ed" aria-label="節點文字" maxlength="80">
@@ -220,6 +219,7 @@ function rebuild(o,legacy){
     if(m.type==="image"&&/^(data:image\/|https?:\/\/)/.test(m.src)) n.media={type:"image",src:m.src,w:mw,h:mh};
     else if(m.type==="video"&&/^https?:\/\//.test(m.url)) n.media={type:"video",url:m.url,thumb:/^https:\/\/img\.youtube\.com\//.test(m.thumb||"")?m.thumb:"",host:String(m.host||"").slice(0,60),w:mw,h:mh};
   }
+  if(!legacy&&(o.side===1||o.side===-1)) n.side=o.side;
   if(!legacy){["fill","bd","tc"].forEach(function(k){if(okColor(o[k])) n[k]=o[k];}); if(okColor(o.color)){n.fill=n.fill||o.color;n.bd=n.bd||o.color;}}
   if(!legacy&&typeof o.x==="number"&&typeof o.y==="number"){n.x=o.x;n.y=o.y;} else needArr=true;
   n.children=(Array.isArray(o.children)?o.children:[]).map(function(c){return rebuild(c,legacy);});
@@ -227,7 +227,7 @@ function rebuild(o,legacy){
 }
 function clean(n){
   var o={text:n.text,collapsed:!!n.collapsed,x:Math.round(n.x),y:Math.round(n.y),children:n.children.map(clean)};
-  ["fill","bd","tc"].forEach(function(k){if(n[k]) o[k]=n[k];}); if(n.media) o.media=n.media; return o;
+  ["fill","bd","tc"].forEach(function(k){if(n[k]) o[k]=n[k];}); if(n.side===1||n.side===-1) o.side=n.side; if(n.media) o.media=n.media; return o;
 }
 function pid(){return "p"+Date.now().toString(36)+Math.floor(Math.random()*1e5).toString(36);}
 function newPage(name,r,f,sel){return {id:pid(),name:name,root:r,floats:f||[],sel:sel||null};}
@@ -262,13 +262,13 @@ function measure(n,isRoot){
 }
 function visList(){
   list=[];
-  function w(n,d,pc,i){
-    n.w=n.media?n.media.w:measure(n,d===0); n.h=n.media?n.media.h:(d===0?RH:H); n._d=d;
+  function w(n,d,pc,i,dir){
+    n.w=n.media?n.media.w:measure(n,d===0); n.h=n.media?n.media.h:(d===0?RH:H); n._d=d; n._dir=dir;
     n._c=n.bd||(d===0?"var(--root)":d===1?PAL[i%6]:pc);
     list.push(n);
-    if(!n.collapsed) n.children.forEach(function(c,j){w(c,d+1,n._c,j);});
+    if(!n.collapsed) n.children.forEach(function(c,j){w(c,d+1,n._c,j,d===0?(c.side===-1?-1:1):dir);});
   }
-  w(root,0,"",0); floats.forEach(function(f,k){w(f,1,"",root.children.length+k);});
+  w(root,0,"",0,0); floats.forEach(function(f,k){w(f,1,"",root.children.length+k,f.side===-1?-1:1);});
   return list;
 }
 function sh(n){
@@ -288,17 +288,22 @@ function place(n,dir,edge,top){
   }
   if(n.collapsed) shift(n,n.x-ox,n.y-oy);
 }
-function arrange(noSnap){
-  if(!noSnap) snapshot();
-  sh(root); if(root.collapsed) return;
+function fixSides(){
+  root.children.forEach(function(c){if(c.side!==1&&c.side!==-1) c.side=(c.x||0)>=root.x?1:-1;});
+}
+function layoutOne(r,main){
+  sh(r); if(r.collapsed) return;
   var R=[],L=[];
-  root.children.forEach(function(c){(c.x>=root.x?R:L).push(c);});
+  if(main) r.children.forEach(function(c){(c.side===-1?L:R).push(c);});
+  else if(r.side===-1) L=r.children.slice(); else R=r.children.slice();
   [[R,1],[L,-1]].forEach(function(g){
     var tot=0; g[0].forEach(function(c,i){tot+=c.sh+(i?GAP:0);});
-    var cy=root.y-tot/2;
-    g[0].forEach(function(c){place(c,g[1],root.x+g[1]*root.w/2,cy);cy+=c.sh+GAP;});
+    var cy=r.y-tot/2;
+    g[0].forEach(function(c){place(c,g[1],r.x+g[1]*r.w/2,cy);cy+=c.sh+GAP;});
   });
 }
+function layoutAll(){fixSides(); layoutOne(root,true); floats.forEach(function(f){layoutOne(f,false);});}
+function arrange(noSnap){if(!noSnap) snapshot(); layoutAll();}
 function nudge(n){
   var sub=collect(n,{});
   for(var i=0;i<80;i++){
@@ -331,6 +336,7 @@ function ink(col){
 function tcol(n){var f=n.fill||(n._d===0?"var(--root)":null);return n.tc||(f?ink(f):"var(--text)");}
 function render(){
   visList();
+  if(!(drag&&drag.m==="node"&&drag.moved)) layoutAll();
   syncMedia();
   var links="",nodes="",tog="",plus="",sn=null;
   list.forEach(function(n){
@@ -348,10 +354,15 @@ function render(){
       tog+='<g class="tog" data-tog="'+n.id+'"><circle cx="'+n.x+'" cy="'+ty+'" r="8" style="stroke:'+n._c+'"/><text x="'+n.x+'" y="'+ty+'" dominant-baseline="central">'+(n.collapsed?n.children.length:"−")+'</text></g>';
     }
   });
-  if(sn&&!editing&&!(drag&&drag.moved)) [-1,1].forEach(function(d){
+  if(sn&&!editing&&!(drag&&drag.moved)) (sn===root?[-1,1]:[sn._dir===-1?-1:1]).forEach(function(d){
     var px=sn.x+d*(sn.w/2+22);
     plus+='<g class="add" data-add="'+d+'"><circle cx="'+px+'" cy="'+sn.y+'" r="12"/><text x="'+px+'" y="'+sn.y+'" dominant-baseline="central">+</text></g>';
   });
+  if(drag&&drag.moved&&drag.ins&&drag.ins.sibs.length){
+    var I=drag.ins, S=I.sibs, iy;
+    if(I.idx<=0) iy=S[0].y-S[0].h/2-GAP/2; else if(I.idx>=S.length) iy=S[S.length-1].y+S[S.length-1].h/2+GAP/2; else iy=(S[I.idx-1].y+S[I.idx].y)/2;
+    plus+='<rect x="'+(S[0].x-S[0].w/2)+'" y="'+(iy-2)+'" width="'+S[0].w+'" height="4" rx="2" style="fill:var(--accent)"/>';
+  }
   vp.innerHTML=links+nodes+tog+plus;
   applyView();
   $("bUndo").disabled=!undoStack.length;
@@ -414,23 +425,23 @@ ed.addEventListener("keydown",function(e){
 ed.addEventListener("blur",function(){endEdit(true);});
 
 function addAt(dir,c0){
-  var r=find(root,selId); if(!r) return; var n=r.node; snapshot(); visList();
-  var c=c0||mk("新節點"); if(!c0){c.w=measure(c,false); c.h=H;}
-  var sib=n.children.filter(function(k){return (k.x>=n.x)===(dir>0);}), y=n.y;
-  if(sib.length) y=Math.max.apply(null,sib.map(function(k){return k.y;}))+H+GAP;
-  c.x=n.x+dir*(n.w/2+HGAP+c.w/2); c.y=y;
-  n.children.push(c); n.collapsed=false; visList(); nudge(c);
-  selId=c.id; commit(); if(!c0) startEdit(c.id);
+  var r=find(root,selId); if(!r) return; var n=r.node; snapshot();
+  var c=c0||mk("新節點"); c.x=n.x; c.y=n.y;
+  n.children.push(c); n.collapsed=false;
+  if(n===root) c.side=dir<0?-1:1;
+  msel={}; selId=c.id; commit(); if(!c0) startEdit(c.id);
 }
 function addChild(){
-  var r=find(root,selId); if(!r) return;
-  addAt(r.parent&&r.node.x<r.parent.x?-1:1);
+  var r=find(root,selId); if(!r) return; var n=r.node, d=1;
+  if(n===root){var l=n.children.filter(function(c){return c.side===-1;}).length; d=l<n.children.length-l?-1:1;}
+  addAt(d);
 }
 function addSibling(){
-  var r=find(root,selId); if(!r||!r.parent) return; snapshot(); visList();
-  var n=r.node, c=mk("新節點"); c.w=measure(c,false); c.h=H; c.x=n.x; c.y=n.y+n.h+GAP;
-  r.parent.children.splice(r.parent.children.indexOf(n)+1,0,c); visList(); nudge(c);
-  selId=c.id; commit(); startEdit(c.id);
+  var r=find(root,selId); if(!r||!r.parent) return; snapshot();
+  var n=r.node, c=mk("新節點"); c.x=n.x; c.y=n.y;
+  if(r.parent===root) c.side=n.side===-1?-1:1;
+  r.parent.children.splice(r.parent.children.indexOf(n)+1,0,c);
+  msel={}; selId=c.id; commit(); startEdit(c.id);
 }
 function del(){
   var all=selNodes(), ns=tops(all).filter(function(n){return n!==root;});
@@ -446,7 +457,7 @@ function unlink(){
   var ns=selNodes().filter(function(n){var r=find(root,n.id);return r&&r.parent;});
   if(!ns.length) return; snapshot();
   ns.forEach(function(n){var r=find(root,n.id); if(!r||!r.parent) return;
-    r.parent.children.splice(r.parent.children.indexOf(n),1); floats.push(n); put(n,n.x+30,n.y+36);});
+    r.parent.children.splice(r.parent.children.indexOf(n),1); n.side=n._dir===-1?-1:1; floats.push(n); put(n,n.x+30,n.y+36);});
   commit(); toast("已取消連結");
 }
 function toggle(id){
@@ -461,27 +472,44 @@ function setColor(c,noSnap){
   var ns=selNodes(); if(!ns.length) return; if(!noSnap) snapshot();
   ns.forEach(function(n){if(c) n[target]=c; else delete n[target];}); commit();
 }
-function reparent(id,tid){
+function reparent(id,tid,w){
   var r=find(root,id), t=find(root,tid); if(!r||!t||r.node===root) return;
   var n=r.node, tn=t.node;
-  if(!n.media&&tn.media&&!t.parent&&!collect(tn,{})[n.id]){var sw=n;n=tn;tn=sw;}
+  if(!n.media&&tn.media&&!t.parent&&tn!==root&&!collect(tn,{})[n.id]){var sw=n;n=tn;tn=sw;}
   var rr=find(root,n.id);
   if(rr.parent) rr.parent.children.splice(rr.parent.children.indexOf(n),1); else floats.splice(floats.indexOf(n),1);
-  tn.children.push(n); tn.collapsed=false; visList();
-  var dir=n.x>=tn.x?1:-1, y=tn.y;
-  var s=tn.children.filter(function(k){return k!==n&&(k.x>=tn.x)===(dir>0);});
-  if(s.length) y=Math.max.apply(null,s.map(function(k){return k.y;}))+H+GAP;
-  put(n,tn.x+dir*(tn.w/2+HGAP+n.w/2),y); visList(); nudge(n);
+  tn.children.push(n); tn.collapsed=false;
+  if(tn===root) n.side=(w&&w.x<root.x)?-1:1;
   selId=r.node.id; toast("已連結");
 }
+function insertPt(n,par,w){
+  var top=par===root, sd=top?(w.x>=root.x?1:-1):0;
+  var sibs=par.children.filter(function(c){return c!==n&&(!top||(c.side===-1?-1:1)===sd);});
+  var i=0; while(i<sibs.length&&sibs[i].y<w.y) i++;
+  return {par:par,sd:sd,sibs:sibs,idx:i};
+}
+function applyIns(dg){
+  var I=dg.ins, r=find(root,dg.id); if(!I||!r||!r.parent||I.par!==r.parent) return;
+  var n=r.node, par=r.parent, at;
+  par.children.splice(par.children.indexOf(n),1);
+  if(I.sibs[I.idx]) at=par.children.indexOf(I.sibs[I.idx]);
+  else if(I.sibs.length) at=par.children.indexOf(I.sibs[I.sibs.length-1])+1;
+  else at=par.children.length;
+  par.children.splice(at,0,n);
+  if(par===root) n.side=I.sd;
+}
 function nav(dir){
-  var r=find(root,selId); if(!r) return; var n=r.node, p=r.parent, t=null;
-  function kid(d){return (n.collapsed?[]:n.children).filter(function(c){return (c.x>=n.x)===(d>0);})[0];}
-  if(dir==="Left") t=(p&&n.x>=p.x)?p:kid(-1);
-  else if(dir==="Right") t=(p&&n.x<p.x)?p:kid(1);
-  else if(p){
-    var s=p.children.filter(function(c){return (c.x>=p.x)===(n.x>=p.x);}).sort(function(a,b){return a.y-b.y;});
-    t=s[s.indexOf(n)+(dir==="Up"?-1:1)];
+  var r=find(root,selId); if(!r) return; var n=r.node, p=r.parent, t=null, d=n._dir||1;
+  var vis=n.collapsed?[]:n.children;
+  function sideOf(c){return c.side===-1?-1:1;}
+  if(dir==="Left"||dir==="Right"){
+    var want=dir==="Left"?-1:1;
+    if(n===root) t=vis.filter(function(c){return sideOf(c)===want;})[0];
+    else if(d===want) t=vis[0];
+    else t=p;
+  }else if(p){
+    var sb=p.children.filter(function(c){return p!==root||sideOf(c)===sideOf(n);});
+    t=sb[sb.indexOf(n)+(dir==="Up"?-1:1)];
   }
   if(t) select(t.id);
 }
@@ -527,13 +555,18 @@ stage.addEventListener("pointermove",function(e){
     return;
   }
   if(drag.m==="pan"){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>4) drag.moved=true; view.x=drag.vx+e.clientX-drag.x;view.y=drag.vy+e.clientY-drag.y;applyView();return;}
-  if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return; drag.moved=true; snapshot();}
+  if(!drag.moved){
+    if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return;
+    var r0=find(root,drag.id);
+    if(!r0||drag.grp||r0.node===root){drag.still=true; return;}
+    drag.moved=true; snapshot();
+  }
   var r=find(root,drag.id); if(!r) return;
   var dx=(e.clientX-drag.lx)/view.k, dy=(e.clientY-drag.ly)/view.k; drag.lx=e.clientX; drag.ly=e.clientY;
-  if(drag.grp){tops(selNodes()).forEach(function(n){n.x+=dx;n.y+=dy;shift(n,dx,dy);}); dropId=null; render(); return;}
   r.node.x+=dx; r.node.y+=dy; shift(r.node,dx,dy);
   var w=toWorld(e.clientX,e.clientY), o=nodeAt(w.x,w.y,collect(r.node,{}));
-  dropId=o?o.id:null; render();
+  dropId=o?o.id:null; drag.w=w; drag.ins=(o||!r.parent)?null:insertPt(r.node,r.parent,w);
+  render();
 });
 function up(e){
   delete pts[e.pointerId]; if(Object.keys(pts).length<2) pinch=null;
@@ -546,7 +579,8 @@ function up(e){
       setSel(hit); commit(); if(hit.length>1) toast("已選取 "+hit.length+" 個項目");
     }else if(!drag.moved){msel={};selId=null;commit();}
   }
-  else if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
+  else if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId,drag.w); else if(drag.ins) applyIns(drag); dropId=null; drag.ins=null; drag.moved=false; commit();}
+  else if(drag&&drag.still){}
   else if(drag&&e.type==="pointerup"&&drag.grp){msel={};selId=drag.id;commit();}
   else if(drag&&e.type==="pointerup"&&drag.m==="node"){
     var now=Date.now(), fr=find(root,drag.id);
@@ -580,7 +614,6 @@ window.addEventListener("resize",function(){if(editing) endEdit(true);});
 $("bChild").onclick=addChild; $("bSib").onclick=addSibling; $("bUnl").onclick=unlink; $("bMq").onclick=function(){mqMode=!mqMode;stage.style.cursor=mqMode?"crosshair":"";render();};
 $("bEdit").onclick=function(){startEdit(selId);}; $("bDel").onclick=del;
 $("bUndo").onclick=undo; $("bFit").onclick=fit;
-$("bArr").onclick=function(){arrange();commit();fit();toast("已自動整理");};
 $("bZin").onclick=function(){zoomAt(1.2,stage.clientWidth/2,stage.clientHeight/2);};
 $("bZout").onclick=function(){zoomAt(1/1.2,stage.clientWidth/2,stage.clientHeight/2);};
 $("bTheme").onclick=function(){
@@ -749,7 +782,7 @@ function cnt(n){var c=1; n.children.forEach(function(k){c+=cnt(k);}); return c;}
 function countAll(P){var c=cnt(P.root); P.floats.forEach(function(f){c+=cnt(f);}); return c;}
 function thumbSvg(P){
   var sr=root, sf=floats; root=P.root; floats=P.floats;
-  var L=visList(), a=1e9, b=-1e9, c=1e9, d=-1e9, links="", nodes="";
+  visList(); layoutAll(); var L=visList(), a=1e9, b=-1e9, c=1e9, d=-1e9, links="", nodes="";
   L.forEach(function(n){a=Math.min(a,n.x-n.w/2);b=Math.max(b,n.x+n.w/2);c=Math.min(c,n.y-n.h/2);d=Math.max(d,n.y+n.h/2);});
   L.forEach(function(n){
     if(!n.collapsed) n.children.forEach(function(k){
