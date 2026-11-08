@@ -66,7 +66,12 @@ button:disabled{opacity:.4;cursor:default}
 .tg{padding:6px 9px;font-size:13px}.tg.on{background:var(--accent);color:#fff}
 #hint{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);font-size:12.5px;line-height:1.7;color:var(--muted);background:var(--bar);border:1px solid var(--line);border-radius:10px;padding:8px 12px;z-index:4;max-width:calc(100% - 24px)}
 #hint kbd{font:inherit;font-weight:700;color:var(--text)}
-@media (max-width:640px){#hint{display:none}}
+@media (max-width:900px){#hint{display:none}}
+#pages{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;gap:4px;align-items:center;max-width:calc(100% - 24px);overflow-x:auto;padding:5px;border-radius:12px;background:var(--bar);border:1px solid var(--line);backdrop-filter:blur(8px);z-index:5}
+@media (min-width:901px){#pages{max-width:calc(100% - 560px)}}
+#pages button{flex:none;padding:6px 12px;font-size:13.5px}
+#pages .pg{max-width:160px;overflow:hidden;text-overflow:ellipsis}
+#pages .pg.on{background:var(--accent);color:#fff}
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);padding:18px;width:min(520px,calc(100% - 32px));font:inherit}
 dialog::backdrop{background:#0008}
 dialog h2{margin:0 0 6px;font-size:17px}
@@ -107,8 +112,10 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
   選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>圖片可上傳、拖入或直接貼上（Ctrl／⌘＋V），點影片縮圖即播放<br>把節點拖到圖片或影片上即可連結；「取消連結」可分開<br>「框選」鈕或 Shift＋拖曳框選多個，Shift／Ctrl＋點擊可加減選<br>拖曳空白處平移，滾輪縮放
 </div>
+<div id="pages" role="tablist" aria-label="心智圖頁面"></div>
 <input id="ed" aria-label="節點文字" maxlength="80">
 <input type="file" id="fimg" accept="image/*" hidden>
+<dialog id="pgdlg"><h2>頁面設定</h2><p>修改目前頁面的名稱，或複製、刪除這一頁。</p><input id="pgname" maxlength="30" aria-label="頁面名稱"><div class="row"><button id="pgdel">刪除此頁</button><button id="pgdup">複製此頁</button><button id="pgcancel">取消</button><button id="pgok" class="primary">儲存</button></div></dialog>
 <dialog id="vdlg"><h2 id="vt">加入影片連結</h2><p>貼上影片網址。YouTube 會自動顯示縮圖，其他網站顯示通用影片卡片。</p><input id="vurl" type="url" placeholder="https://www.youtube.com/watch?v=…" aria-label="影片網址"><input id="vtitle" placeholder="標題（選填）" maxlength="40" aria-label="標題"><div class="row"><button id="vok" class="primary">確定</button><button id="vcancel">取消</button></div></dialog>
 <dialog id="pdlg"><div id="pbox"></div><div class="row"><button id="popen">在新分頁開啟</button><button id="pclose" class="primary">關閉</button></div></dialog>
 <dialog id="idlg"><img id="bigimg" alt=""><div class="row"><button id="iclose">關閉</button></div></dialog>
@@ -116,7 +123,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 
 <dialog id="dlg">
   <h2>匯出／匯入</h2>
-  <p>下方是目前心智圖的 JSON。複製後可自行保存；貼上其他內容再按「匯入」即可載入。</p>
+  <p>下方是所有頁面的 JSON。複製後可自行保存。匯入多頁內容會新增為新的頁面；匯入舊版單頁內容則會取代目前頁面。</p>
   <textarea id="ta" spellcheck="false"></textarea>
   <div class="row">
     <button id="dCopy">複製</button>
@@ -127,7 +134,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 
 <script>
 (function(){
-var KEY="mindmap-v2", OLD="mindmap-v1";
+var KEY="mindmap-v3", V2="mindmap-v2", OLD="mindmap-v1";
 var H=38, RH=46, GAP=14, HGAP=60, PAD=18;
 var PAL=["var(--c0)","var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)"];
 var uid=1, root, selId, msel={}, mqMode=false, floats=[], view={x:0,y:0,k:1}, undoStack=[], editing=null, dropId=null, list=[], needArr=false;
@@ -135,6 +142,7 @@ var drag=null, pts={}, pinch=null, cpSnap=false, lastTap={}, desTimer=null, selC
 function $(id){return document.getElementById(id);}
 var svg=$("svg"), vp=$("vp"), stage=$("stage"), ed=$("ed"), toastEl=$("toast");
 var cv=document.createElement("canvas").getContext("2d");
+var pages=[], cur=0, undos={}, pgConfirm=false;
 
 function mk(text,x,y){return {id:"n"+(uid++),text:text,children:[],collapsed:false,x:x||0,y:y||0};}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
@@ -160,7 +168,7 @@ function find(n,id,parent){
 function collect(n,s){s[n.id]=1;n.children.forEach(function(c){collect(c,s);});return s;}
 function shift(n,dx,dy){n.children.forEach(function(c){c.x+=dx;c.y+=dy;shift(c,dx,dy);});}
 function put(n,x,y){var dx=x-n.x,dy=y-n.y;n.x=x;n.y=y;shift(n,dx,dy);}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({root:root,floats:floats,uid:uid,sel:selId}));}catch(e){toast("瀏覽器儲存空間不足，請用「匯出」備份");}}
+function save(){try{syncP(); localStorage.setItem(KEY,JSON.stringify({pages:pages,cur:cur,uid:uid}));}catch(e){toast("瀏覽器儲存空間不足，請用「匯出」備份");}}
 function snapshot(){undoStack.push(JSON.stringify({r:root,f:floats}));if(undoStack.length>60)undoStack.shift();}
 function fixUid(n){var m=parseInt(String(n.id).slice(1),10)||0;if(m>=uid)uid=m+1;n.children.forEach(fixUid);}
 var target="fill";
@@ -183,12 +191,29 @@ function clean(n){
   var o={text:n.text,collapsed:!!n.collapsed,x:Math.round(n.x),y:Math.round(n.y),children:n.children.map(clean)};
   ["fill","bd","tc"].forEach(function(k){if(n[k]) o[k]=n[k];}); if(n.media) o.media=n.media; return o;
 }
+function pid(){return "p"+Date.now().toString(36)+Math.floor(Math.random()*1e5).toString(36);}
+function newPage(name,r,f,sel){return {id:pid(),name:name,root:r,floats:f||[],sel:sel||null};}
+function syncP(){var P=pages[cur]; if(!P) return; P.root=root; P.floats=floats; P.sel=selId;}
+function useP(){
+  var P=pages[cur]; root=P.root; floats=P.floats; msel={}; drag=null; dropId=null; lastTap={}; selClicks=0;
+  selId=P.sel&&find(root,P.sel)?P.sel:null; undoStack=undos[P.id]||[];
+}
+function wrap(){pages=[newPage("心智圖 1",root,floats,selId)]; cur=0;}
 function load(){
   try{var s=JSON.parse(localStorage.getItem(KEY));
-    if(s&&s.root&&Array.isArray(s.root.children)){root=s.root;uid=s.uid||1;selId=s.sel;floats=s.floats||[];fixUid(root);norm(root);floats.forEach(function(f){fixUid(f);norm(f);});return;}}catch(e){}
+    if(s&&Array.isArray(s.pages)){
+      pages=s.pages.filter(function(p){return p&&p.root&&Array.isArray(p.root.children);});
+      if(pages.length){
+        uid=s.uid||1;
+        pages.forEach(function(p){p.id=p.id||pid(); p.floats=Array.isArray(p.floats)?p.floats:[]; p.name=String(p.name||"心智圖").slice(0,30);
+          fixUid(p.root); norm(p.root); p.floats.forEach(function(f){fixUid(f);norm(f);});});
+        cur=Math.min(Math.max(+s.cur||0,0),pages.length-1); useP(); return;}
+    }}catch(e){}
+  try{var s2=JSON.parse(localStorage.getItem(V2));
+    if(s2&&s2.root&&Array.isArray(s2.root.children)){root=s2.root;uid=s2.uid||1;selId=s2.sel;floats=s2.floats||[];fixUid(root);norm(root);floats.forEach(function(f){fixUid(f);norm(f);});wrap();useP();return;}}catch(e){}
   try{var o=JSON.parse(localStorage.getItem(OLD));
-    if(o&&o.root){needArr=false;root=rebuild(o.root,true);arrange(true);selId=root.id;return;}}catch(e){}
-  sample(); selId=root.id;
+    if(o&&o.root){needArr=false;root=rebuild(o.root,true);floats=[];arrange(true);selId=root.id;wrap();useP();return;}}catch(e){}
+  sample(); floats=[]; selId=root.id; wrap(); useP();
 }
 function commit(){render();save();}
 
@@ -651,9 +676,69 @@ stage.addEventListener("drop",function(e){
   if(fs&&fs[0]&&/^image\//.test(fs[0].type)) loadImage(fs[0]);
 });
 
+/* ---------- 多頁面 ---------- */
+function renderTabs(){
+  var box=$("pages"); box.textContent="";
+  pages.forEach(function(p,i){
+    var b=document.createElement("button"); b.className="pg"+(i===cur?" on":""); b.textContent=p.name;
+    b.setAttribute("role","tab"); b.setAttribute("aria-selected",i===cur?"true":"false");
+    b.title=i===cur?"目前頁面（雙擊可重新命名）":"切換到此頁";
+    b.onclick=function(){if(i!==cur) switchTo(i);};
+    b.ondblclick=function(){if(i===cur) openPg();};
+    box.appendChild(b);
+  });
+  var a=document.createElement("button"); a.textContent="＋"; a.title="新增頁面"; a.setAttribute("aria-label","新增頁面"); a.onclick=addPage; box.appendChild(a);
+  var m=document.createElement("button"); m.textContent="⋯"; m.title="頁面設定（重新命名、複製、刪除）"; m.setAttribute("aria-label","頁面設定"); m.onclick=openPg; box.appendChild(m);
+  var on=box.querySelector(".on"); if(on&&on.scrollIntoView){try{on.scrollIntoView({block:"nearest",inline:"nearest"});}catch(e){}}
+}
+function stash(){syncP(); undos[pages[cur].id]=undoStack;}
+function switchTo(i){
+  if(editing) endEdit(true);
+  stash(); cur=i; useP(); commit(); fit(); renderTabs();
+}
+function addPage(){
+  if(editing) endEdit(true);
+  stash();
+  var n=pages.length+1, names=pages.map(function(p){return p.name;});
+  while(names.indexOf("心智圖 "+n)>=0) n++;
+  var r=mk("中心主題"); pages.push(newPage("心智圖 "+n,r,[],r.id)); cur=pages.length-1;
+  useP(); commit(); fit(); renderTabs(); toast("已新增頁面");
+}
+function dupPage(){
+  stash(); var P=pages[cur], c=JSON.parse(JSON.stringify({r:P.root,f:P.floats}));
+  pages.splice(cur+1,0,newPage((P.name+" 副本").slice(0,30),c.r,c.f,P.sel)); cur=cur+1;
+  useP(); commit(); fit(); renderTabs(); toast("已複製頁面");
+}
+function delPage(){
+  if(pages.length<2) return;
+  delete undos[pages[cur].id]; pages.splice(cur,1); cur=Math.min(cur,pages.length-1);
+  useP(); commit(); fit(); renderTabs(); toast("已刪除頁面");
+}
+function openPg(){
+  pgConfirm=false; $("pgname").value=pages[cur].name; $("pgdel").textContent="刪除此頁"; $("pgdel").disabled=pages.length<2;
+  $("pgdlg").showModal(); $("pgname").focus(); $("pgname").select();
+}
+$("pgok").onclick=function(){var v=$("pgname").value.trim().slice(0,30); if(v){pages[cur].name=v; save(); renderTabs();} $("pgdlg").close();};
+$("pgname").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.isComposing){e.preventDefault();$("pgok").click();}});
+$("pgcancel").onclick=function(){$("pgdlg").close();};
+$("pgdup").onclick=function(){$("pgdlg").close(); dupPage();};
+$("pgdel").onclick=function(){
+  if(!pgConfirm){pgConfirm=true; this.textContent="再按一次確認刪除"; return;}
+  $("pgdlg").close(); delPage();
+};
+
 /* ---------- 匯出／匯入 ---------- */
 var dlg=$("dlg"), ta=$("ta");
-$("bIO").onclick=function(){var o=clean(root); o.floats=floats.map(clean); ta.value=JSON.stringify(o,null,2);dlg.showModal();};
+function buildMap(j){
+  needArr=false; var n=rebuild(j), fl=(Array.isArray(j.floats)?j.floats:[]).map(function(f){return rebuild(f);});
+  if(needArr){var sr=root,sf=floats; root=n; floats=fl; arrange(true); root=sr; floats=sf;}
+  return {root:n,floats:fl};
+}
+$("bIO").onclick=function(){
+  syncP();
+  ta.value=JSON.stringify({pages:pages.map(function(p){var o=clean(p.root); o.floats=p.floats.map(clean); return {name:p.name,map:o};})},null,2);
+  dlg.showModal();
+};
 $("dClose").onclick=function(){dlg.close();};
 $("dCopy").onclick=function(){
   ta.select();
@@ -662,14 +747,20 @@ $("dCopy").onclick=function(){
 };
 $("dImp").onclick=function(){
   try{
-    needArr=false; var j=JSON.parse(ta.value), n=rebuild(j), fl=(Array.isArray(j.floats)?j.floats:[]).map(function(f){return rebuild(f);}); snapshot(); root=n; floats=fl; selId=root.id;
-    if(needArr) arrange(true); dlg.close(); commit(); fit(); toast("已匯入");
+    var j=JSON.parse(ta.value);
+    if(Array.isArray(j.pages)&&j.pages.length){
+      var ps=j.pages.slice(0,50).map(function(p,i){var m=buildMap((p&&p.map)||{}); return newPage(String((p&&p.name)||("匯入頁面 "+(i+1))).slice(0,30),m.root,m.floats,m.root.id);});
+      stash(); var first=pages.length; pages=pages.concat(ps); cur=first; useP();
+      dlg.close(); commit(); fit(); renderTabs(); toast("已匯入 "+ps.length+" 個頁面"); return;
+    }
+    var m1=buildMap(j); snapshot(); root=m1.root; floats=m1.floats; selId=root.id; msel={};
+    dlg.close(); commit(); fit(); toast("已匯入");
   }catch(e){toast("無法匯入：JSON 格式不正確");}
 };
 
 /* ---------- 啟動 ---------- */
 load(); if(selId&&!find(root,selId)) selId=null;
-render(); fit();
+render(); fit(); renderTabs();
 })();
 </script>
 </body>
