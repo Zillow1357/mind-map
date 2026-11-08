@@ -45,7 +45,9 @@ button.primary{background:var(--accent);color:#fff}
 button.primary:hover{background:var(--accent);filter:brightness(1.08)}
 button:disabled{opacity:.4;cursor:default}
 .sep{width:1px;background:var(--line);margin:4px 2px}
-#ed{position:fixed;display:none;z-index:8;font:inherit;font-size:15px;color:var(--text);background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:0 12px;box-sizing:border-box;-webkit-user-select:text;user-select:text}
+#ed{position:fixed;display:none;z-index:8;font:inherit;text-align:center;color:var(--text);background:transparent;border:0;border-radius:0;padding:0;margin:0;box-sizing:border-box;caret-color:var(--accent);-webkit-user-select:text;user-select:text}
+#ed:focus-visible{outline:none}
+.tg{padding:6px 9px;font-size:13px}.tg.on{background:var(--accent);color:#fff}
 #hint{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);font-size:12.5px;line-height:1.7;color:var(--muted);background:var(--bar);border:1px solid var(--line);border-radius:10px;padding:8px 12px;z-index:4;max-width:calc(100% - 24px)}
 #hint kbd{font:inherit;font-weight:700;color:var(--text)}
 @media (max-width:640px){#hint{display:none}}
@@ -69,7 +71,8 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
   <span class="sep"></span>
   <button id="bArr" title="自動整理版面">整理</button>
   <span class="sep"></span>
-  <button class="sw" data-c="var(--c0)" style="background:var(--c0)" aria-label="顏色 1"></button><button class="sw" data-c="var(--c1)" style="background:var(--c1)" aria-label="顏色 2"></button><button class="sw" data-c="var(--c2)" style="background:var(--c2)" aria-label="顏色 3"></button><button class="sw" data-c="var(--c3)" style="background:var(--c3)" aria-label="顏色 4"></button><button class="sw" data-c="var(--c4)" style="background:var(--c4)" aria-label="顏色 5"></button><button class="sw" data-c="var(--c5)" style="background:var(--c5)" aria-label="顏色 6"></button><input type="color" id="cpick" value="#2f6fed" aria-label="自訂顏色" title="自訂顏色"><button id="bClr" title="還原為預設顏色">預設色</button>
+  <button class="tg on" data-t="fill" title="修改節點內部顏色">填滿</button><button class="tg" data-t="tc" title="修改文字顏色">文字</button><button class="tg" data-t="bd" title="修改邊框與連線顏色">邊框</button>
+  <button class="sw" data-c="var(--c0)" style="background:var(--c0)" aria-label="顏色 1"></button><button class="sw" data-c="var(--c1)" style="background:var(--c1)" aria-label="顏色 2"></button><button class="sw" data-c="var(--c2)" style="background:var(--c2)" aria-label="顏色 3"></button><button class="sw" data-c="var(--c3)" style="background:var(--c3)" aria-label="顏色 4"></button><button class="sw" data-c="var(--c4)" style="background:var(--c4)" aria-label="顏色 5"></button><button class="sw" data-c="var(--c5)" style="background:var(--c5)" aria-label="顏色 6"></button><input type="color" id="cpick" value="#2f6fed" aria-label="自訂顏色" title="自訂顏色"><button id="bClr" title="還原目前項目的預設色">還原</button>
   <span class="sep"></span>
   <button id="bUndo" title="復原（Ctrl+Z）">復原</button>
   <button id="bFit" title="置中並縮放至適當大小">置中</button>
@@ -82,7 +85,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <div id="hint">
   <kbd>Tab</kbd> 新增子節點　<kbd>Enter</kbd> 新增同層　<kbd>F2</kbd>／雙擊 編輯<br>
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
-  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>拖曳空白處平移，滾輪縮放
+  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>再點一次已選取的節點或空白處可取消選取<br>拖曳空白處平移，滾輪縮放
 </div>
 <input id="ed" aria-label="節點文字" maxlength="80">
 <div id="toast"></div>
@@ -131,22 +134,24 @@ function put(n,x,y){var dx=x-n.x,dy=y-n.y;n.x=x;n.y=y;shift(n,dx,dy);}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({root:root,uid:uid,sel:selId}));}catch(e){}}
 function snapshot(){undoStack.push(JSON.stringify(root));if(undoStack.length>60)undoStack.shift();}
 function fixUid(n){var m=parseInt(String(n.id).slice(1),10)||0;if(m>=uid)uid=m+1;n.children.forEach(fixUid);}
+var target="fill";
+function norm(n){if(n.color){n.fill=n.fill||n.color;n.bd=n.bd||n.color;delete n.color;}n.children.forEach(norm);}
 function okColor(c){return typeof c==="string"&&(/^#[0-9a-f]{6}$/i.test(c)||/^var\(--c[0-5]\)$/.test(c));}
 function rebuild(o,legacy){
   if(!o||typeof o.text!=="string") throw new Error("格式錯誤");
   var n=mk(o.text.slice(0,80)); n.collapsed=!!o.collapsed;
-  if(!legacy&&okColor(o.color)) n.color=o.color;
+  if(!legacy){["fill","bd","tc"].forEach(function(k){if(okColor(o[k])) n[k]=o[k];}); if(okColor(o.color)){n.fill=n.fill||o.color;n.bd=n.bd||o.color;}}
   if(!legacy&&typeof o.x==="number"&&typeof o.y==="number"){n.x=o.x;n.y=o.y;} else needArr=true;
   n.children=(Array.isArray(o.children)?o.children:[]).map(function(c){return rebuild(c,legacy);});
   return n;
 }
 function clean(n){
   var o={text:n.text,collapsed:!!n.collapsed,x:Math.round(n.x),y:Math.round(n.y),children:n.children.map(clean)};
-  if(n.color) o.color=n.color; return o;
+  ["fill","bd","tc"].forEach(function(k){if(n[k]) o[k]=n[k];}); return o;
 }
 function load(){
   try{var s=JSON.parse(localStorage.getItem(KEY));
-    if(s&&s.root&&Array.isArray(s.root.children)){root=s.root;uid=s.uid||1;selId=s.sel;fixUid(root);return;}}catch(e){}
+    if(s&&s.root&&Array.isArray(s.root.children)){root=s.root;uid=s.uid||1;selId=s.sel;fixUid(root);norm(root);return;}}catch(e){}
   try{var o=JSON.parse(localStorage.getItem(OLD));
     if(o&&o.root){needArr=false;root=rebuild(o.root,true);arrange(true);selId=root.id;return;}}catch(e){}
   sample(); selId=root.id;
@@ -162,7 +167,7 @@ function visList(){
   list=[];
   (function w(n,d,pc,i){
     n.w=measure(n,d===0); n.h=d===0?RH:H; n._d=d;
-    n._c=n.color||(d===0?"var(--root)":d===1?PAL[i%6]:pc);
+    n._c=n.bd||(d===0?"var(--root)":d===1?PAL[i%6]:pc);
     list.push(n);
     if(!n.collapsed) n.children.forEach(function(c,j){w(c,d+1,n._c,j);});
   })(root,0,"",0);
@@ -218,6 +223,7 @@ function ink(col){
   }
   return "var(--roottext)";
 }
+function tcol(n){var f=n.fill||(n._d===0?"var(--root)":null);return n.tc||(f?ink(f):"var(--text)");}
 function render(){
   visList();
   var links="",nodes="",tog="",plus="",sn=null;
@@ -226,11 +232,11 @@ function render(){
       var rt=c.x>=n.x, x1=n.x+(rt?1:-1)*n.w/2, x2=c.x+(rt?-1:1)*c.w/2, mx=(x1+x2)/2;
       links+='<path d="M'+x1+' '+n.y+'C'+mx+' '+n.y+' '+mx+' '+c.y+' '+x2+' '+c.y+'" fill="none" stroke="'+c._c+'" stroke-width="'+(n._d===0?3:2)+'" stroke-linecap="round" opacity=".8"/>';
     });
-    var isRoot=n._d===0, fill=n.color||(isRoot?n._c:null), x=n.x-n.w/2, y=n.y-n.h/2, sel=n.id===selId, drop=n.id===dropId;
+    var isRoot=n._d===0, fill=n.fill||(isRoot?"var(--root)":null), x=n.x-n.w/2, y=n.y-n.h/2, sel=n.id===selId, drop=n.id===dropId;
     if(sel) sn=n;
-    nodes+='<g class="node'+(isRoot?" root":"")+'" data-id="'+n.id+'"><rect x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" style="stroke:'+(isRoot?"none":n._c)+';fill:'+(fill||"var(--surface)")+'"/>'+
+    nodes+='<g class="node'+(isRoot?" root":"")+'" data-id="'+n.id+'"><rect x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" style="stroke:'+(isRoot&&!n.bd?"none":n._c)+';fill:'+(fill||"var(--surface)")+'"/>'+
       ((sel||drop)?'<rect class="halo" x="'+(x-5)+'" y="'+(y-5)+'" width="'+(n.w+10)+'" height="'+(n.h+10)+'" rx="'+(n.h/2+5)+'" style="fill:none;stroke:var(--accent);stroke-width:'+(drop?3:2)+(drop?";stroke-dasharray:6 4":"")+'"/>':"")+
-      '<text x="'+n.x+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" style="fill:'+(fill?ink(fill):"var(--text)")+'">'+esc(n.text)+'</text></g>';
+      '<text x="'+n.x+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" style="fill:'+tcol(n)+'">'+(editing===n.id?"":esc(n.text))+'</text></g>';
     if(n.children.length){
       var ty=n.y+n.h/2+11;
       tog+='<g class="tog" data-tog="'+n.id+'"><circle cx="'+n.x+'" cy="'+ty+'" r="8" style="stroke:'+n._c+'"/><text x="'+n.x+'" y="'+ty+'" dominant-baseline="central">'+(n.collapsed?n.children.length:"−")+'</text></g>';
@@ -243,7 +249,9 @@ function render(){
   vp.innerHTML=links+nodes+tog+plus;
   applyView();
   $("bUndo").disabled=!undoStack.length;
-  $("bDel").disabled=$("bSib").disabled=selId===root.id;
+  var none=!selId||!find(root,selId);
+  $("bChild").disabled=$("bEdit").disabled=none;
+  $("bDel").disabled=$("bSib").disabled=none||selId===root.id;
 }
 function applyView(){vp.setAttribute("transform","translate("+view.x+","+view.y+") scale("+view.k+")");}
 function fit(){
@@ -260,20 +268,31 @@ function zoomAt(f,cx,cy){
 
 /* ---------- 編輯與操作 ---------- */
 function select(id){selId=id;render();save();}
+var editOrig="";
+function posEd(){
+  var r=find(root,editing); if(!r) return;
+  var g=vp.querySelector('[data-id="'+editing+'"] rect'); if(!g) return;
+  var b=g.getBoundingClientRect(), n=r.node, isRoot=n._d===0;
+  ed.style.left=b.left+"px"; ed.style.top=b.top+"px"; ed.style.width=b.width+"px"; ed.style.height=b.height+"px";
+  ed.style.fontSize=(isRoot?18:15)*view.k+"px"; ed.style.fontWeight=isRoot?"700":"400"; ed.style.color=tcol(n);
+}
 function startEdit(id){
   var r=find(root,id); if(!r) return;
-  selId=id; render();
-  var rect=vp.querySelector('[data-id="'+id+'"] rect').getBoundingClientRect(), w=Math.max(rect.width,150);
-  ed.style.display="block"; ed.style.left=(rect.left+rect.width/2-w/2)+"px"; ed.style.top=rect.top+"px";
-  ed.style.width=w+"px"; ed.style.height=rect.height+"px"; ed.style.textAlign="center";
-  ed.value=r.node.text; editing=id; ed.focus(); ed.select();
+  if(editing) endEdit(true);
+  selId=id; editing=id; editOrig=r.node.text; render();
+  ed.style.display="block"; ed.value=r.node.text; posEd(); ed.focus();
+  if(r.node.text==="新節點") ed.select(); else ed.setSelectionRange(ed.value.length,ed.value.length);
 }
 function endEdit(ok){
   if(!editing) return; var id=editing; editing=null; ed.style.display="none";
   var v=ed.value.trim(), r=find(root,id);
-  if(ok&&v&&r&&v!==r.node.text){snapshot();r.node.text=v;}
+  if(r){r.node.text=editOrig; if(ok&&v&&v!==editOrig){snapshot();r.node.text=v;}}
   commit();
 }
+ed.addEventListener("input",function(){
+  var r=find(root,editing); if(!r) return;
+  r.node.text=ed.value; render(); posEd();
+});
 ed.addEventListener("keydown",function(e){
   e.stopPropagation();
   if(e.key==="Enter"&&!e.isComposing){e.preventDefault();endEdit(true);}
@@ -312,11 +331,11 @@ function toggle(id){
 }
 function undo(){
   if(!undoStack.length) return; root=JSON.parse(undoStack.pop());
-  if(!find(root,selId)) selId=root.id; commit(); toast("已復原");
+  if(selId&&!find(root,selId)) selId=null; commit(); toast("已復原");
 }
 function setColor(c,noSnap){
   var r=find(root,selId); if(!r) return; if(!noSnap) snapshot();
-  if(c) r.node.color=c; else delete r.node.color; commit();
+  if(c) r.node[target]=c; else delete r.node[target]; commit();
 }
 function reparent(id,tid){
   var r=find(root,id), t=find(root,tid); if(!r||!r.parent||!t) return;
@@ -352,10 +371,10 @@ stage.addEventListener("pointerdown",function(e){
   stage.setPointerCapture(e.pointerId);
   var nd=e.target.closest("[data-id]");
   if(nd){
-    var id=nd.getAttribute("data-id"); if(selId!==id){selId=id;render();save();}
-    drag={m:"node",id:id,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,moved:false}; return;
+    var id=nd.getAttribute("data-id"), was=selId===id; if(!was){selId=id;render();save();}
+    drag={m:"node",id:id,was:was,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,moved:false}; return;
   }
-  drag={m:"pan",x:e.clientX,y:e.clientY,vx:view.x,vy:view.y}; stage.classList.add("pan");
+  drag={m:"pan",moved:false,x:e.clientX,y:e.clientY,vx:view.x,vy:view.y}; stage.classList.add("pan");
 });
 stage.addEventListener("pointermove",function(e){
   if(!pts[e.pointerId]) return;
@@ -366,7 +385,7 @@ stage.addEventListener("pointermove",function(e){
     zoomAt(d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2); pinch.d=d; return;
   }
   if(!drag) return;
-  if(drag.m==="pan"){view.x=drag.vx+e.clientX-drag.x;view.y=drag.vy+e.clientY-drag.y;applyView();return;}
+  if(drag.m==="pan"){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>4) drag.moved=true; view.x=drag.vx+e.clientX-drag.x;view.y=drag.vy+e.clientY-drag.y;applyView();return;}
   if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return; drag.moved=true; snapshot();}
   var r=find(root,drag.id); if(!r) return;
   var dx=(e.clientX-drag.lx)/view.k, dy=(e.clientY-drag.ly)/view.k; drag.lx=e.clientX; drag.ly=e.clientY;
@@ -377,6 +396,7 @@ stage.addEventListener("pointermove",function(e){
 function up(e){
   delete pts[e.pointerId]; if(Object.keys(pts).length<2) pinch=null;
   if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
+  else if(drag&&e.type==="pointerup"&&((drag.m==="node"&&drag.was)||(drag.m==="pan"&&!drag.moved))){selId=null;commit();}
   drag=null; stage.classList.remove("pan");
 }
 stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",up);
@@ -407,6 +427,7 @@ $("bTheme").onclick=function(){
 };
 Array.prototype.forEach.call(document.querySelectorAll(".sw"),function(b){b.onclick=function(){setColor(b.getAttribute("data-c"));};});
 $("bClr").onclick=function(){setColor(null);};
+Array.prototype.forEach.call(document.querySelectorAll(".tg"),function(b){b.onclick=function(){target=b.getAttribute("data-t");Array.prototype.forEach.call(document.querySelectorAll(".tg"),function(x){x.classList.toggle("on",x===b);});};});
 $("cpick").addEventListener("input",function(){setColor(this.value,cpSnap);if(!cpSnap){cpSnap=true;}});
 $("cpick").addEventListener("pointerdown",function(){snapshot();});
 $("cpick").addEventListener("change",function(){cpSnap=false;});
@@ -428,7 +449,7 @@ $("dImp").onclick=function(){
 };
 
 /* ---------- 啟動 ---------- */
-load(); if(!find(root,selId)) selId=root.id;
+load(); if(selId&&!find(root,selId)) selId=null;
 render(); fit();
 })();
 </script>
