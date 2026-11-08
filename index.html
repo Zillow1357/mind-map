@@ -34,6 +34,8 @@ svg{width:100%;height:100%;display:block}
 .mnode{position:absolute;box-sizing:border-box;border:2.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);pointer-events:auto;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none}
 .mnode.sel{outline:2px solid var(--accent);outline-offset:3px}
 .mnode.drop{outline:3px dashed var(--accent);outline-offset:3px}
+#mq{position:absolute;display:none;z-index:3;pointer-events:none;border:1.5px dashed var(--accent);background:rgba(47,111,237,.12);border-radius:4px}
+#bMq.on{background:var(--accent);color:#fff}
 .mnode img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
 .mnode .vfb{position:absolute;left:0;right:0;top:68%;text-align:center;font-size:12px;color:var(--muted)}
 .mnode .mplay{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(0,0,0,.55);pointer-events:none}
@@ -76,13 +78,14 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 </style>
 </head>
 <body>
-<div id="stage"><svg id="svg" role="application" aria-label="心智圖畫布"><g id="vp"></g></svg><div id="mlayer"></div></div>
+<div id="stage"><svg id="svg" role="application" aria-label="心智圖畫布"><g id="vp"></g></svg><div id="mlayer"></div><div id="mq"></div></div>
 <div id="bar">
   <button id="bChild" class="primary" title="新增子節點（Tab）">＋子節點</button>
   <button id="bSib" title="新增同層節點（Enter）">＋同層</button>
   <button id="bEdit" title="編輯文字（F2 或雙擊）">編輯</button>
   <button id="bDel" title="刪除節點（Delete）">刪除</button>
   <button id="bUnl" title="取消選取節點與上層的連結">取消連結</button>
+  <button id="bMq" title="框選模式：拖曳空白處框選多個項目（也可按住 Shift 拖曳）">框選</button>
   <button id="bImg" title="上傳圖片（也可直接貼上）">圖片</button>
   <button id="bVid" title="加入影片連結（也可直接貼上網址）">影片</button>
   <span class="sep"></span>
@@ -102,7 +105,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <div id="hint">
   <kbd>Tab</kbd> 新增子節點　<kbd>Enter</kbd> 新增同層　<kbd>F2</kbd>／雙擊 編輯<br>
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
-  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>圖片可上傳、拖入或直接貼上（Ctrl／⌘＋V），點影片縮圖即播放<br>把節點拖到圖片或影片上即可連結；「取消連結」可分開<br>拖曳空白處平移，滾輪縮放
+  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>圖片可上傳、拖入或直接貼上（Ctrl／⌘＋V），點影片縮圖即播放<br>把節點拖到圖片或影片上即可連結；「取消連結」可分開<br>「框選」鈕或 Shift＋拖曳框選多個，Shift／Ctrl＋點擊可加減選<br>拖曳空白處平移，滾輪縮放
 </div>
 <input id="ed" aria-label="節點文字" maxlength="80">
 <input type="file" id="fimg" accept="image/*" hidden>
@@ -127,7 +130,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 var KEY="mindmap-v2", OLD="mindmap-v1";
 var H=38, RH=46, GAP=14, HGAP=60, PAD=18;
 var PAL=["var(--c0)","var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)"];
-var uid=1, root, selId, floats=[], view={x:0,y:0,k:1}, undoStack=[], editing=null, dropId=null, list=[], needArr=false;
+var uid=1, root, selId, msel={}, mqMode=false, floats=[], view={x:0,y:0,k:1}, undoStack=[], editing=null, dropId=null, list=[], needArr=false;
 var drag=null, pts={}, pinch=null, cpSnap=false, lastTap={}, desTimer=null, selClicks=0;
 function $(id){return document.getElementById(id);}
 var svg=$("svg"), vp=$("vp"), stage=$("stage"), ed=$("ed"), toastEl=$("toast");
@@ -245,6 +248,13 @@ function nodeAt(x,y,ex){
     if(!(ex&&ex[n.id])&&Math.abs(x-n.x)<=n.w/2&&Math.abs(y-n.y)<=n.h/2) return n;}
   return null;
 }
+function mids(){return Object.keys(msel);}
+function selNodes(){
+  var ids=mids(); if(!ids.length&&selId) ids=[selId];
+  var out=[]; ids.forEach(function(i){var r=find(root,i); if(r) out.push(r.node);}); return out;
+}
+function setSel(a){msel={}; if(a.length>1){a.forEach(function(i){msel[i]=1;}); selId=null;} else selId=a[0]||null;}
+function tops(ns){return ns.filter(function(n){return !ns.some(function(o){return o!==n&&collect(o,{})[n.id];});});}
 function toWorld(cx,cy){var r=stage.getBoundingClientRect();return {x:(cx-r.left-view.x)/view.k,y:(cy-r.top-view.y)/view.k};}
 
 /* ---------- 繪製 ---------- */
@@ -265,8 +275,8 @@ function render(){
       var rt=c.x>=n.x, x1=n.x+(rt?1:-1)*n.w/2, x2=c.x+(rt?-1:1)*c.w/2, mx=(x1+x2)/2;
       links+='<path d="M'+x1+' '+n.y+'C'+mx+' '+n.y+' '+mx+' '+c.y+' '+x2+' '+c.y+'" fill="none" stroke="'+c._c+'" stroke-width="'+(n._d===0?3:2)+'" stroke-linecap="round" opacity=".8"/>';
     });
-    var isRoot=n._d===0, fill=n.fill||(isRoot?"var(--root)":null), x=n.x-n.w/2, y=n.y-n.h/2, sel=n.id===selId, drop=n.id===dropId;
-    if(sel) sn=n;
+    var isRoot=n._d===0, fill=n.fill||(isRoot?"var(--root)":null), x=n.x-n.w/2, y=n.y-n.h/2, sel=n.id===selId||!!msel[n.id], drop=n.id===dropId;
+    if(n.id===selId) sn=n;
     nodes+=n.media?"":'<g class="node'+(isRoot?" root":"")+'" data-id="'+n.id+'"><rect x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" style="stroke:'+(isRoot&&!n.bd?"none":n._c)+';fill:'+(fill||"var(--surface)")+'"/>'+
       ((sel||drop)?'<rect class="halo" x="'+(x-5)+'" y="'+(y-5)+'" width="'+(n.w+10)+'" height="'+(n.h+10)+'" rx="'+(n.h/2+5)+'" style="fill:none;stroke:var(--accent);stroke-width:'+(drop?3:2)+(drop?";stroke-dasharray:6 4":"")+'"/>':"")+
       '<text x="'+n.x+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" style="fill:'+tcol(n)+'">'+(editing===n.id?"":esc(n.text))+'</text></g>';
@@ -282,10 +292,11 @@ function render(){
   vp.innerHTML=links+nodes+tog+plus;
   applyView();
   $("bUndo").disabled=!undoStack.length;
-  var none=!selId||!find(root,selId);
-  $("bChild").disabled=$("bEdit").disabled=none;
-  var fr0=none?null:find(root,selId), hasP=!!(fr0&&fr0.parent);
-  $("bDel").disabled=none||selId===root.id; $("bSib").disabled=!hasP; $("bUnl").disabled=!hasP;
+  var many=mids().length>1, ns=selNodes(), none=!ns.length;
+  $("bChild").disabled=$("bEdit").disabled=none||many;
+  var hasP=ns.some(function(n){return !!find(root,n.id).parent;});
+  $("bDel").disabled=none||(!many&&ns[0]===root); $("bSib").disabled=many||!(ns.length&&find(root,ns[0].id).parent); $("bUnl").disabled=!hasP;
+  $("bMq").classList.toggle("on",mqMode);
 }
 function applyView(){
   vp.setAttribute("transform","translate("+view.x+","+view.y+") scale("+view.k+")");
@@ -304,7 +315,7 @@ function zoomAt(f,cx,cy){
 }
 
 /* ---------- 編輯與操作 ---------- */
-function select(id){selId=id;render();save();}
+function select(id){msel={};selId=id;render();save();}
 var editOrig="";
 function posEd(){
   var r=find(root,editing); if(!r) return;
@@ -359,29 +370,33 @@ function addSibling(){
   selId=c.id; commit(); startEdit(c.id);
 }
 function del(){
-  var r=find(root,selId); if(!r||r.node===root) return; snapshot();
-  if(r.parent){
-    var i=r.parent.children.indexOf(r.node); r.parent.children.splice(i,1);
-    selId=(r.parent.children[i]||r.parent.children[i-1]||r.parent).id;
-  }else{floats.splice(floats.indexOf(r.node),1); selId=null;}
-  commit();
+  var all=selNodes(), ns=tops(all).filter(function(n){return n!==root;});
+  if(!ns.length){if(all.length) toast("中心節點無法刪除");return;}
+  snapshot(); var next=null;
+  if(ns.length===1){var r0=find(root,ns[0].id); if(r0&&r0.parent){var i=r0.parent.children.indexOf(ns[0]); next=r0.parent.children[i+1]||r0.parent.children[i-1]||r0.parent;}}
+  ns.forEach(function(n){var r=find(root,n.id); if(!r) return;
+    if(r.parent) r.parent.children.splice(r.parent.children.indexOf(n),1); else floats.splice(floats.indexOf(n),1);});
+  msel={}; selId=next?next.id:null; commit();
+  if(ns.length>1) toast("已刪除 "+ns.length+" 個項目（含其子節點）");
 }
 function unlink(){
-  var r=find(root,selId); if(!r||!r.parent) return; snapshot();
-  r.parent.children.splice(r.parent.children.indexOf(r.node),1); floats.push(r.node);
-  put(r.node,r.node.x+30,r.node.y+36); commit(); toast("已取消連結");
+  var ns=selNodes().filter(function(n){var r=find(root,n.id);return r&&r.parent;});
+  if(!ns.length) return; snapshot();
+  ns.forEach(function(n){var r=find(root,n.id); if(!r||!r.parent) return;
+    r.parent.children.splice(r.parent.children.indexOf(n),1); floats.push(n); put(n,n.x+30,n.y+36);});
+  commit(); toast("已取消連結");
 }
 function toggle(id){
   var r=find(root,id); if(!r||!r.node.children.length) return; snapshot();
   r.node.collapsed=!r.node.collapsed; commit();
 }
 function undo(){
-  if(!undoStack.length) return; var st=JSON.parse(undoStack.pop()); root=st.r; floats=st.f||[];
+  if(!undoStack.length) return; var st=JSON.parse(undoStack.pop()); root=st.r; floats=st.f||[]; msel={};
   if(selId&&!find(root,selId)) selId=null; commit(); toast("已復原");
 }
 function setColor(c,noSnap){
-  var r=find(root,selId); if(!r) return; if(!noSnap) snapshot();
-  if(c) r.node[target]=c; else delete r.node[target]; commit();
+  var ns=selNodes(); if(!ns.length) return; if(!noSnap) snapshot();
+  ns.forEach(function(n){if(c) n[target]=c; else delete n[target];}); commit();
 }
 function reparent(id,tid){
   var r=find(root,id), t=find(root,tid); if(!r||!t||r.node===root) return;
@@ -419,9 +434,17 @@ stage.addEventListener("pointerdown",function(e){
   stage.setPointerCapture(e.pointerId); if(desTimer){clearTimeout(desTimer);desTimer=null;}
   var nd=e.target.closest("[data-id]");
   if(nd){
-    var id=nd.getAttribute("data-id"), was=selId===id; if(!was){selId=id;selClicks=0;render();save();}
+    var id=nd.getAttribute("data-id");
+    if(e.shiftKey||e.ctrlKey||e.metaKey){
+      var cur=mids().length?mids():(selId?[selId]:[]), ix=cur.indexOf(id);
+      if(ix>=0) cur.splice(ix,1); else cur.push(id);
+      setSel(cur); render(); save(); drag=null; return;
+    }
+    if(msel[id]){drag={m:"node",id:id,grp:true,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,moved:false}; return;}
+    var was=selId===id; if(!was){msel={};selId=id;selClicks=0;render();save();}
     drag={m:"node",id:id,was:was,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,moved:false}; return;
   }
+  if(mqMode||e.shiftKey){drag={m:"mq",moved:false,x:e.clientX,y:e.clientY}; return;}
   drag={m:"pan",moved:false,x:e.clientX,y:e.clientY,vx:view.x,vy:view.y}; stage.classList.add("pan");
 });
 stage.addEventListener("pointermove",function(e){
@@ -433,17 +456,35 @@ stage.addEventListener("pointermove",function(e){
     zoomAt(d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2); pinch.d=d; return;
   }
   if(!drag) return;
+  if(drag.m==="mq"){
+    if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>4) drag.moved=true;
+    if(drag.moved){var sr=stage.getBoundingClientRect(), q=$("mq").style;
+      q.display="block"; q.left=(Math.min(drag.x,e.clientX)-sr.left)+"px"; q.top=(Math.min(drag.y,e.clientY)-sr.top)+"px";
+      q.width=Math.abs(e.clientX-drag.x)+"px"; q.height=Math.abs(e.clientY-drag.y)+"px";}
+    return;
+  }
   if(drag.m==="pan"){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>4) drag.moved=true; view.x=drag.vx+e.clientX-drag.x;view.y=drag.vy+e.clientY-drag.y;applyView();return;}
   if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return; drag.moved=true; snapshot();}
   var r=find(root,drag.id); if(!r) return;
   var dx=(e.clientX-drag.lx)/view.k, dy=(e.clientY-drag.ly)/view.k; drag.lx=e.clientX; drag.ly=e.clientY;
+  if(drag.grp){tops(selNodes()).forEach(function(n){n.x+=dx;n.y+=dy;shift(n,dx,dy);}); dropId=null; render(); return;}
   r.node.x+=dx; r.node.y+=dy; shift(r.node,dx,dy);
   var w=toWorld(e.clientX,e.clientY), o=nodeAt(w.x,w.y,collect(r.node,{}));
   dropId=o?o.id:null; render();
 });
 function up(e){
   delete pts[e.pointerId]; if(Object.keys(pts).length<2) pinch=null;
-  if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
+  if(drag&&drag.m==="mq"){
+    $("mq").style.display="none";
+    if(drag.moved&&e.type==="pointerup"){
+      var a=toWorld(drag.x,drag.y), b=toWorld(e.clientX,e.clientY);
+      var x1=Math.min(a.x,b.x), x2=Math.max(a.x,b.x), y1=Math.min(a.y,b.y), y2=Math.max(a.y,b.y);
+      var hit=list.filter(function(n){return n.x+n.w/2>=x1&&n.x-n.w/2<=x2&&n.y+n.h/2>=y1&&n.y-n.h/2<=y2;}).map(function(n){return n.id;});
+      setSel(hit); commit(); if(hit.length>1) toast("已選取 "+hit.length+" 個項目");
+    }else if(!drag.moved){msel={};selId=null;commit();}
+  }
+  else if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
+  else if(drag&&e.type==="pointerup"&&drag.grp){msel={};selId=drag.id;commit();}
   else if(drag&&e.type==="pointerup"&&drag.m==="node"){
     var now=Date.now(), fr=find(root,drag.id);
     if(fr&&fr.node.media&&fr.node.media.type==="video"){lastTap={};playVideo(fr.node.media.url);}
@@ -451,7 +492,7 @@ function up(e){
     if(lastTap.id===drag.id&&now-lastTap.t<350){lastTap={};selClicks=0;activate(drag.id);}
     else{lastTap={id:drag.id,t:now}; if(drag.was){selClicks++; if(selClicks>=2){selClicks=0;selId=null;commit();}}}
   }
-  else if(drag&&e.type==="pointerup"&&drag.m==="pan"&&!drag.moved){selId=null;commit();}
+  else if(drag&&e.type==="pointerup"&&drag.m==="pan"&&!drag.moved){selId=null;msel={};commit();}
   drag=null; stage.classList.remove("pan");
 }
 stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",up);
@@ -461,6 +502,8 @@ document.addEventListener("keydown",function(e){
   if(editing||document.querySelector("dialog[open]")||e.target.id==="cpick") return;
   var k=e.key;
   if((e.ctrlKey||e.metaKey)&&k.toLowerCase()==="z"){e.preventDefault();undo();}
+  else if((e.ctrlKey||e.metaKey)&&k.toLowerCase()==="a"){e.preventDefault();setSel(list.filter(function(n){return n!==root;}).map(function(n){return n.id;}));commit();}
+  else if(k==="Escape"){msel={};selId=null;commit();}
   else if(k==="Tab"){e.preventDefault();addChild();}
   else if(k==="Enter"){e.preventDefault();addSibling();}
   else if(k==="F2"){e.preventDefault();startEdit(selId);}
@@ -470,7 +513,7 @@ document.addEventListener("keydown",function(e){
 });
 window.addEventListener("resize",function(){if(editing) endEdit(true);});
 
-$("bChild").onclick=addChild; $("bSib").onclick=addSibling; $("bUnl").onclick=unlink;
+$("bChild").onclick=addChild; $("bSib").onclick=addSibling; $("bUnl").onclick=unlink; $("bMq").onclick=function(){mqMode=!mqMode;stage.style.cursor=mqMode?"crosshair":"";render();};
 $("bEdit").onclick=function(){startEdit(selId);}; $("bDel").onclick=del;
 $("bUndo").onclick=undo; $("bFit").onclick=fit;
 $("bArr").onclick=function(){arrange();commit();fit();toast("已自動整理");};
@@ -506,7 +549,7 @@ function syncMedia(){
       }
     }
     var st=el.style; st.left=(n.x-n.w/2)+"px"; st.top=(n.y-n.h/2)+"px"; st.width=n.w+"px"; st.height=n.h+"px"; st.borderColor=n._c;
-    el.className="mnode"+(n.id===selId?" sel":"")+(n.id===dropId?" drop":"");
+    el.className="mnode"+(n.id===selId||msel[n.id]?" sel":"")+(n.id===dropId?" drop":"");
   });
   for(var id in mEls) if(!seen[id]){mEls[id].remove();delete mEls[id];}
 }
@@ -515,7 +558,7 @@ function addMedia(media,text){
   var c=mk(text||""); c.media=media; c.w=media.w; c.h=media.h;
   snapshot(); floats.push(c); visList();
   var p=toWorld(stage.clientWidth/2,stage.clientHeight/2+50); put(c,p.x,p.y); nudge(c);
-  selId=c.id; commit(); toast("已加入，把節點拖到它上面就能連結");
+  msel={}; selId=c.id; commit(); toast("已加入，把節點拖到它上面就能連結");
 }
 function loadImage(file){
   var fr=new FileReader();
