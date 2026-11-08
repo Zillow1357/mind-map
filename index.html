@@ -85,7 +85,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <div id="hint">
   <kbd>Tab</kbd> 新增子節點　<kbd>Enter</kbd> 新增同層　<kbd>F2</kbd>／雙擊 編輯<br>
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
-  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>再點一次已選取的節點或空白處可取消選取<br>拖曳空白處平移，滾輪縮放
+  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>拖曳空白處平移，滾輪縮放
 </div>
 <input id="ed" aria-label="節點文字" maxlength="80">
 <div id="toast"></div>
@@ -107,7 +107,7 @@ var KEY="mindmap-v2", OLD="mindmap-v1";
 var H=38, RH=46, GAP=14, HGAP=60, PAD=18;
 var PAL=["var(--c0)","var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)"];
 var uid=1, root, selId, view={x:0,y:0,k:1}, undoStack=[], editing=null, dropId=null, list=[], needArr=false;
-var drag=null, pts={}, pinch=null, cpSnap=false;
+var drag=null, pts={}, pinch=null, cpSnap=false, lastTap={}, desTimer=null, selClicks=0;
 function $(id){return document.getElementById(id);}
 var svg=$("svg"), vp=$("vp"), stage=$("stage"), ed=$("ed"), toastEl=$("toast");
 var cv=document.createElement("canvas").getContext("2d");
@@ -368,10 +368,10 @@ stage.addEventListener("pointerdown",function(e){
   if(ids.length===2){var a=pts[ids[0]],b=pts[ids[1]];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};drag=null;return;}
   var t=e.target.closest("[data-tog]"); if(t){toggle(t.getAttribute("data-tog"));return;}
   var ad=e.target.closest("[data-add]"); if(ad){addAt(+ad.getAttribute("data-add"));return;}
-  stage.setPointerCapture(e.pointerId);
+  stage.setPointerCapture(e.pointerId); if(desTimer){clearTimeout(desTimer);desTimer=null;}
   var nd=e.target.closest("[data-id]");
   if(nd){
-    var id=nd.getAttribute("data-id"), was=selId===id; if(!was){selId=id;render();save();}
+    var id=nd.getAttribute("data-id"), was=selId===id; if(!was){selId=id;selClicks=0;render();save();}
     drag={m:"node",id:id,was:was,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,moved:false}; return;
   }
   drag={m:"pan",moved:false,x:e.clientX,y:e.clientY,vx:view.x,vy:view.y}; stage.classList.add("pan");
@@ -396,12 +396,17 @@ stage.addEventListener("pointermove",function(e){
 function up(e){
   delete pts[e.pointerId]; if(Object.keys(pts).length<2) pinch=null;
   if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
-  else if(drag&&e.type==="pointerup"&&((drag.m==="node"&&drag.was)||(drag.m==="pan"&&!drag.moved))){selId=null;commit();}
+  else if(drag&&e.type==="pointerup"&&drag.m==="node"){
+    var now=Date.now();
+    if(lastTap.id===drag.id&&now-lastTap.t<350){lastTap={};selClicks=0;startEdit(drag.id);}
+    else{lastTap={id:drag.id,t:now}; if(drag.was){selClicks++; if(selClicks>=2){selClicks=0;selId=null;commit();}}}
+  }
+  else if(drag&&e.type==="pointerup"&&drag.m==="pan"&&!drag.moved){selId=null;commit();}
   drag=null; stage.classList.remove("pan");
 }
 stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",up);
 stage.addEventListener("wheel",function(e){e.preventDefault();zoomAt(e.deltaY<0?1.1:1/1.1,e.clientX,e.clientY);},{passive:false});
-stage.addEventListener("dblclick",function(e){var w=toWorld(e.clientX,e.clientY),n=nodeAt(w.x,w.y,null);if(n) startEdit(n.id);});
+
 document.addEventListener("keydown",function(e){
   if(editing||$("dlg").open||e.target.id==="cpick") return;
   var k=e.key;
