@@ -29,7 +29,10 @@ svg{width:100%;height:100%;display:block}
 .node text{fill:var(--text);font-size:15px;pointer-events:none}
 .node.root rect{stroke:none}
 .node.root text{fill:var(--roottext);font-size:18px;font-weight:700}
-.node.sel rect{stroke-width:4}
+.halo{pointer-events:none}
+.add{cursor:pointer}.add circle{fill:var(--accent)}.add text{fill:#fff;font-size:18px;font-weight:700;text-anchor:middle;pointer-events:none}
+.sw,.sw:hover{width:22px;height:22px;padding:0;margin:auto 2px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+#cpick{width:30px;height:30px;padding:0;margin:auto 2px;border:none;background:none;cursor:pointer}
 .node{cursor:pointer}
 .tog circle{fill:var(--surface);stroke-width:2}
 .tog text{fill:var(--muted);font-size:12px;font-weight:700;text-anchor:middle}
@@ -64,6 +67,10 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
   <button id="bEdit" title="編輯文字（F2 或雙擊）">編輯</button>
   <button id="bDel" title="刪除節點（Delete）">刪除</button>
   <span class="sep"></span>
+  <button id="bArr" title="自動整理版面">整理</button>
+  <span class="sep"></span>
+  <button class="sw" data-c="var(--c0)" style="background:var(--c0)" aria-label="顏色 1"></button><button class="sw" data-c="var(--c1)" style="background:var(--c1)" aria-label="顏色 2"></button><button class="sw" data-c="var(--c2)" style="background:var(--c2)" aria-label="顏色 3"></button><button class="sw" data-c="var(--c3)" style="background:var(--c3)" aria-label="顏色 4"></button><button class="sw" data-c="var(--c4)" style="background:var(--c4)" aria-label="顏色 5"></button><button class="sw" data-c="var(--c5)" style="background:var(--c5)" aria-label="顏色 6"></button><input type="color" id="cpick" value="#2f6fed" aria-label="自訂顏色" title="自訂顏色"><button id="bClr" title="還原為預設顏色">預設色</button>
+  <span class="sep"></span>
   <button id="bUndo" title="復原（Ctrl+Z）">復原</button>
   <button id="bFit" title="置中並縮放至適當大小">置中</button>
   <button id="bZin" aria-label="放大">＋</button>
@@ -75,7 +82,7 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <div id="hint">
   <kbd>Tab</kbd> 新增子節點　<kbd>Enter</kbd> 新增同層　<kbd>F2</kbd>／雙擊 編輯<br>
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
-  拖曳空白處平移，滾輪縮放
+  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>拖曳空白處平移，滾輪縮放
 </div>
 <input id="ed" aria-label="節點文字" maxlength="80">
 <div id="toast"></div>
@@ -93,42 +100,56 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 
 <script>
 (function(){
-var NS="http://www.w3.org/2000/svg", KEY="mindmap-v1";
-var H=38, RH=46, GAP=12, HGAP=64, PAD=18;
-var uid=1, root, selId, view={x:80,y:0,k:1}, undoStack=[], editing=null;
-var svg=document.getElementById("svg"), vp=document.getElementById("vp"), stage=document.getElementById("stage");
-var ed=document.getElementById("ed"), toastEl=document.getElementById("toast");
+var KEY="mindmap-v2", OLD="mindmap-v1";
+var H=38, RH=46, GAP=14, HGAP=60, PAD=18;
+var PAL=["var(--c0)","var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)"];
+var uid=1, root, selId, view={x:0,y:0,k:1}, undoStack=[], editing=null, dropId=null, list=[], needArr=false;
+var drag=null, pts={}, pinch=null, cpSnap=false;
+function $(id){return document.getElementById(id);}
+var svg=$("svg"), vp=$("vp"), stage=$("stage"), ed=$("ed"), toastEl=$("toast");
 var cv=document.createElement("canvas").getContext("2d");
 
-function mk(text){return {id:"n"+(uid++),text:text,children:[],collapsed:false};}
-function sample(){
-  var r=mk("我的心智圖");
-  var a=mk("想法"), b=mk("任務"), c=mk("資源"), d=mk("下一步");
-  a.children=[mk("主題發想"),mk("關鍵問題")];
-  b.children=[mk("本週待辦"),mk("長期目標")];
-  c.children=[mk("參考文章"),mk("工具清單")];
-  r.children=[a,b,c,d]; return r;
-}
+function mk(text,x,y){return {id:"n"+(uid++),text:text,children:[],collapsed:false,x:x||0,y:y||0};}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-function toast(t){toastEl.textContent=t;toastEl.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){toastEl.classList.remove("on");},1600);}
+function toast(t){toastEl.textContent=t;toastEl.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){toastEl.classList.remove("on");},1800);}
+function sample(){
+  var r=mk("我的心智圖"), a=mk("想法",1), b=mk("任務",1), c=mk("資源",-1), d=mk("下一步",-1);
+  a.children=[mk("主題發想"),mk("關鍵問題")]; b.children=[mk("本週待辦"),mk("長期目標")];
+  c.children=[mk("參考文章"),mk("工具清單")];
+  r.children=[a,b,c,d]; root=r; arrange(true); return r;
+}
 
-/* ---------- 資料操作 ---------- */
+/* ---------- 資料 ---------- */
 function find(n,id,parent){
   if(n.id===id) return {node:n,parent:parent||null};
   for(var i=0;i<n.children.length;i++){var r=find(n.children[i],id,n); if(r) return r;}
   return null;
 }
+function collect(n,s){s[n.id]=1;n.children.forEach(function(c){collect(c,s);});return s;}
+function shift(n,dx,dy){n.children.forEach(function(c){c.x+=dx;c.y+=dy;shift(c,dx,dy);});}
+function put(n,x,y){var dx=x-n.x,dy=y-n.y;n.x=x;n.y=y;shift(n,dx,dy);}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({root:root,uid:uid,sel:selId}));}catch(e){}}
-function snapshot(){
-  undoStack.push(JSON.stringify(root)); if(undoStack.length>60) undoStack.shift();
+function snapshot(){undoStack.push(JSON.stringify(root));if(undoStack.length>60)undoStack.shift();}
+function fixUid(n){var m=parseInt(String(n.id).slice(1),10)||0;if(m>=uid)uid=m+1;n.children.forEach(fixUid);}
+function okColor(c){return typeof c==="string"&&(/^#[0-9a-f]{6}$/i.test(c)||/^var\(--c[0-5]\)$/.test(c));}
+function rebuild(o,legacy){
+  if(!o||typeof o.text!=="string") throw new Error("格式錯誤");
+  var n=mk(o.text.slice(0,80)); n.collapsed=!!o.collapsed;
+  if(!legacy&&okColor(o.color)) n.color=o.color;
+  if(!legacy&&typeof o.x==="number"&&typeof o.y==="number"){n.x=o.x;n.y=o.y;} else needArr=true;
+  n.children=(Array.isArray(o.children)?o.children:[]).map(function(c){return rebuild(c,legacy);});
+  return n;
 }
-function fixUid(n){var m=parseInt(String(n.id).slice(1),10)||0; if(m>=uid) uid=m+1; n.children.forEach(fixUid);}
+function clean(n){
+  var o={text:n.text,collapsed:!!n.collapsed,x:Math.round(n.x),y:Math.round(n.y),children:n.children.map(clean)};
+  if(n.color) o.color=n.color; return o;
+}
 function load(){
-  try{
-    var s=JSON.parse(localStorage.getItem(KEY));
-    if(s&&s.root&&Array.isArray(s.root.children)){root=s.root;uid=s.uid||1;selId=s.sel;fixUid(root);return;}
-  }catch(e){}
-  root=sample(); selId=root.id;
+  try{var s=JSON.parse(localStorage.getItem(KEY));
+    if(s&&s.root&&Array.isArray(s.root.children)){root=s.root;uid=s.uid||1;selId=s.sel;fixUid(root);return;}}catch(e){}
+  try{var o=JSON.parse(localStorage.getItem(OLD));
+    if(o&&o.root){needArr=false;root=rebuild(o.root,true);arrange(true);selId=root.id;return;}}catch(e){}
+  sample(); selId=root.id;
 }
 function commit(){render();save();}
 
@@ -137,82 +158,121 @@ function measure(n,isRoot){
   cv.font=(isRoot?"700 18px ":"15px ")+'"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
   return Math.max(isRoot?96:64,Math.ceil(cv.measureText(n.text).width)+PAD*2);
 }
-function sizeOf(n,depth){
-  n.w=measure(n,depth===0); n.h=depth===0?RH:H;
-  var vis=n.collapsed?[]:n.children, tot=0;
-  vis.forEach(function(c,i){sizeOf(c,depth+1);tot+=c.sh+(i?GAP:0);});
-  n.sh=Math.max(n.h,tot); if(!vis.length) n.sh=n.h;
-  n.ctot=tot;
+function visList(){
+  list=[];
+  (function w(n,d,pc,i){
+    n.w=measure(n,d===0); n.h=d===0?RH:H; n._d=d;
+    n._c=n.color||(d===0?"var(--root)":d===1?PAL[i%6]:pc);
+    list.push(n);
+    if(!n.collapsed) n.children.forEach(function(c,j){w(c,d+1,n._c,j);});
+  })(root,0,"",0);
+  return list;
 }
-function place(n,x,top,depth,color){
-  n.x=x; n.depth=depth; n.color=color;
-  var vis=n.collapsed?[]:n.children;
-  if(!vis.length){n.y=top+n.sh/2;return;}
-  var cy=top+(n.sh-n.ctot)/2;
-  vis.forEach(function(c,i){
-    place(c,x+n.w+HGAP,cy,depth+1,depth===0?"var(--c"+(i%6)+")":color);
-    cy+=c.sh+GAP;
+function sh(n){
+  n.w=measure(n,n===root); n.h=n===root?RH:H;
+  var v=n.collapsed?[]:n.children,t=0;
+  v.forEach(function(c,i){sh(c);t+=c.sh+(i?GAP:0);});
+  n.ctot=t; n.sh=Math.max(n.h,t);
+}
+function place(n,dir,edge,top){
+  var ox=n.x,oy=n.y; n.x=edge+dir*(HGAP+n.w/2);
+  var v=n.collapsed?[]:n.children;
+  if(!v.length) n.y=top+n.sh/2;
+  else{
+    var cy=top+(n.sh-n.ctot)/2;
+    v.forEach(function(c){place(c,dir,n.x+dir*n.w/2,cy);cy+=c.sh+GAP;});
+    n.y=(v[0].y+v[v.length-1].y)/2;
+  }
+  if(n.collapsed) shift(n,n.x-ox,n.y-oy);
+}
+function arrange(noSnap){
+  if(!noSnap) snapshot();
+  sh(root); if(root.collapsed) return;
+  var R=[],L=[];
+  root.children.forEach(function(c){(c.x>=root.x?R:L).push(c);});
+  [[R,1],[L,-1]].forEach(function(g){
+    var tot=0; g[0].forEach(function(c,i){tot+=c.sh+(i?GAP:0);});
+    var cy=root.y-tot/2;
+    g[0].forEach(function(c){place(c,g[1],root.x+g[1]*root.w/2,cy);cy+=c.sh+GAP;});
   });
-  n.y=(vis[0].y+vis[vis.length-1].y)/2;
 }
+function nudge(n){
+  var sub=collect(n,{});
+  for(var i=0;i<80;i++){
+    var hit=list.some(function(o){return !sub[o.id]&&Math.abs(o.x-n.x)<(o.w+n.w)/2+10&&Math.abs(o.y-n.y)<(o.h+n.h)/2+8;});
+    if(!hit) break; put(n,n.x,n.y+H+8);
+  }
+}
+function nodeAt(x,y,ex){
+  for(var i=list.length-1;i>=0;i--){var n=list[i];
+    if(!(ex&&ex[n.id])&&Math.abs(x-n.x)<=n.w/2&&Math.abs(y-n.y)<=n.h/2) return n;}
+  return null;
+}
+function toWorld(cx,cy){var r=stage.getBoundingClientRect();return {x:(cx-r.left-view.x)/view.k,y:(cy-r.top-view.y)/view.k};}
 
 /* ---------- 繪製 ---------- */
+function ink(col){
+  if(col.charAt(0)==="#"){
+    var r=parseInt(col.substr(1,2),16),g=parseInt(col.substr(3,2),16),b=parseInt(col.substr(5,2),16);
+    return (0.299*r+0.587*g+0.114*b)>160?"#1d2733":"#ffffff";
+  }
+  return "var(--roottext)";
+}
 function render(){
-  sizeOf(root,0); place(root,0,0,0,"var(--root)");
-  var links="",nodes="";
-  (function walk(n){
-    var vis=n.collapsed?[]:n.children;
-    vis.forEach(function(c){
-      var x1=n.x+n.w,y1=n.y,x2=c.x,y2=c.y,mx=(x1+x2)/2;
-      links+='<path d="M'+x1+' '+y1+'C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'" fill="none" stroke="'+c.color+'" stroke-width="'+(c.depth===1?3:2)+'" stroke-linecap="round" opacity=".75"/>';
-      walk(c);
+  visList();
+  var links="",nodes="",tog="",plus="",sn=null;
+  list.forEach(function(n){
+    if(!n.collapsed) n.children.forEach(function(c){
+      var rt=c.x>=n.x, x1=n.x+(rt?1:-1)*n.w/2, x2=c.x+(rt?-1:1)*c.w/2, mx=(x1+x2)/2;
+      links+='<path d="M'+x1+' '+n.y+'C'+mx+' '+n.y+' '+mx+' '+c.y+' '+x2+' '+c.y+'" fill="none" stroke="'+c._c+'" stroke-width="'+(n._d===0?3:2)+'" stroke-linecap="round" opacity=".8"/>';
     });
-    var sel=n.id===selId, isRoot=n.depth===0;
-    nodes+='<g class="node'+(isRoot?" root":"")+(sel?" sel":"")+'" data-id="'+n.id+'">'+
-      '<rect x="'+n.x+'" y="'+(n.y-n.h/2)+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'"'+
-      (isRoot?' style="fill:var(--root)"':' style="stroke:'+n.color+'"')+'/>'+
-      '<text x="'+(n.x+n.w/2)+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central">'+esc(n.text)+'</text></g>';
+    var isRoot=n._d===0, fill=n.color||(isRoot?n._c:null), x=n.x-n.w/2, y=n.y-n.h/2, sel=n.id===selId, drop=n.id===dropId;
+    if(sel) sn=n;
+    nodes+='<g class="node'+(isRoot?" root":"")+'" data-id="'+n.id+'"><rect x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" style="stroke:'+(isRoot?"none":n._c)+';fill:'+(fill||"var(--surface)")+'"/>'+
+      ((sel||drop)?'<rect class="halo" x="'+(x-5)+'" y="'+(y-5)+'" width="'+(n.w+10)+'" height="'+(n.h+10)+'" rx="'+(n.h/2+5)+'" style="fill:none;stroke:var(--accent);stroke-width:'+(drop?3:2)+(drop?";stroke-dasharray:6 4":"")+'"/>':"")+
+      '<text x="'+n.x+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" style="fill:'+(fill?ink(fill):"var(--text)")+'">'+esc(n.text)+'</text></g>';
     if(n.children.length){
-      var tx=n.x+n.w+(n.collapsed?0:0)+14, col=isRoot?"var(--root)":n.color;
-      nodes+='<g class="tog" data-tog="'+n.id+'"><circle cx="'+tx+'" cy="'+n.y+'" r="10" style="stroke:'+col+'"/>'+
-        '<text x="'+tx+'" y="'+n.y+'" dominant-baseline="central">'+(n.collapsed?n.children.length:"−")+'</text></g>';
+      var ty=n.y+n.h/2+11;
+      tog+='<g class="tog" data-tog="'+n.id+'"><circle cx="'+n.x+'" cy="'+ty+'" r="8" style="stroke:'+n._c+'"/><text x="'+n.x+'" y="'+ty+'" dominant-baseline="central">'+(n.collapsed?n.children.length:"−")+'</text></g>';
     }
-  })(root);
-  vp.innerHTML=links+nodes;
+  });
+  if(sn&&!editing&&!(drag&&drag.moved)) [-1,1].forEach(function(d){
+    var px=sn.x+d*(sn.w/2+22);
+    plus+='<g class="add" data-add="'+d+'"><circle cx="'+px+'" cy="'+sn.y+'" r="12"/><text x="'+px+'" y="'+sn.y+'" dominant-baseline="central">+</text></g>';
+  });
+  vp.innerHTML=links+nodes+tog+plus;
   applyView();
-  document.getElementById("bUndo").disabled=!undoStack.length;
-  document.getElementById("bDel").disabled=selId===root.id;
-  document.getElementById("bSib").disabled=selId===root.id;
+  $("bUndo").disabled=!undoStack.length;
+  $("bDel").disabled=$("bSib").disabled=selId===root.id;
 }
 function applyView(){vp.setAttribute("transform","translate("+view.x+","+view.y+") scale("+view.k+")");}
 function fit(){
-  var minY=1e9,maxY=-1e9,maxX=0;
-  (function w(n){minY=Math.min(minY,n.y-n.h/2);maxY=Math.max(maxY,n.y+n.h/2);maxX=Math.max(maxX,n.x+n.w+30);(n.collapsed?[]:n.children).forEach(w);})(root);
+  visList(); var a=1e9,b=-1e9,c=1e9,d=-1e9;
+  list.forEach(function(n){a=Math.min(a,n.x-n.w/2);b=Math.max(b,n.x+n.w/2);c=Math.min(c,n.y-n.h/2);d=Math.max(d,n.y+n.h/2);});
   var W=stage.clientWidth,Hh=stage.clientHeight;
-  var k=Math.min(1.2,Math.max(.3,Math.min((W-120)/maxX,(Hh-200)/(maxY-minY))));
-  view.k=k; view.x=60; view.y=Hh/2-((minY+maxY)/2)*k+20; applyView();
+  var k=Math.min(1.2,Math.max(.25,Math.min((W-120)/(b-a),(Hh-200)/(d-c))));
+  view.k=k; view.x=W/2-(a+b)/2*k; view.y=Hh/2-(c+d)/2*k+30; applyView();
 }
 function zoomAt(f,cx,cy){
   var k=Math.min(2.5,Math.max(.25,view.k*f)); f=k/view.k;
   view.x=cx-(cx-view.x)*f; view.y=cy-(cy-view.y)*f; view.k=k; applyView();
 }
 
-/* ---------- 選取／編輯 ---------- */
+/* ---------- 編輯與操作 ---------- */
 function select(id){selId=id;render();save();}
 function startEdit(id){
-  var r=find(root,id); if(!r) return; var n=r.node;
+  var r=find(root,id); if(!r) return;
   selId=id; render();
-  var rect=vp.querySelector('[data-id="'+id+'"] rect').getBoundingClientRect();
-  var w=Math.max(rect.width,150);
+  var rect=vp.querySelector('[data-id="'+id+'"] rect').getBoundingClientRect(), w=Math.max(rect.width,150);
   ed.style.display="block"; ed.style.left=(rect.left+rect.width/2-w/2)+"px"; ed.style.top=rect.top+"px";
   ed.style.width=w+"px"; ed.style.height=rect.height+"px"; ed.style.textAlign="center";
-  ed.value=n.text; editing=id; ed.focus(); ed.select();
+  ed.value=r.node.text; editing=id; ed.focus(); ed.select();
 }
 function endEdit(ok){
   if(!editing) return; var id=editing; editing=null; ed.style.display="none";
   var v=ed.value.trim(), r=find(root,id);
-  if(ok&&v&&r&&v!==r.node.text){snapshot();r.node.text=v;commit();}
-  stage.focus&&0;
+  if(ok&&v&&r&&v!==r.node.text){snapshot();r.node.text=v;}
+  commit();
 }
 ed.addEventListener("keydown",function(e){
   e.stopPropagation();
@@ -222,14 +282,24 @@ ed.addEventListener("keydown",function(e){
 });
 ed.addEventListener("blur",function(){endEdit(true);});
 
+function addAt(dir){
+  var r=find(root,selId); if(!r) return; var n=r.node; snapshot(); visList();
+  var c=mk("新節點"); c.w=measure(c,false); c.h=H;
+  var sib=n.children.filter(function(k){return (k.x>=n.x)===(dir>0);}), y=n.y;
+  if(sib.length) y=Math.max.apply(null,sib.map(function(k){return k.y;}))+H+GAP;
+  c.x=n.x+dir*(n.w/2+HGAP+c.w/2); c.y=y;
+  n.children.push(c); n.collapsed=false; visList(); nudge(c);
+  selId=c.id; commit(); startEdit(c.id);
+}
 function addChild(){
-  var r=find(root,selId); if(!r) return; snapshot();
-  var c=mk("新節點"); r.node.children.push(c); r.node.collapsed=false; selId=c.id; commit(); startEdit(c.id);
+  var r=find(root,selId); if(!r) return;
+  addAt(r.parent&&r.node.x<r.parent.x?-1:1);
 }
 function addSibling(){
-  var r=find(root,selId); if(!r||!r.parent) return; snapshot();
-  var c=mk("新節點"), i=r.parent.children.indexOf(r.node);
-  r.parent.children.splice(i+1,0,c); selId=c.id; commit(); startEdit(c.id);
+  var r=find(root,selId); if(!r||!r.parent) return; snapshot(); visList();
+  var n=r.node, c=mk("新節點"); c.w=measure(c,false); c.h=H; c.x=n.x; c.y=n.y+n.h+GAP;
+  r.parent.children.splice(r.parent.children.indexOf(n)+1,0,c); visList(); nudge(c);
+  selId=c.id; commit(); startEdit(c.id);
 }
 function del(){
   var r=find(root,selId); if(!r||!r.parent) return; snapshot();
@@ -244,32 +314,48 @@ function undo(){
   if(!undoStack.length) return; root=JSON.parse(undoStack.pop());
   if(!find(root,selId)) selId=root.id; commit(); toast("已復原");
 }
+function setColor(c,noSnap){
+  var r=find(root,selId); if(!r) return; if(!noSnap) snapshot();
+  if(c) r.node.color=c; else delete r.node.color; commit();
+}
+function reparent(id,tid){
+  var r=find(root,id), t=find(root,tid); if(!r||!r.parent||!t) return;
+  var n=r.node, tn=t.node;
+  r.parent.children.splice(r.parent.children.indexOf(n),1);
+  tn.children.push(n); tn.collapsed=false; visList();
+  var dir=n.x>=tn.x?1:-1, y=tn.y;
+  var s=tn.children.filter(function(k){return k!==n&&(k.x>=tn.x)===(dir>0);});
+  if(s.length) y=Math.max.apply(null,s.map(function(k){return k.y;}))+H+GAP;
+  put(n,tn.x+dir*(tn.w/2+HGAP+n.w/2),y); visList(); nudge(n);
+  selId=n.id; toast("已連結到「"+tn.text+"」");
+}
 function nav(dir){
-  var r=find(root,selId); if(!r) return; var n=r.node, p=r.parent;
-  if(dir==="Left"&&p) select(p.id);
-  else if(dir==="Right"&&n.children.length&&!n.collapsed) select(n.children[0].id);
-  else if((dir==="Up"||dir==="Down")&&p){
-    var i=p.children.indexOf(n)+(dir==="Up"?-1:1);
-    if(p.children[i]) select(p.children[i].id);
+  var r=find(root,selId); if(!r) return; var n=r.node, p=r.parent, t=null;
+  function kid(d){return (n.collapsed?[]:n.children).filter(function(c){return (c.x>=n.x)===(d>0);})[0];}
+  if(dir==="Left") t=(p&&n.x>=p.x)?p:kid(-1);
+  else if(dir==="Right") t=(p&&n.x<p.x)?p:kid(1);
+  else if(p){
+    var s=p.children.filter(function(c){return (c.x>=p.x)===(n.x>=p.x);}).sort(function(a,b){return a.y-b.y;});
+    t=s[s.indexOf(n)+(dir==="Up"?-1:1)];
   }
+  if(t) select(t.id);
 }
 
-/* ---------- 互動 ---------- */
-var drag=null, pts={}, pinch=null;
+/* ---------- 指標操作 ---------- */
 stage.addEventListener("pointerdown",function(e){
   if(editing) endEdit(true);
   pts[e.pointerId]={x:e.clientX,y:e.clientY};
   var ids=Object.keys(pts);
-  if(ids.length===2){
-    var a=pts[ids[0]],b=pts[ids[1]];
-    pinch={d:Math.hypot(a.x-b.x,a.y-b.y)}; drag=null; return;
-  }
-  var t=e.target.closest("[data-tog]");
-  if(t){toggle(t.getAttribute("data-tog"));return;}
+  if(ids.length===2){var a=pts[ids[0]],b=pts[ids[1]];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};drag=null;return;}
+  var t=e.target.closest("[data-tog]"); if(t){toggle(t.getAttribute("data-tog"));return;}
+  var ad=e.target.closest("[data-add]"); if(ad){addAt(+ad.getAttribute("data-add"));return;}
+  stage.setPointerCapture(e.pointerId);
   var nd=e.target.closest("[data-id]");
-  if(nd){select(nd.getAttribute("data-id"));drag=null;return;}
-  drag={x:e.clientX,y:e.clientY,vx:view.x,vy:view.y};
-  stage.classList.add("pan"); stage.setPointerCapture(e.pointerId);
+  if(nd){
+    var id=nd.getAttribute("data-id"); if(selId!==id){selId=id;render();save();}
+    drag={m:"node",id:id,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,moved:false}; return;
+  }
+  drag={m:"pan",x:e.clientX,y:e.clientY,vx:view.x,vy:view.y}; stage.classList.add("pan");
 });
 stage.addEventListener("pointermove",function(e){
   if(!pts[e.pointerId]) return;
@@ -279,16 +365,25 @@ stage.addEventListener("pointermove",function(e){
     var a=pts[ids[0]],b=pts[ids[1]],d=Math.hypot(a.x-b.x,a.y-b.y);
     zoomAt(d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2); pinch.d=d; return;
   }
-  if(drag){view.x=drag.vx+e.clientX-drag.x; view.y=drag.vy+e.clientY-drag.y; applyView();}
+  if(!drag) return;
+  if(drag.m==="pan"){view.x=drag.vx+e.clientX-drag.x;view.y=drag.vy+e.clientY-drag.y;applyView();return;}
+  if(!drag.moved){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return; drag.moved=true; snapshot();}
+  var r=find(root,drag.id); if(!r) return;
+  var dx=(e.clientX-drag.lx)/view.k, dy=(e.clientY-drag.ly)/view.k; drag.lx=e.clientX; drag.ly=e.clientY;
+  r.node.x+=dx; r.node.y+=dy; shift(r.node,dx,dy);
+  var w=toWorld(e.clientX,e.clientY), o=nodeAt(w.x,w.y,collect(r.node,{}));
+  dropId=o?o.id:null; render();
 });
-function up(e){delete pts[e.pointerId]; if(Object.keys(pts).length<2) pinch=null; drag=null; stage.classList.remove("pan");}
+function up(e){
+  delete pts[e.pointerId]; if(Object.keys(pts).length<2) pinch=null;
+  if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
+  drag=null; stage.classList.remove("pan");
+}
 stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",up);
 stage.addEventListener("wheel",function(e){e.preventDefault();zoomAt(e.deltaY<0?1.1:1/1.1,e.clientX,e.clientY);},{passive:false});
-stage.addEventListener("dblclick",function(e){
-  var nd=e.target.closest("[data-id]"); if(nd) startEdit(nd.getAttribute("data-id"));
-});
+stage.addEventListener("dblclick",function(e){var w=toWorld(e.clientX,e.clientY),n=nodeAt(w.x,w.y,null);if(n) startEdit(n.id);});
 document.addEventListener("keydown",function(e){
-  if(editing||document.getElementById("dlg").open) return;
+  if(editing||$("dlg").open||e.target.id==="cpick") return;
   var k=e.key;
   if((e.ctrlKey||e.metaKey)&&k.toLowerCase()==="z"){e.preventDefault();undo();}
   else if(k==="Tab"){e.preventDefault();addChild();}
@@ -300,25 +395,24 @@ document.addEventListener("keydown",function(e){
 });
 window.addEventListener("resize",function(){if(editing) endEdit(true);});
 
-function $(id){return document.getElementById(id);}
 $("bChild").onclick=addChild; $("bSib").onclick=addSibling;
 $("bEdit").onclick=function(){startEdit(selId);}; $("bDel").onclick=del;
 $("bUndo").onclick=undo; $("bFit").onclick=fit;
+$("bArr").onclick=function(){arrange();commit();fit();toast("已自動整理");};
 $("bZin").onclick=function(){zoomAt(1.2,stage.clientWidth/2,stage.clientHeight/2);};
 $("bZout").onclick=function(){zoomAt(1/1.2,stage.clientWidth/2,stage.clientHeight/2);};
 $("bTheme").onclick=function(){
   var cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
   document.documentElement.setAttribute("data-theme",cur==="dark"?"light":"dark");
 };
+Array.prototype.forEach.call(document.querySelectorAll(".sw"),function(b){b.onclick=function(){setColor(b.getAttribute("data-c"));};});
+$("bClr").onclick=function(){setColor(null);};
+$("cpick").addEventListener("input",function(){setColor(this.value,cpSnap);if(!cpSnap){cpSnap=true;}});
+$("cpick").addEventListener("pointerdown",function(){snapshot();});
+$("cpick").addEventListener("change",function(){cpSnap=false;});
 
 /* ---------- 匯出／匯入 ---------- */
 var dlg=$("dlg"), ta=$("ta");
-function clean(n){return {text:n.text,collapsed:!!n.collapsed,children:n.children.map(clean)};}
-function rebuild(o){
-  if(!o||typeof o.text!=="string") throw new Error("格式錯誤");
-  var n=mk(o.text.slice(0,80)); n.collapsed=!!o.collapsed;
-  n.children=(Array.isArray(o.children)?o.children:[]).map(rebuild); return n;
-}
 $("bIO").onclick=function(){ta.value=JSON.stringify(clean(root),null,2);dlg.showModal();};
 $("dClose").onclick=function(){dlg.close();};
 $("dCopy").onclick=function(){
@@ -328,7 +422,8 @@ $("dCopy").onclick=function(){
 };
 $("dImp").onclick=function(){
   try{
-    var n=rebuild(JSON.parse(ta.value)); snapshot(); root=n; selId=root.id; dlg.close(); commit(); fit(); toast("已匯入");
+    needArr=false; var n=rebuild(JSON.parse(ta.value)); snapshot(); root=n; selId=root.id;
+    if(needArr) arrange(true); dlg.close(); commit(); fit(); toast("已匯入");
   }catch(e){toast("無法匯入：JSON 格式不正確");}
 };
 
