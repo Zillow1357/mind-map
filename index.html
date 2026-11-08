@@ -30,6 +30,8 @@ svg{width:100%;height:100%;display:block}
 .node.root rect{stroke:none}
 .node.root text{fill:var(--roottext);font-size:18px;font-weight:700}
 .halo{pointer-events:none}
+dialog input:not([type=file]){width:100%;box-sizing:border-box;margin:4px 0;font:inherit;padding:9px 10px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;-webkit-user-select:text;user-select:text}
+#bigimg{max-width:100%;max-height:68vh;display:block;margin:auto;border-radius:8px}
 .add{cursor:pointer}.add circle{fill:var(--accent)}.add text{fill:#fff;font-size:18px;font-weight:700;text-anchor:middle;pointer-events:none}
 .sw,.sw:hover{width:22px;height:22px;padding:0;margin:auto 2px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
 #cpick{width:30px;height:30px;padding:0;margin:auto 2px;border:none;background:none;cursor:pointer}
@@ -62,12 +64,14 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 </style>
 </head>
 <body>
-<div id="stage"><svg id="svg" role="application" aria-label="心智圖畫布"><g id="vp"></g></svg></div>
+<div id="stage"><svg id="svg" role="application" aria-label="心智圖畫布"><defs id="imgdefs"></defs><g id="vp"></g></svg></div>
 <div id="bar">
   <button id="bChild" class="primary" title="新增子節點（Tab）">＋子節點</button>
   <button id="bSib" title="新增同層節點（Enter）">＋同層</button>
   <button id="bEdit" title="編輯文字（F2 或雙擊）">編輯</button>
   <button id="bDel" title="刪除節點（Delete）">刪除</button>
+  <button id="bImg" title="上傳圖片並連到選取的節點">圖片</button>
+  <button id="bVid" title="加入影片連結縮圖並連到選取的節點">影片</button>
   <span class="sep"></span>
   <button id="bArr" title="自動整理版面">整理</button>
   <span class="sep"></span>
@@ -85,9 +89,12 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <div id="hint">
   <kbd>Tab</kbd> 新增子節點　<kbd>Enter</kbd> 新增同層　<kbd>F2</kbd>／雙擊 編輯<br>
   <kbd>Delete</kbd> 刪除　<kbd>方向鍵</kbd> 移動選取　<kbd>空白鍵</kbd> 收合／展開<br>
-  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>拖曳空白處平移，滾輪縮放
+  選取節點後點兩側的 <kbd>＋</kbd> 新增子節點<br>拖曳節點自由移動；拖到另一節點上放開即連結<br>單擊選取（再單擊仍維持選取，第三下取消）、雙擊編輯文字、點空白處取消<br>圖片／影片節點：雙擊可放大圖片或開啟影片連結<br>拖曳空白處平移，滾輪縮放
 </div>
 <input id="ed" aria-label="節點文字" maxlength="80">
+<input type="file" id="fimg" accept="image/*" hidden>
+<dialog id="vdlg"><h2 id="vt">加入影片連結</h2><p>貼上影片網址。YouTube 會自動顯示縮圖，其他網站顯示通用影片卡片。</p><input id="vurl" type="url" placeholder="https://www.youtube.com/watch?v=…" aria-label="影片網址"><input id="vtitle" placeholder="標題（選填）" maxlength="40" aria-label="標題"><div class="row"><button id="vok" class="primary">確定</button><button id="vcancel">取消</button></div></dialog>
+<dialog id="idlg"><img id="bigimg" alt=""><div class="row"><button id="iclose">關閉</button></div></dialog>
 <div id="toast"></div>
 
 <dialog id="dlg">
@@ -131,7 +138,7 @@ function find(n,id,parent){
 function collect(n,s){s[n.id]=1;n.children.forEach(function(c){collect(c,s);});return s;}
 function shift(n,dx,dy){n.children.forEach(function(c){c.x+=dx;c.y+=dy;shift(c,dx,dy);});}
 function put(n,x,y){var dx=x-n.x,dy=y-n.y;n.x=x;n.y=y;shift(n,dx,dy);}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({root:root,uid:uid,sel:selId}));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({root:root,uid:uid,sel:selId}));}catch(e){toast("瀏覽器儲存空間不足，請用「匯出」備份");}}
 function snapshot(){undoStack.push(JSON.stringify(root));if(undoStack.length>60)undoStack.shift();}
 function fixUid(n){var m=parseInt(String(n.id).slice(1),10)||0;if(m>=uid)uid=m+1;n.children.forEach(fixUid);}
 var target="fill";
@@ -140,6 +147,11 @@ function okColor(c){return typeof c==="string"&&(/^#[0-9a-f]{6}$/i.test(c)||/^va
 function rebuild(o,legacy){
   if(!o||typeof o.text!=="string") throw new Error("格式錯誤");
   var n=mk(o.text.slice(0,80)); n.collapsed=!!o.collapsed;
+  var m=o.media, mw=m&&+m.w, mh=m&&+m.h;
+  if(!legacy&&m&&mw>0&&mh>0&&mw<=400&&mh<=400){
+    if(m.type==="image"&&/^data:image\//.test(m.src)) n.media={type:"image",src:m.src,w:mw,h:mh};
+    else if(m.type==="video"&&/^https?:\/\//.test(m.url)) n.media={type:"video",url:m.url,thumb:/^https:\/\/img\.youtube\.com\//.test(m.thumb||"")?m.thumb:"",host:String(m.host||"").slice(0,60),w:mw,h:mh};
+  }
   if(!legacy){["fill","bd","tc"].forEach(function(k){if(okColor(o[k])) n[k]=o[k];}); if(okColor(o.color)){n.fill=n.fill||o.color;n.bd=n.bd||o.color;}}
   if(!legacy&&typeof o.x==="number"&&typeof o.y==="number"){n.x=o.x;n.y=o.y;} else needArr=true;
   n.children=(Array.isArray(o.children)?o.children:[]).map(function(c){return rebuild(c,legacy);});
@@ -147,7 +159,7 @@ function rebuild(o,legacy){
 }
 function clean(n){
   var o={text:n.text,collapsed:!!n.collapsed,x:Math.round(n.x),y:Math.round(n.y),children:n.children.map(clean)};
-  ["fill","bd","tc"].forEach(function(k){if(n[k]) o[k]=n[k];}); return o;
+  ["fill","bd","tc"].forEach(function(k){if(n[k]) o[k]=n[k];}); if(n.media) o.media=n.media; return o;
 }
 function load(){
   try{var s=JSON.parse(localStorage.getItem(KEY));
@@ -166,7 +178,7 @@ function measure(n,isRoot){
 function visList(){
   list=[];
   (function w(n,d,pc,i){
-    n.w=measure(n,d===0); n.h=d===0?RH:H; n._d=d;
+    n.w=n.media?n.media.w:measure(n,d===0); n.h=n.media?n.media.h:(d===0?RH:H); n._d=d;
     n._c=n.bd||(d===0?"var(--root)":d===1?PAL[i%6]:pc);
     list.push(n);
     if(!n.collapsed) n.children.forEach(function(c,j){w(c,d+1,n._c,j);});
@@ -174,7 +186,7 @@ function visList(){
   return list;
 }
 function sh(n){
-  n.w=measure(n,n===root); n.h=n===root?RH:H;
+  n.w=n.media?n.media.w:measure(n,n===root); n.h=n.media?n.media.h:(n===root?RH:H);
   var v=n.collapsed?[]:n.children,t=0;
   v.forEach(function(c,i){sh(c);t+=c.sh+(i?GAP:0);});
   n.ctot=t; n.sh=Math.max(n.h,t);
@@ -226,6 +238,7 @@ function ink(col){
 function tcol(n){var f=n.fill||(n._d===0?"var(--root)":null);return n.tc||(f?ink(f):"var(--text)");}
 function render(){
   visList();
+  syncImgs();
   var links="",nodes="",tog="",plus="",sn=null;
   list.forEach(function(n){
     if(!n.collapsed) n.children.forEach(function(c){
@@ -234,7 +247,7 @@ function render(){
     });
     var isRoot=n._d===0, fill=n.fill||(isRoot?"var(--root)":null), x=n.x-n.w/2, y=n.y-n.h/2, sel=n.id===selId, drop=n.id===dropId;
     if(sel) sn=n;
-    nodes+='<g class="node'+(isRoot?" root":"")+'" data-id="'+n.id+'"><rect x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" style="stroke:'+(isRoot&&!n.bd?"none":n._c)+';fill:'+(fill||"var(--surface)")+'"/>'+
+    nodes+=n.media?mediaNode(n,sel,drop):'<g class="node'+(isRoot?" root":"")+'" data-id="'+n.id+'"><rect x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" style="stroke:'+(isRoot&&!n.bd?"none":n._c)+';fill:'+(fill||"var(--surface)")+'"/>'+
       ((sel||drop)?'<rect class="halo" x="'+(x-5)+'" y="'+(y-5)+'" width="'+(n.w+10)+'" height="'+(n.h+10)+'" rx="'+(n.h/2+5)+'" style="fill:none;stroke:var(--accent);stroke-width:'+(drop?3:2)+(drop?";stroke-dasharray:6 4":"")+'"/>':"")+
       '<text x="'+n.x+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" style="fill:'+tcol(n)+'">'+(editing===n.id?"":esc(n.text))+'</text></g>';
     if(n.children.length){
@@ -279,6 +292,7 @@ function posEd(){
 function startEdit(id){
   var r=find(root,id); if(!r) return;
   if(editing) endEdit(true);
+  if(r.node.media){selId=id; if(r.node.media.type==="video") openVideoDlg(id); else toast("圖片節點沒有文字可以編輯"); render(); return;}
   selId=id; editing=id; editOrig=r.node.text; render();
   ed.style.display="block"; ed.value=r.node.text; posEd(); ed.focus();
   if(r.node.text==="新節點") ed.select(); else ed.setSelectionRange(ed.value.length,ed.value.length);
@@ -301,14 +315,14 @@ ed.addEventListener("keydown",function(e){
 });
 ed.addEventListener("blur",function(){endEdit(true);});
 
-function addAt(dir){
+function addAt(dir,c0){
   var r=find(root,selId); if(!r) return; var n=r.node; snapshot(); visList();
-  var c=mk("新節點"); c.w=measure(c,false); c.h=H;
+  var c=c0||mk("新節點"); if(!c0){c.w=measure(c,false); c.h=H;}
   var sib=n.children.filter(function(k){return (k.x>=n.x)===(dir>0);}), y=n.y;
   if(sib.length) y=Math.max.apply(null,sib.map(function(k){return k.y;}))+H+GAP;
   c.x=n.x+dir*(n.w/2+HGAP+c.w/2); c.y=y;
   n.children.push(c); n.collapsed=false; visList(); nudge(c);
-  selId=c.id; commit(); startEdit(c.id);
+  selId=c.id; commit(); if(!c0) startEdit(c.id);
 }
 function addChild(){
   var r=find(root,selId); if(!r) return;
@@ -398,7 +412,7 @@ function up(e){
   if(drag&&drag.m==="node"&&drag.moved){if(dropId) reparent(drag.id,dropId); dropId=null; commit();}
   else if(drag&&e.type==="pointerup"&&drag.m==="node"){
     var now=Date.now();
-    if(lastTap.id===drag.id&&now-lastTap.t<350){lastTap={};selClicks=0;startEdit(drag.id);}
+    if(lastTap.id===drag.id&&now-lastTap.t<350){lastTap={};selClicks=0;activate(drag.id);}
     else{lastTap={id:drag.id,t:now}; if(drag.was){selClicks++; if(selClicks>=2){selClicks=0;selId=null;commit();}}}
   }
   else if(drag&&e.type==="pointerup"&&drag.m==="pan"&&!drag.moved){selId=null;commit();}
@@ -408,7 +422,7 @@ stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",u
 stage.addEventListener("wheel",function(e){e.preventDefault();zoomAt(e.deltaY<0?1.1:1/1.1,e.clientX,e.clientY);},{passive:false});
 
 document.addEventListener("keydown",function(e){
-  if(editing||$("dlg").open||e.target.id==="cpick") return;
+  if(editing||document.querySelector("dialog[open]")||e.target.id==="cpick") return;
   var k=e.key;
   if((e.ctrlKey||e.metaKey)&&k.toLowerCase()==="z"){e.preventDefault();undo();}
   else if(k==="Tab"){e.preventDefault();addChild();}
@@ -436,6 +450,93 @@ Array.prototype.forEach.call(document.querySelectorAll(".tg"),function(b){b.oncl
 $("cpick").addEventListener("input",function(){setColor(this.value,cpSnap);if(!cpSnap){cpSnap=true;}});
 $("cpick").addEventListener("pointerdown",function(){snapshot();});
 $("cpick").addEventListener("change",function(){cpSnap=false;});
+
+/* ---------- 圖片與影片 ---------- */
+var NS="http://www.w3.org/2000/svg", inDefs={}, vEditId=null;
+function syncImgs(){
+  var defs=$("imgdefs");
+  list.forEach(function(n){
+    var m=n.media; if(!m) return;
+    var u=m.type==="image"?m.src:m.thumb; if(!u||inDefs[n.id]===u) return;
+    var old=$("im_"+n.id); if(old) old.remove();
+    var im=document.createElementNS(NS,"image");
+    im.id="im_"+n.id; im.setAttribute("width",m.w); im.setAttribute("height",m.h);
+    im.setAttribute("preserveAspectRatio","xMidYMid slice"); im.setAttribute("href",u);
+    defs.appendChild(im); inDefs[n.id]=u;
+  });
+}
+function mediaNode(n,sel,drop){
+  var m=n.media,x=n.x-n.w/2,y=n.y-n.h/2,id=n.id,u=m.type==="image"?m.src:m.thumb;
+  var g='x="'+x+'" y="'+y+'" width="'+n.w+'" height="'+n.h+'" rx="10"';
+  var s='<g class="node media" data-id="'+id+'"><defs><clipPath id="cp'+id+'"><rect '+g+'/></clipPath></defs><rect '+g+' style="fill:var(--surface);stroke:none"/>';
+  if(m.type==="video") s+='<text x="'+n.x+'" y="'+(n.y+36)+'" text-anchor="middle" style="fill:var(--muted);font-size:12px">'+esc(m.host)+'</text>';
+  if(u) s+='<use href="#im_'+id+'" x="'+x+'" y="'+y+'" clip-path="url(#cp'+id+')"/>';
+  if(m.type==="video"){
+    s+='<circle cx="'+n.x+'" cy="'+n.y+'" r="20" style="fill:#000;opacity:.55"/><polygon points="'+(n.x-6)+','+(n.y-10)+' '+(n.x-6)+','+(n.y+10)+' '+(n.x+10)+','+n.y+'" style="fill:#fff"/>';
+    if(n.text){var t=n.text.length>13?n.text.slice(0,12)+"…":n.text;
+      s+='<g clip-path="url(#cp'+id+')"><rect x="'+x+'" y="'+(y+n.h-26)+'" width="'+n.w+'" height="26" style="fill:#000;opacity:.6"/><text x="'+n.x+'" y="'+(y+n.h-13)+'" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px">'+esc(t)+'</text></g>';}
+  }
+  s+='<rect '+g+' style="fill:none;stroke:'+n._c+';stroke-width:2.5"/>';
+  if(sel||drop) s+='<rect class="halo" x="'+(x-5)+'" y="'+(y-5)+'" width="'+(n.w+10)+'" height="'+(n.h+10)+'" rx="15" style="fill:none;stroke:var(--accent);stroke-width:'+(drop?3:2)+(drop?";stroke-dasharray:6 4":"")+'"/>';
+  return s+'</g>';
+}
+function addMedia(media,text){
+  if(!find(root,selId)) selId=root.id;
+  var r=find(root,selId), dir=r.parent&&r.node.x<r.parent.x?-1:1;
+  var c=mk(text||""); c.media=media; c.w=media.w; c.h=media.h;
+  addAt(dir,c); toast("已加入並連到「"+(r.node.media?"媒體":r.node.text)+"」");
+}
+function loadImage(file){
+  var fr=new FileReader();
+  fr.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      if(!im.width||!im.height){toast("無法讀取這張圖片");return;}
+      var k=Math.min(1,640/Math.max(im.width,im.height)), cw=Math.max(1,Math.round(im.width*k)), ch=Math.max(1,Math.round(im.height*k));
+      var c=document.createElement("canvas"); c.width=cw; c.height=ch; var g=c.getContext("2d");
+      var jpeg=file.type==="image/jpeg"; if(jpeg){g.fillStyle="#fff";g.fillRect(0,0,cw,ch);}
+      g.drawImage(im,0,0,cw,ch);
+      var src=c.toDataURL(jpeg?"image/jpeg":"image/webp",0.85), s=Math.min(180/cw,150/ch);
+      addMedia({type:"image",src:src,w:Math.max(24,Math.round(cw*s)),h:Math.max(24,Math.round(ch*s))});
+    };
+    im.onerror=function(){toast("無法讀取這張圖片");};
+    im.src=fr.result;
+  };
+  fr.readAsDataURL(file);
+}
+function ytThumb(u){
+  var m=u.match(/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
+  return m?"https://img.youtube.com/vi/"+m[1]+"/hqdefault.jpg":"";
+}
+function openUrl(u){
+  var w=null; try{w=window.open(u,"_blank");}catch(e){}
+  if(w){try{w.opener=null;}catch(e){}}
+  else{try{navigator.clipboard.writeText(u);}catch(e){} toast("無法直接開啟，連結已複製");}
+}
+function activate(id){
+  var r=find(root,id); if(!r) return; var m=r.node.media;
+  if(!m){startEdit(id);return;}
+  if(m.type==="image"){$("bigimg").src=m.src;$("idlg").showModal();} else openUrl(m.url);
+}
+function openVideoDlg(id){
+  vEditId=id; var r=id&&find(root,id), n=r&&r.node;
+  $("vt").textContent=n?"編輯影片連結":"加入影片連結";
+  $("vurl").value=n?n.media.url:""; $("vtitle").value=n?n.text:"";
+  $("vdlg").showModal(); $("vurl").focus();
+}
+$("bImg").onclick=function(){$("fimg").click();};
+$("fimg").onchange=function(){var f=this.files&&this.files[0]; this.value=""; if(f) loadImage(f);};
+$("bVid").onclick=function(){openVideoDlg(null);};
+$("vcancel").onclick=function(){$("vdlg").close();};
+$("iclose").onclick=function(){$("idlg").close();};
+$("vok").onclick=function(){
+  var u=$("vurl").value.trim(), h;
+  try{var o=new URL(u); if(!/^https?:$/.test(o.protocol)) throw 0; h=o.hostname.replace(/^www\./,"");}
+  catch(e){toast("請輸入有效的網址（http 或 https）");return;}
+  var t=$("vtitle").value.trim().slice(0,40); $("vdlg").close();
+  if(vEditId){var r=find(root,vEditId); if(r){snapshot(); r.node.text=t; r.node.media.url=u; r.node.media.thumb=ytThumb(u); r.node.media.host=h; commit();}}
+  else addMedia({type:"video",url:u,thumb:ytThumb(u),host:h,w:176,h:99},t);
+};
 
 /* ---------- 匯出／匯入 ---------- */
 var dlg=$("dlg"), ta=$("ta");
