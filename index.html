@@ -226,11 +226,56 @@ dialog textarea{width:100%;height:200px;resize:vertical;font:12.5px/1.5 ui-monos
 }
 @media (prefers-reduced-motion:reduce){#sb{transition:none}#toast{transition:none}}
 
+/* ---------- 主頁、心智圖物件 ---------- */
+#home{display:none;flex:1;min-height:0;overflow:auto;background:var(--bg)}
+body[data-view="home"] #home{display:block}
+body[data-view="home"] #tools,body[data-view="home"] #stage,body[data-view="home"] #tUndo,body[data-view="home"] #tRedo,body[data-view="home"] .zoomctl{display:none}
+body[data-view="home"] #bName{cursor:default;font-weight:700}
+.hmIn{max-width:1080px;margin:0 auto;padding:24px 24px 60px}
+.hmHead{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.hmHead h1{margin:0;font:700 28px/1.2 var(--f-title)}
+.hmHead p{margin:6px 0 0;color:var(--muted);max-width:46ch}
+.hmAct{display:flex;gap:6px;flex-wrap:wrap}
+.hmAct button{border-color:var(--line);background:var(--surface)}
+.hmAct button.pri{background:var(--accent);border-color:var(--accent)}
+.hmSec{margin-top:30px}
+.hmT{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.hmT h2{margin:0;font:700 18px var(--f-title)}
+.hmT span{color:var(--muted);font-size:12.5px}
+.hmT input{margin-left:auto;max-width:240px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.tile{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:12px;cursor:pointer;overflow:hidden;text-align:left;padding:0;min-width:0}
+.tile:hover,.tile:focus-visible{border-color:var(--accent);box-shadow:var(--shadow)}
+.tile .thumb{aspect-ratio:4/3;background-color:var(--bg);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:14px 14px;border-bottom:1px solid var(--line);padding:6px;overflow:hidden}
+.thEmpty{height:100%;display:grid;place-items:center;color:var(--muted);font-size:13px}
+.tmeta{padding:9px 38px 10px 12px;min-width:0}
+.tn{font:600 14.5px/1.35 var(--f-title);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ts{font-size:12px;color:var(--muted);margin-top:1px}
+.tile .tm{position:absolute;right:6px;bottom:8px;width:30px;height:30px;padding:0;opacity:.7}
+.tile.new{align-items:center;justify-content:center;gap:6px;min-height:150px;border-style:dashed;background:transparent;color:var(--muted);font-size:14px}
+.tile.new:hover{background:var(--surface);color:var(--accent)}
+.tile.new .plus{font-size:28px;line-height:1}
+.cgrid .ci{margin:0;display:flex;flex-direction:column;min-height:112px}
+.cgrid .ci .s{-webkit-line-clamp:3}
+.cgrid .ci .m{margin-top:auto;padding-top:6px}
+.homeBtn{display:block;width:100%;text-align:left;padding:9px 10px;font-weight:600;margin-top:4px}
+.homeBtn.on{background:var(--hover);color:var(--accent)}
+#bBack{flex:none;color:var(--accent);font-weight:600;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.obj.mmo{border-top:3px solid var(--c0)}
+.mmprev{flex:1;min-height:0;padding:0 6px 6px;pointer-events:none}
+@media (max-width:860px){
+  .hmIn{padding:16px 16px 40px}
+  .hmHead h1{font-size:24px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .hmT input{max-width:none;width:100%;margin-left:0}
+}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
     <div class="sbHead"><span class="brand">卡片工作台</span><button id="sbHide" class="ib" aria-label="收起側邊欄" title="收起側邊欄">‹</button></div>
     <div class="sbScroll">
+      <button id="goHome" class="homeBtn">⌂ 主頁</button>
       <section class="sbSec"><div class="sbT"><h2>白板</h2><button class="ib" id="addWb" aria-label="新增白板" title="新增白板">＋</button></div><ul id="wbList" class="blist"></ul></section>
       <section class="sbSec"><div class="sbT"><h2>心智圖</h2><button class="ib" id="addMm" aria-label="新增心智圖" title="新增心智圖">＋</button></div><ul id="mmList" class="blist"></ul></section>
       <section class="sbSec"><div class="sbT"><h2>卡片庫</h2><button class="ib" id="addCard" aria-label="新增卡片" title="新增卡片">＋</button></div>
@@ -243,6 +288,7 @@ dialog textarea{width:100%;height:200px;resize:vertical;font:12.5px/1.5 ui-monos
   <main id="main">
     <header id="topbar">
       <button id="sbBtn" class="ib" aria-label="開啟側邊欄" title="側邊欄">☰</button>
+      <button id="bBack" hidden></button>
       <button id="bName" title="重新命名、複製或刪除這個畫板"></button>
       <span class="sp"></span>
       <button id="tUndo" title="復原（Ctrl＋Z）">復原</button><button id="tRedo" title="重做（Ctrl＋Shift＋Z）">重做</button>
@@ -252,9 +298,12 @@ dialog textarea{width:100%;height:200px;resize:vertical;font:12.5px/1.5 ui-monos
       <div class="tgrp" data-for="wb">
         <button id="wNew" class="pri" title="建立一張新卡片並放到白板上">＋ 新卡片</button>
         <button id="wAdd" title="把卡片庫裡的卡片放到白板">既有卡片</button>
+        <button id="wMm" title="在這塊白板新增一張心智圖，雙擊就能編輯">＋ 心智圖</button>
+        <button id="wMmAdd" title="把已有的心智圖放到白板">既有心智圖</button>
         <button id="wText" title="新增便利貼">便利貼</button>
         <button id="wSec" title="新增分區，用來把相關卡片框在一起">分區</button>
         <span class="sepv"></span>
+        <button id="wOpen" title="開啟編輯（卡片、心智圖、便利貼；也可雙擊）">開啟</button>
         <button id="wMq" title="框選模式：拖曳空白處框選，點項目加減選">框選</button>
         <button id="wColor" title="改變便利貼或分區的顏色">顏色</button>
         <button id="wLbl" title="替選取的連線加文字">連線文字</button>
@@ -269,6 +318,15 @@ dialog textarea{width:100%;height:200px;resize:vertical;font:12.5px/1.5 ui-monos
         <button id="mColor" title="改變節點的顏色">顏色</button>
       </div>
     </nav>
+    <div id="home">
+      <div class="hmIn">
+        <header class="hmHead"><div><h1>主頁</h1><p>卡片是筆記的最小單位。白板把卡片和心智圖擺在一起，改任何一處，所有出現的地方都會更新。</p></div>
+          <div class="hmAct"><button id="hmNewWb" class="pri">＋ 新白板</button><button id="hmNewCard">＋ 新卡片</button><button id="hmNewMm">＋ 新心智圖</button></div></header>
+        <section class="hmSec"><div class="hmT"><h2>白板庫</h2><span id="hmWbN"></span></div><div id="hmWb" class="grid"></div></section>
+        <section class="hmSec"><div class="hmT"><h2>心智圖</h2><span id="hmMmN"></span></div><div id="hmMm" class="grid"></div></section>
+        <section class="hmSec"><div class="hmT"><h2>卡片庫</h2><span id="hmCardN"></span><input id="hmQ" type="search" placeholder="搜尋卡片" aria-label="搜尋卡片"></div><div id="hmCards" class="grid cgrid"></div></section>
+      </div>
+    </div>
     <div id="stage">
       <div id="wb" class="view">
         <div id="wbWorld">
@@ -494,6 +552,7 @@ function normBoard(b,cards){
     const base={id:oid,x:num(o.x,0),y:num(o.y,0),w:Math.max(60,num(o.w,260)),h:Math.max(40,num(o.h,160))};
     const col=(typeof o.color==='number'&&o.color>=0&&o.color<6)?(o.color|0):null;
     if(o.t==='card'){if(!cards[o.cid]) return;objs.push(Object.assign(base,{t:'card',cid:String(o.cid)}));}
+    else if(o.t==='mm'){if(!o.mid) return;objs.push(Object.assign(base,{t:'mm',mid:String(o.mid)}));}
     else if(o.t==='text') objs.push(Object.assign(base,{t:'text',text:String(o.text||'').slice(0,2000),color:col}));
     else if(o.t==='sec') objs.push(Object.assign(base,{t:'sec',title:String(o.title||'').slice(0,80),color:col}));
     else return;
@@ -519,6 +578,12 @@ function normalizeWS(raw){
   const cards=normCards(raw.cards), boards=[];
   (Array.isArray(raw.boards)?raw.boards:[]).slice(0,500).forEach(b=>{const nb=normBoard(b,cards);if(nb&&!boards.some(x=>x.id===nb.id)) boards.push(nb);});
   if(!boards.length) return null;
+  const mids={}; boards.forEach(b=>{if(b.type==='mm') mids[b.id]=1;});
+  boards.forEach(b=>{
+    if(b.type!=='wb') return;
+    const dead={}; b.objs=b.objs.filter(o=>{if(o.t==='mm'&&!mids[o.mid]){dead[o.id]=1;return false;}return true;});
+    if(Object.keys(dead).length) b.links=b.links.filter(l=>!dead[l.a]&&!dead[l.b]);
+  });
   return {v:1,cards,boards,cur:boards.some(b=>b.id===raw.cur)?raw.cur:boards[0].id};
 }
 
@@ -582,7 +647,7 @@ function deleteCard(id){
   });
   delete S.cards[id];
   Object.keys(hist).forEach(k=>delete hist[k]);
-  markDirty(); showBoard(S.cur,{keepView:true}); refreshSidebar(); toast('已刪除卡片');
+  markDirty(); if(ui.home) renderSidebar(); else showBoard(S.cur,{keepView:true}); refreshSidebar(); toast('已刪除卡片');
 }
 function detachCid(n,id,c){if(n.cid===id){n.cid=null;n.text=cardTitle(c);}n.children.forEach(x=>detachCid(x,id,c));}
 
@@ -808,7 +873,7 @@ function cardItem(c,usage,withAdd,onOpen){
   return li;
 }
 function renderSidebar(){
-  const cur=S.cur;
+  const cur=ui.home?null:S.cur; $('#goHome').classList.toggle('on',!!ui.home); if(ui.home) renderHome();
   ['wb','mm'].forEach(type=>{
     const ul=$(type==='wb'?'#wbList':'#mmList'); ul.textContent='';
     const list=S.boards.filter(b=>b.type===type);
@@ -823,7 +888,7 @@ function renderSidebar(){
     });
   });
   const ul=$('#cardList'); ul.textContent='';
-  const cs=filteredCards($('#cardQ').value), um=usageMap(), b=board(), wbOn=!!b&&b.type==='wb';
+  const cs=filteredCards($('#cardQ').value), um=usageMap(), b=board(), wbOn=!!b&&b.type==='wb'&&!ui.home;
   if(!cs.length){const li=document.createElement('li');li.className='none';li.textContent=$('#cardQ').value.trim()?'沒有符合的卡片':'還沒有卡片，按上方「＋」新增';ul.appendChild(li);}
   cs.forEach(c=>{
     const li=cardItem(c,um[c.id]||0,wbOn,id=>{openCard(id);if(isMobile()) closeSbMob();});
@@ -844,7 +909,7 @@ $('#sbBtn').onclick=toggleSb; $('#sbHide').onclick=()=>{if(isMobile()) closeSbMo
 $('#sbScrim').onclick=closeSbMob;
 
 /* ----- 新增／設定畫板 ----- */
-function addBoard(type){
+function addBoard(type,fromHome){
   const base=type==='wb'?'白板 ':'心智圖 ', names=S.boards.filter(b=>b.type===type).map(b=>b.name);
   let n=names.length+1; while(names.indexOf(base+n)>=0) n++;
   const b=type==='wb'?{id:uid('b'),name:base+n,type:'wb',view:null,objs:[],links:[]}:{id:uid('b'),name:base+n,type:'mm',view:null,root:newMmRoot()};
@@ -867,7 +932,7 @@ function dupBoard(b){
 $('#bdcancel').onclick=()=>$('#bdlg').close();
 $('#bdok').onclick=()=>{
   const b=boardById(bdId); const v=$('#bdname').value.trim().slice(0,40);
-  if(b&&v){b.name=v;if(b.id===S.cur) $('#bName').textContent=v;markDirty();renderSidebar();renderUse&&ui.editorId&&renderUse();}
+  if(b&&v){b.name=v;if(b.id===S.cur&&!ui.home) $('#bName').textContent=v;markDirty();renderSidebar();if(!ui.home){const cb=board();if(cb&&cb.type==='wb') renderWB();}if(ui.editorId) renderUse();}
   $('#bdlg').close();
 };
 $('#bdname').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();$('#bdok').click();}});
@@ -877,12 +942,15 @@ $('#bddel').onclick=function(){
   clearTimeout(bdArm);bdArm=null;
   if(S.boards.length<2){toast('至少要保留一個畫板');return;}
   const i=S.boards.findIndex(b=>b.id===bdId); if(i<0) return;
-  const was=S.boards[i].id===S.cur; delete hist[bdId]; S.boards.splice(i,1); $('#bdlg').close();
-  if(was) showBoard(S.boards[Math.min(i,S.boards.length-1)].id); else{renderSidebar();markDirty();}
+  const gone=S.boards[i], was=gone.id===S.cur; Object.keys(hist).forEach(k=>delete hist[k]); S.boards.splice(i,1); $('#bdlg').close();
+  if(gone.type==='mm') S.boards.forEach(w=>{if(w.type!=='wb') return;const dead={};w.objs=w.objs.filter(o=>{if(o.t==='mm'&&o.mid===gone.id){dead[o.id]=1;return false;}return true;});w.links=w.links.filter(l=>!dead[l.a]&&!dead[l.b]);});
+  if(was){const nx=S.boards[Math.min(i,S.boards.length-1)].id; if(ui.home){S.cur=nx;}else{showBoard(nx);}}
+  if(ui.home||!was){renderSidebar();markDirty();}
+  if(ui.back===gone.id) ui.back=null;
   if(ui.editorId) renderUse();
   toast('已刪除畫板（卡片仍在卡片庫）');
 };
-$('#bName').onclick=()=>openBoardDlg(S.cur);
+$('#bName').onclick=()=>{if(!ui.home) openBoardDlg(S.cur);};
 
 /* ----- 卡片挑選視窗 ----- */
 let pkCb=null;
@@ -949,9 +1017,10 @@ function showBoard(id,opts){
   opts=opts||{};
   if(!boardById(id)) return;
   inlClose(true); if(typeof mmEndEdit==='function') mmEndEdit(true); closePop();
-  S.cur=id; const b=board();
+  S.cur=id; const b=board(); ui.home=false; ui.back=(opts.keepBack&&b.type==='mm')?opts.keepBack:null;
   document.body.dataset.view=b.type;
   $('#bName').textContent=b.name;
+  const bk=$('#bBack'), bb=ui.back&&boardById(ui.back); bk.hidden=!bb; if(bb) bk.textContent='‹ '+bb.name;
   $$('.tgrp').forEach(g=>{g.hidden=g.dataset.for!==b.type;});
   if(b.type==='wb'){wbReset();renderWB();if(!b.view||!opts.keepView&&false) wbFit(); else wbApply();}
   else{mmReset();renderMM();if(!b.view) mmFit(); else mmApply();}
@@ -997,13 +1066,84 @@ document.addEventListener('keydown',e=>{
   if(document.querySelector('dialog[open]')) return;
   const t=e.target;
   if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
-  const b=board(); if(!b) return;
+  const b=board(); if(!b||ui.home) return;
   const k=e.key, mod=e.ctrlKey||e.metaKey;
   if(k==='Escape'&&!$('#pop').hidden){closePop();return;}
   if(mod&&k.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return;}
   if(mod&&k.toLowerCase()==='y'){e.preventDefault();redo();return;}
   if(b.type==='wb') wbKey(e); else mmKey(e);
 });
+
+/* ================= 主頁：白板庫、心智圖、卡片庫 ================= */
+function wbThumb(b){
+  if(!b.objs.length) return '<div class="thEmpty">空白</div>';
+  let a=1e9,c=1e9,d=-1e9,e=-1e9;
+  b.objs.forEach(o=>{a=Math.min(a,o.x);c=Math.min(c,o.y);d=Math.max(d,o.x+o.w);e=Math.max(e,o.y+o.h);});
+  const pad=40; a-=pad;c-=pad;d+=pad;e+=pad;
+  const byId={}; b.objs.forEach(o=>{byId[o.id]=o;});
+  let h='<svg viewBox="'+a+' '+c+' '+(d-a)+' '+(e-c)+'" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" aria-hidden="true">';
+  b.objs.filter(o=>o.t==='sec').forEach(o=>{h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="18" style="fill:var(--p'+(o.color==null?5:o.color)+')" opacity=".8"/>';});
+  b.links.forEach(l=>{const p=byId[l.a],q=byId[l.b];if(p&&q) h+='<line x1="'+(p.x+p.w/2)+'" y1="'+(p.y+p.h/2)+'" x2="'+(q.x+q.w/2)+'" y2="'+(q.y+q.h/2)+'" style="stroke:var(--muted)" stroke-width="5"/>';});
+  b.objs.forEach(o=>{
+    if(o.t==='sec') return;
+    if(o.t==='text') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="12" style="fill:var(--p'+(o.color==null?2:o.color)+')"/>';
+    else if(o.t==='mm') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="16" style="fill:var(--surface);stroke:var(--c0)" stroke-width="6"/><circle cx="'+(o.x+o.w/2)+'" cy="'+(o.y+o.h/2)+'" r="'+Math.min(o.w,o.h)*0.12+'" style="fill:var(--c0)"/>';
+    else{
+      h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="14" style="fill:var(--surface);stroke:var(--line)" stroke-width="4"/>';
+      h+='<rect x="'+(o.x+o.w*.08)+'" y="'+(o.y+o.h*.1)+'" width="'+(o.w*.55)+'" height="'+Math.max(8,o.h*.07)+'" rx="4" style="fill:var(--ink)" opacity=".75"/>';
+      h+='<rect x="'+(o.x+o.w*.08)+'" y="'+(o.y+o.h*.3)+'" width="'+(o.w*.84)+'" height="'+Math.max(6,o.h*.045)+'" rx="3" style="fill:var(--muted)" opacity=".45"/>';
+      h+='<rect x="'+(o.x+o.w*.08)+'" y="'+(o.y+o.h*.43)+'" width="'+(o.w*.7)+'" height="'+Math.max(6,o.h*.045)+'" rx="3" style="fill:var(--muted)" opacity=".45"/>';
+    }
+  });
+  return h+'</svg>';
+}
+function countNodes(n){return 1+n.children.reduce((a,c)=>a+countNodes(c),0);}
+function mkTile(thumb,name,sub,onOpen,onMenu){
+  const t=document.createElement('div'); t.className='tile'; t.tabIndex=0; t.setAttribute('role','button');
+  t.innerHTML='<div class="thumb"></div><div class="tmeta"><div class="tn"></div><div class="ts"></div></div>';
+  $('.thumb',t).innerHTML=thumb; $('.tn',t).textContent=name; $('.ts',t).textContent=sub;
+  const m=document.createElement('button'); m.className='tm'; m.textContent='⋯'; m.title='重新命名、複製、刪除'; m.setAttribute('aria-label','設定：'+name);
+  m.onclick=e=>{e.stopPropagation();onMenu();}; t.appendChild(m);
+  t.onclick=onOpen; t.onkeydown=e=>{if(e.key==='Enter'&&e.target===t) onOpen();};
+  return t;
+}
+function newTile(label,fn){const b=document.createElement('button');b.className='tile new';b.innerHTML='<span class="plus">＋</span>';b.appendChild(document.createTextNode(label));b.onclick=fn;return b;}
+function renderHomeCards(){
+  const box=$('#hmCards'); box.textContent='';
+  const q=$('#hmQ').value, cs=filteredCards(q), um=usageMap();
+  $('#hmCardN').textContent=Object.keys(S.cards).length+' 張';
+  if(!q.trim()) box.appendChild(newTile('新增卡片',()=>{const c=newCard('');markDirty();renderSidebar();openCard(c.id);}));
+  if(!cs.length&&q.trim()){const d=document.createElement('div');d.className='none';d.textContent='沒有符合的卡片';box.appendChild(d);}
+  cs.forEach(c=>{const li=cardItem(c,um[c.id]||0,false,id=>openCard(id));li.className='ci hc';box.appendChild(li);});
+}
+function renderHome(){
+  const wbs=S.boards.filter(b=>b.type==='wb'), mms=S.boards.filter(b=>b.type==='mm');
+  const wbBox=$('#hmWb'), mmBox=$('#hmMm'); wbBox.textContent=''; mmBox.textContent='';
+  $('#hmWbN').textContent=wbs.length+' 塊'; $('#hmMmN').textContent=mms.length+' 張';
+  wbs.forEach(b=>{
+    const cn=b.objs.filter(o=>o.t==='card').length, mn=b.objs.filter(o=>o.t==='mm').length;
+    const sub=(b.objs.length?cn+' 張卡片'+(mn?' · '+mn+' 個心智圖':''):'空白白板');
+    wbBox.appendChild(mkTile(wbThumb(b),b.name,sub,()=>{showBoard(b.id);closeSbMob();},()=>openBoardDlg(b.id)));
+  });
+  wbBox.appendChild(newTile('新增白板',()=>addBoard('wb')));
+  mms.forEach(b=>{
+    const used=S.boards.filter(w=>w.type==='wb'&&w.objs.some(o=>o.t==='mm'&&o.mid===b.id));
+    mmBox.appendChild(mkTile(mmThumb(b,false),b.name,countNodes(b.root)+' 個節點 · '+(used.length?'在 '+used.length+' 塊白板':'未放進白板'),()=>{showBoard(b.id);closeSbMob();},()=>openBoardDlg(b.id)));
+  });
+  mmBox.appendChild(newTile('新增心智圖',()=>addBoard('mm')));
+  renderHomeCards();
+}
+function showHome(){
+  inlClose(true); if(typeof mmEndEdit==='function') mmEndEdit(true); closePop();
+  ui.home=true; ui.back=null; document.body.dataset.view='home';
+  $('#bName').textContent='主頁'; $('#bBack').hidden=true;
+  renderSidebar(); if(isMobile()) closeSbMob();
+}
+$('#goHome').onclick=showHome;
+$('#hmQ').addEventListener('input',renderHomeCards);
+$('#hmNewWb').onclick=()=>addBoard('wb'); $('#hmNewMm').onclick=()=>addBoard('mm');
+$('#hmNewCard').onclick=()=>{const c=newCard('');markDirty();renderSidebar();openCard(c.id);};
+$('#bBack').onclick=()=>{const id=ui.back; if(id&&boardById(id)) showBoard(id); else showHome();};
 
 /* ================= 白板：卡片、便利貼、分區、連線 ================= */
 const wb=$('#wb'), world=$('#wbWorld'), secL=$('#wbSec'), objL=$('#wbObj'), lkG=$('#wbLinkG'), mqEl=$('#wbMq');
@@ -1040,6 +1180,7 @@ function wbReset(){
 function makeObjEl(o){
   const el=document.createElement('div'); el.className='obj '+(o.t==='sec'?'sec':o.t==='text'?'txt':'card'); el.dataset.id=o.id;
   if(o.t==='card') el.innerHTML='<div class="cin"><div class="ct"></div><div class="cprev prose"></div></div>';
+  else if(o.t==='mm'){el.className='obj card mmo';el.innerHTML='<div class="cin"><div class="ct"></div><div class="mmprev"></div></div>';}
   else if(o.t==='text') el.innerHTML='<div class="tx"></div>';
   else el.innerHTML='<div class="stitle"></div>';
   el.insertAdjacentHTML('beforeend','<div class="rz"></div>');
@@ -1054,6 +1195,10 @@ function updateObjEl(el,o){
   if(o.t==='card'){
     const c=S.cards[o.cid], key=c?c.updated+'|'+c.title:'x';
     if(el._k!==key){el._k=key;$('.ct',el).textContent=cardTitle(c);$('.cprev',el).innerHTML=c?c.html:'';}
+  }else if(o.t==='mm'){
+    const mb=boardById(o.mid); let key='x';
+    if(mb){const ids=[];(function w(n){if(n.cid) ids.push(n.cid);n.children.forEach(w);})(mb.root);key=mb.name+'|'+JSON.stringify(mb.root)+'|'+ids.map(i=>S.cards[i]?S.cards[i].title:'').join('\u0001');}
+    if(el._k!==key){el._k=key;$('.ct',el).textContent='心智圖・'+(mb?mb.name:'（已刪除）');$('.mmprev',el).innerHTML=mb?mmThumb(mb,true):'';}
   }else if(o.t==='text'){
     const t=$('.tx',el); if(t.textContent!==o.text) t.textContent=o.text; el.dataset.c=o.color==null?'':o.color;
   }else{
@@ -1062,7 +1207,7 @@ function updateObjEl(el,o){
 }
 function renderWB(){
   const b=board(); if(!b||b.type!=='wb') return;
-  const dead={}; b.objs=b.objs.filter(o=>{if(o.t==='card'&&!S.cards[o.cid]){dead[o.id]=1;return false;}return true;});
+  const dead={}; b.objs=b.objs.filter(o=>{if((o.t==='card'&&!S.cards[o.cid])||(o.t==='mm'&&!(boardById(o.mid)&&boardById(o.mid).type==='mm'))){dead[o.id]=1;return false;}return true;});
   if(Object.keys(dead).length) b.links=b.links.filter(l=>!dead[l.a]&&!dead[l.b]);
   const seen={};
   b.objs.forEach(o=>{
@@ -1165,7 +1310,7 @@ function wbEditSec(id){
 }
 function wbActivate(id){
   const o=wbObj(id); if(!o) return;
-  if(o.t==='card') openCard(o.cid); else if(o.t==='text') wbEditText(id); else wbEditSec(id);
+  if(o.t==='card') openCard(o.cid); else if(o.t==='mm') openMmFrom(o.mid); else if(o.t==='text') wbEditText(id); else wbEditSec(id);
 }
 function wbFocusCard(cid){
   const b=board(), o=b.objs.find(x=>x.t==='card'&&x.cid===cid); if(!o) return;
@@ -1179,6 +1324,32 @@ function wbAfterRestore(){
 /* ----- 工具列 ----- */
 $('#wNew').onclick=()=>{const c=newCard('');const o=addCardToBoard(c.id);markDirty();refreshSidebar();openCard(c.id);if(o) wbCenterOn(o);};
 $('#wAdd').onclick=()=>pickCard('把卡片放到白板',id=>{const o=addCardToBoard(id);if(o) wbCenterOn(o);});
+function addMmToBoard(mid){
+  const b=board(); if(!b||b.type!=='wb') return null;
+  const ex=b.objs.find(o=>o.t==='mm'&&o.mid===mid);
+  if(ex){wsel=new Set([ex.id]);wLink=null;wbRefreshSel();wbCenterOn(ex);toast('這個心智圖已經在這塊白板上');return ex;}
+  snap(); const p=wbCenter(), s=freeSpot(p.x-170,p.y-120);
+  const o={id:uid('o'),t:'mm',mid:mid,x:s.x,y:s.y,w:340,h:240}; b.objs.push(o);
+  wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); renderSidebar(); return o;
+}
+function openMmFrom(mid){
+  const b=board(); if(!boardById(mid)) return;
+  const from=b&&b.type==='wb'?b.id:null; showBoard(mid,{keepBack:from}); closeSbMob();
+}
+$('#wMm').onclick=()=>{
+  const n=S.boards.filter(b=>b.type==='mm').length+1; let nm='心智圖 '+n; while(S.boards.some(b=>b.name===nm)) nm='心智圖 '+(++n);
+  const mb={id:uid('b'),name:nm,type:'mm',view:null,root:newMmRoot()}; S.boards.push(mb);
+  addMmToBoard(mb.id); markDirty(); toast('已新增「'+nm+'」，雙擊它就能編輯'); openMmFrom(mb.id);
+};
+$('#wMmAdd').onclick=function(){
+  const list=S.boards.filter(b=>b.type==='mm');
+  openPop(this,p=>{
+    const h=document.createElement('div');h.className='ph';h.textContent='放入既有心智圖';p.appendChild(h);
+    if(!list.length){const d=document.createElement('div');d.className='none';d.textContent='還沒有心智圖，按「＋ 心智圖」新增';p.appendChild(d);}
+    list.forEach(mb=>{const bt=document.createElement('button');bt.className='mi';bt.textContent=mb.name;bt.onclick=()=>{closePop();addMmToBoard(mb.id);};p.appendChild(bt);});
+  });
+};
+$('#wOpen').onclick=()=>{if(wsel.size===1) wbActivate(Array.from(wsel)[0]);};
 $('#wText').onclick=()=>{
   const b=board(); snap(); const p=wbCenter(), s=freeSpot(p.x-100,p.y-55);
   const o={id:uid('o'),t:'text',x:s.x,y:s.y,w:200,h:110,text:'',color:null}; b.objs.push(o);
@@ -1208,6 +1379,7 @@ $('#wColor').onclick=function(){
 function wbUpdTools(){
   const b=board(); if(!b||b.type!=='wb') return;
   const canColor=b.objs.some(o=>wsel.has(o.id)&&(o.t==='text'||o.t==='sec'));
+  $('#wOpen').disabled=!(wsel.size===1&&b.objs.some(o=>wsel.has(o.id)&&o.t!=='sec'));
   $('#wDel').disabled=!(wsel.size||wLink); $('#wColor').disabled=!canColor; $('#wLbl').disabled=!wLink;
   $('#wMq').classList.toggle('on',wMode);
 }
@@ -1288,7 +1460,7 @@ wb.addEventListener('pointermove',e=>{
   if(d.m==='rz'){
     if(!d.moved){if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<3) return;d.moved=true;snap();}
     const o=wbObj(d.id); if(!o) return;
-    o.w=Math.max(o.t==='card'?180:110,d.ow+(e.clientX-d.sx)/v.k); o.h=Math.max(o.t==='sec'?90:60,d.oh+(e.clientY-d.sy)/v.k);
+    o.w=Math.max((o.t==='card'||o.t==='mm')?180:110,d.ow+(e.clientX-d.sx)/v.k); o.h=Math.max(o.t==='sec'?90:60,d.oh+(e.clientY-d.sy)/v.k);
     posEl(o); renderLinks(); return;
   }
   if(d.m==='link'){
@@ -1415,8 +1587,8 @@ function mmSize(n,isRoot){
   const tw=mmTW(t,fs,isRoot), ico=n.cid?24:0;
   return {t:t,tw:tw,ico:ico,w:Math.max(isRoot?96:56,Math.ceil(tw)+(isRoot?36:28)+ico),h:isRoot?46:36};
 }
-function mmLayout(){
-  const b=board(), root=b.root; mmLay={};
+function mmLayout(b,out){
+  b=b||board(); const root=b.root, LAY=out||(mmLay={});
   const sz={}, sh={};
   (function m(n,d){sz[n.id]=mmSize(n,d===0);n.children.forEach(c=>m(c,d+1));})(root,0);
   function H(n){
@@ -1430,10 +1602,10 @@ function mmLayout(){
   root.children.forEach(c=>{if(c.side===-1) wl+=leaves(c);else if(c.side===1) wr+=leaves(c);});
   root.children.forEach(c=>{if(c.side===0){if(wr<=wl){c.side=1;wr+=leaves(c);}else{c.side=-1;wl+=leaves(c);}}});
   const rs=sz[root.id];
-  mmLay[root.id]={n:root,p:null,x:-rs.w/2,y:-rs.h/2,w:rs.w,h:rs.h,cy:0,dir:0,col:null,depth:0,s:rs};
+  LAY[root.id]={n:root,p:null,x:-rs.w/2,y:-rs.h/2,w:rs.w,h:rs.h,cy:0,dir:0,col:null,depth:0,s:rs};
   function place(n,pl,cy,dir,col,depth){
     const s=sz[n.id], x=dir>0?pl.x+pl.w+GX:pl.x-GX-s.w;
-    const L=mmLay[n.id]={n:n,p:pl,x:x,y:cy-s.h/2,w:s.w,h:s.h,cy:cy,dir:dir,col:col,depth:depth,s:s};
+    const L=LAY[n.id]={n:n,p:pl,x:x,y:cy-s.h/2,w:s.w,h:s.h,cy:cy,dir:dir,col:col,depth:depth,s:s};
     if(!n.collapsed&&n.children.length){
       let total=GY*(n.children.length-1); n.children.forEach(c=>{total+=H(c);});
       let y0=cy-total/2; n.children.forEach(c=>{const hh=H(c);place(c,L,y0+hh/2,dir,col,depth+1);y0+=hh+GY;});
@@ -1443,7 +1615,7 @@ function mmLayout(){
     const kids=root.children.filter(c=>c.side===dir); if(!kids.length) return;
     let total=GY*(kids.length-1); kids.forEach(c=>{total+=H(c);});
     let y0=-total/2;
-    kids.forEach(c=>{const hh=H(c);place(c,mmLay[root.id],y0+hh/2,dir,'var(--c'+(root.children.indexOf(c)%6)+')',1);y0+=hh+GY;});
+    kids.forEach(c=>{const hh=H(c);place(c,LAY[root.id],y0+hh/2,dir,'var(--c'+(root.children.indexOf(c)%6)+')',1);y0+=hh+GY;});
   });
 }
 function mmStyle(n,L){
@@ -1494,6 +1666,22 @@ function renderMM(){
   mmVp.innerHTML='<g>'+eg+'</g><g>'+nd+'</g><g id="mmO"></g>';
   $('#emptyHint').hidden=true;
   mmUpdTools();
+}
+/* 縮圖：用同一套排版畫出小圖（白板上的心智圖物件與主頁都用它） */
+function mmThumb(b,withText){
+  const lay={}; mmLayout(b,lay); const ids=Object.keys(lay);
+  let a=1e9,c=1e9,d=-1e9,e=-1e9;
+  ids.forEach(id=>{const L=lay[id];a=Math.min(a,L.x);c=Math.min(c,L.y);d=Math.max(d,L.x+L.w);e=Math.max(e,L.y+L.h);});
+  const pad=withText?16:24; a-=pad;c-=pad;d+=pad;e+=pad;
+  let eg='',nd='';
+  ids.forEach(id=>{
+    const L=lay[id], n=L.n, root=L.depth===0, st=mmStyle(n,L);
+    if(L.p){const P=L.p,x1=L.dir>0?P.x+P.w:P.x,x2=L.dir>0?L.x:L.x+L.w,mx=(x1+x2)/2;
+      eg+='<path d="M'+x1+' '+P.cy+'C'+mx+' '+P.cy+' '+mx+' '+L.cy+' '+x2+' '+L.cy+'" fill="none" style="stroke:'+L.col+'" stroke-width="'+(withText?2.4:5)+'"/>';}
+    nd+='<rect x="'+L.x+'" y="'+L.y+'" width="'+L.w+'" height="'+L.h+'" rx="'+(root?16:11)+'" style="fill:'+st.fill+';stroke:'+st.bd+'" stroke-width="'+(root?0:(withText?2:4))+'"/>';
+    if(withText) nd+='<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" font-size="'+(root?18:15)+'" style="fill:'+st.tc+'">'+esc(L.s.t)+'</text>';
+  });
+  return '<svg viewBox="'+a+' '+c+' '+(d-a)+' '+(e-c)+'" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" aria-hidden="true">'+eg+nd+'</svg>';
 }
 function mmParentVisible(id){
   let f=mmFind(id); while(f&&!mmLay[f.n.id]){const p=f.p;if(!p) return null;f=mmFind(p.id);}
@@ -1861,7 +2049,7 @@ $('#ioRep').onclick=()=>{
   repArmed=0; b.textContent='取代全部資料';
   try{
     const ns=parseImport(ioTa.value); closeEditor(); S=ns; Object.keys(hist).forEach(k=>delete hist[k]);
-    showBoard(S.cur); refreshSidebar(); markDirty.now(); $('#iodlg').close(); toast('已取代全部資料');
+    showHome(); markDirty.now(); $('#iodlg').close(); toast('已取代全部資料');
   }catch(e){ioHint('匯入失敗：'+e.message,true);}
 };
 
@@ -1888,6 +2076,7 @@ function sampleWS(){
   const mk2=(text,cid,kids)=>({id:uid('m'),text:text,cid:cid||null,side:0,collapsed:false,children:kids||[]});
   root.children=[mk2('目標',null,[mk2('第一階段'),mk2('第二階段')]),mk2('心智圖怎麼用',c3),mk2('資源',null,[mk2('文件'),mk2('工具')]),mk2('白板怎麼用',c2)];
   const mmd={id:uid('b'),name:'範例心智圖',type:'mm',view:null,root:root};
+  wbd.objs.push({id:uid('o'),t:'mm',mid:mmd.id,x:-340,y:150,w:190,h:200});
   return normalizeWS({v:1,cards:cards,boards:[wbd,mmd],cur:wbd.id});
 }
 
@@ -1897,7 +2086,7 @@ function sampleWS(){
   try{if(!isMobile()&&localStorage.getItem('cardbench-sb')==='off') document.body.classList.add('sb-off');}catch(e){}
   let ws=null; try{ws=normalizeWS(await loadWS());}catch(e){ws=null;}
   S=ws||sampleWS();
-  showBoard(S.cur); refreshSidebar();
+  showHome();
   if(!ws) markDirty.now();
   try{if(navigator.storage&&navigator.storage.persist) navigator.storage.persist();}catch(e){}
   let rz; window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const b=board();if(b&&b.type==='mm') renderMM();},150);});
