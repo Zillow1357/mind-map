@@ -316,6 +316,32 @@ body[data-view="lib"] #lib{display:block}
 }
 .ci{list-style:none}
 
+/* ---------- 搜尋 ---------- */
+#sdlg{margin:7vh auto auto;padding:0;width:min(660px,calc(100vw - 20px));max-height:84vh;display:none;flex-direction:column;overflow:hidden}
+#sdlg[open]{display:flex}
+#sq{border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:16px 18px;font-size:16.5px;flex:none}
+#sq:focus-visible{outline:none;box-shadow:inset 0 -2px 0 var(--accent)}
+#sfil{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--line);flex:none;overflow-x:auto}
+#sfil button{font-size:13px;padding:4px 11px;border-radius:14px;border:1px solid var(--line);white-space:nowrap;min-height:0}
+#sfil button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+#sres{flex:1;min-height:120px;overflow:auto;padding:6px}
+#sres .sh{font-size:12px;color:var(--muted);padding:6px 10px 4px}
+.sr{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:9px 10px;border-radius:10px;border:1px solid transparent}
+.sr.on{background:var(--hover);border-color:var(--line)}
+.stag{flex:none;font-size:11.5px;padding:2px 7px;border-radius:6px;background:var(--hover);color:var(--muted);margin-top:2px;min-width:3.4em;text-align:center}
+.stag.t-card{background:var(--p0)}.stag.t-wb{background:var(--p1)}.stag.t-mm{background:var(--p4)}
+.sbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.st{font:600 14.5px/1.4 var(--f-title);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ss{font-size:12.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sm{flex:none;font-size:11.5px;color:var(--muted);max-width:30%;text-align:right;margin-top:3px}
+#sres mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.sfoot{display:flex;gap:16px;padding:8px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);flex:none}
+.fakeSearch{flex:1 1 280px;max-width:460px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:10px 14px;border-radius:12px;margin-left:auto}
+.fakeSearch:hover{border-color:var(--accent);background:var(--surface)}
+kbd{font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:var(--bg);color:var(--muted)}
+@media (max-width:860px){#sdlg{margin:calc(env(safe-area-inset-top,0px) + 8px) auto auto;max-height:calc(100dvh - 16px)}.sm{display:none}.sfoot{display:none}#sq{font-size:16px}.fakeSearch kbd{display:none}.hmHead{flex-direction:column;align-items:stretch}.fakeSearch{margin-left:0;max-width:none}}
+.sr.on,.sr.on:hover{background:var(--hover);color:var(--ink)}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -343,6 +369,7 @@ body[data-view="lib"] #lib{display:block}
       <button id="bBack" hidden></button>
       <button id="bName" title="重新命名、複製或刪除這個畫板"></button>
       <span class="sp"></span>
+      <button id="bSearch" title="搜尋全部內容（Ctrl＋K）">搜尋</button>
       <button id="tUndo" title="復原（Ctrl＋Z）">復原</button><button id="tRedo" title="重做（Ctrl＋Shift＋Z）">重做</button>
       <span class="zoomctl"><button id="zOut" aria-label="縮小">－</button><button id="zPct" title="回到 100%">100%</button><button id="zIn" aria-label="放大">＋</button><button id="zFit" title="縮放到看見全部內容">適合</button></span>
     </header>
@@ -372,7 +399,7 @@ body[data-view="lib"] #lib{display:block}
     </nav>
     <div id="home">
       <div class="hmIn">
-        <header class="hmHead"><h1>主頁</h1><p>卡片是筆記的最小單位。白板把卡片和心智圖擺在一起，改任何一處，所有出現的地方都會更新。點標題可以進入各庫的完整頁面。</p></header>
+        <header class="hmHead"><h1>主頁</h1><button id="hmSearch" class="fakeSearch">搜尋卡片、白板、心智圖的內容…<kbd>Ctrl K</kbd></button><p>卡片是筆記的最小單位。白板把卡片和心智圖擺在一起，改任何一處，所有出現的地方都會更新。點標題可以進入各庫的完整頁面。</p></header>
         <div class="hmGrid">
           <section class="hmBlk"><header class="bh"><button class="bt" data-open="wb"><h2>白板庫</h2><span class="cnt" id="hmWbN"></span></button><button class="ba" id="hmAddWb">＋ 新增</button></header><div class="bp" id="hmWb"></div><button class="bo" data-open="wb">查看全部白板 ›</button></section>
           <section class="hmBlk"><header class="bh"><button class="bt" data-open="mm"><h2>心智圖庫</h2><span class="cnt" id="hmMmN"></span></button><button class="ba" id="hmAddMm">＋ 新增</button></header><div class="bp" id="hmMm"></div><button class="bo" data-open="mm">查看全部心智圖 ›</button></section>
@@ -441,6 +468,12 @@ body[data-view="lib"] #lib{display:block}
 <input type="file" id="fimg" accept="image/*" hidden>
 <div id="toast" role="status"></div>
 
+<dialog id="sdlg" aria-label="搜尋">
+  <input id="sq" type="search" placeholder="搜尋卡片內文、白板文字、心智圖節點…" aria-label="搜尋全部內容" autocomplete="off">
+  <div id="sfil" role="tablist"><button data-f="all" class="on">全部</button><button data-f="card">卡片</button><button data-f="wb">白板</button><button data-f="mm">心智圖</button></div>
+  <div id="sres" role="listbox"></div>
+  <div class="sfoot"><span>↑↓ 選擇</span><span>Enter 開啟</span><span>Esc 關閉</span></div>
+</dialog>
 <dialog id="bdlg"><h2>畫板設定</h2><p>修改名稱，或複製、刪除這個畫板。刪除畫板不會刪除卡片。</p>
   <input id="bdname" type="text" maxlength="40" aria-label="畫板名稱">
   <div class="row"><button id="bddel" class="dng">刪除</button><button id="bddup">複製</button><button id="bdcancel">取消</button><button id="bdok" class="pri">儲存</button></div></dialog>
@@ -1272,6 +1305,108 @@ $('#goHome').onclick=showHome;
 $$('[data-open]').forEach(b=>{b.onclick=()=>showLib(b.dataset.open);});
 $('#hmAddWb').onclick=()=>addBoard('wb'); $('#hmAddMm').onclick=()=>addBoard('mm'); $('#hmAddCard').onclick=addCardHere;
 $('#bBack').onclick=()=>{const id=ui.back; if(id&&boardById(id)) showBoard(id); else showHome();};
+
+/* ================= 全站搜尋：卡片內文、白板文字、心智圖節點 ================= */
+let sFilter='all', sItems=[], sAct=0;
+function sTokens(q){return q.toLowerCase().split(/\s+/).filter(Boolean);}
+function sMatch(text,toks){const t=text.toLowerCase();return toks.every(k=>t.indexOf(k)>=0);}
+function sSnip(text,toks){
+  text=String(text).replace(/\s+/g,' ').trim();
+  const low=text.toLowerCase(); let at=-1;
+  toks.forEach(k=>{const i=low.indexOf(k);if(i>=0&&(at<0||i<at)) at=i;});
+  const from=Math.max(0,at-24), seg=text.slice(from,from+120);
+  return (from>0?'…':'')+seg+(from+120<text.length?'…':'');
+}
+function sMark(text,toks){
+  let h=esc(text); if(!toks.length) return h;
+  toks.slice().sort((a,b)=>b.length-a.length).forEach(k=>{
+    const re=new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/&/g,'&amp;?'),'gi');
+    h=h.replace(re,m=>'<mark>'+m+'</mark>');
+  });
+  return h;
+}
+function searchAll(q){
+  const toks=sTokens(q), out=[], um=usageMap();
+  if(!toks.length){
+    filteredCards('').slice(0,6).forEach(c=>out.push({k:'card',id:c.id,tag:'卡片',title:cardTitle(c),snip:cardText(c).slice(0,90),meta:'出現在 '+(um[c.id]||0)+' 個畫板',score:0}));
+    S.boards.slice(0,8).forEach(b=>out.push({k:b.type,id:b.id,tag:b.type==='wb'?'白板':'心智圖',title:b.name,snip:'',meta:'',score:0}));
+    return out;
+  }
+  Object.values(S.cards).forEach(c=>{
+    const title=cardTitle(c), body=cardText(c), inT=sMatch(title,toks), inB=sMatch(title+' '+body,toks);
+    if(!inB) return;
+    const st=title.toLowerCase().indexOf(toks[0]);
+    out.push({k:'card',id:c.id,tag:'卡片',title:title,snip:inT&&!sMatch(body,toks)?body.slice(0,90):sSnip(body,toks),meta:'出現在 '+(um[c.id]||0)+' 個畫板',score:inT?(st===0?100:80):40});
+  });
+  S.boards.forEach(b=>{
+    const tag=b.type==='wb'?'白板':'心智圖';
+    if(sMatch(b.name,toks)) out.push({k:b.type,id:b.id,tag:tag,title:b.name,snip:'',meta:'',score:90});
+    if(b.type==='wb'){
+      b.objs.forEach(o=>{
+        if(o.t==='text'&&o.text&&sMatch(o.text,toks)) out.push({k:'wb',id:b.id,oid:o.id,tag:'便利貼',title:sSnip(o.text,toks),snip:'',meta:'白板・'+b.name,score:55});
+        else if(o.t==='sec'&&o.title&&sMatch(o.title,toks)) out.push({k:'wb',id:b.id,oid:o.id,tag:'分區',title:o.title,snip:'',meta:'白板・'+b.name,score:60});
+      });
+      b.links.forEach(l=>{if(l.label&&sMatch(l.label,toks)&&b.objs.some(o=>o.id===l.a)) out.push({k:'wb',id:b.id,oid:l.a,tag:'連線文字',title:l.label,snip:'',meta:'白板・'+b.name,score:45});});
+    }else{
+      (function w(n,path){
+        if(!n.cid&&n.text&&sMatch(n.text,toks)) out.push({k:'mm',id:b.id,nid:n.id,tag:'節點',title:n.text,snip:path.length?path.join(' › '):'',meta:'心智圖・'+b.name,score:58});
+        n.children.forEach(c=>w(c,path.concat(n.cid&&S.cards[n.cid]?cardTitle(S.cards[n.cid]):n.text)));
+      })(b.root,[]);
+    }
+  });
+  out.sort((a,b)=>b.score-a.score);
+  return out;
+}
+function sRender(){
+  const q=$('#sq').value, toks=sTokens(q), all=searchAll(q), box=$('#sres');
+  const cnt={all:all.length,card:0,wb:0,mm:0}; all.forEach(r=>{cnt[r.k]++;});
+  $$('#sfil button').forEach(b=>{const f=b.dataset.f,base=({all:'全部',card:'卡片',wb:'白板',mm:'心智圖'})[f];b.textContent=base+(toks.length?' '+cnt[f]:'');b.classList.toggle('on',f===sFilter);});
+  sItems=all.filter(r=>sFilter==='all'||r.k===sFilter).slice(0,80); sAct=0; box.textContent='';
+  if(!sItems.length){const d=document.createElement('div');d.className='none';d.textContent=toks.length?'找不到符合「'+q.trim()+'」的內容':'還沒有內容';box.appendChild(d);return;}
+  if(!toks.length){const h=document.createElement('div');h.className='sh';h.textContent='最近的卡片與全部畫板';box.appendChild(h);}
+  sItems.forEach((r,i)=>{
+    const b=document.createElement('button'); b.className='sr'+(i===0?' on':''); b.setAttribute('role','option'); b.dataset.i=i;
+    b.innerHTML='<span class="stag t-'+r.k+'">'+esc(r.tag)+'</span><span class="sbody"><span class="st">'+sMark(r.title,toks)+'</span>'+(r.snip?'<span class="ss">'+sMark(r.snip,toks)+'</span>':'')+'</span>'+(r.meta?'<span class="sm">'+esc(r.meta)+'</span>':'');
+    b.onmouseenter=()=>sSetAct(i); b.onclick=()=>sGo(r);
+    box.appendChild(b);
+  });
+}
+function sSetAct(i){
+  sAct=i; $$('#sres .sr').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+  const el=$('#sres .sr.on'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+}
+function sGo(r){
+  $('#sdlg').close(); closeSbMob();
+  if(r.k==='card'){openCard(r.id);return;}
+  showBoard(r.id);
+  if(r.oid){const o=wbObj(r.oid);if(o){wsel=new Set([o.id]);wLink=null;wbRefreshSel();wbCenterOn(o);}}
+  else if(r.nid){
+    (function ex(id){const f=mmFind(id);if(f&&f.p){f.p.collapsed=false;ex(f.p.id);}})(r.nid);
+    mmSel=r.nid; renderMM(); mmCenterOn(r.nid);
+  }
+}
+function openSearch(q){
+  inlClose(true); if(typeof mmEndEdit==='function') mmEndEdit(true); closePop();
+  const d=$('#sdlg'); if(d.open){$('#sq').focus();$('#sq').select();return;}
+  sFilter='all'; $('#sq').value=q||''; sRender(); d.showModal(); $('#sq').focus(); $('#sq').select();
+}
+$('#bSearch').onclick=()=>openSearch(); $('#hmSearch').onclick=()=>openSearch();
+$('#sq').addEventListener('input',sRender);
+$$('#sfil button').forEach(b=>{b.onclick=()=>{sFilter=b.dataset.f;sRender();$('#sq').focus();};});
+$('#sq').addEventListener('keydown',e=>{
+  if(e.isComposing) return;
+  if(e.key==='ArrowDown'){e.preventDefault();if(sItems.length) sSetAct((sAct+1)%sItems.length);}
+  else if(e.key==='ArrowUp'){e.preventDefault();if(sItems.length) sSetAct((sAct-1+sItems.length)%sItems.length);}
+  else if(e.key==='Enter'){e.preventDefault();if(sItems[sAct]) sGo(sItems[sAct]);}
+  else if(e.key==='Escape'){e.preventDefault();$('#sdlg').close();}
+});
+$('#sdlg').addEventListener('click',e=>{if(e.target===$('#sdlg')) $('#sdlg').close();});
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey&&e.key.toLowerCase()==='k'){
+    if(document.querySelector('dialog[open]:not(#sdlg)')) return;
+    e.preventDefault(); openSearch();
+  }
+},true);
 
 /* ================= 白板：卡片、便利貼、分區、連線 ================= */
 const wb=$('#wb'), world=$('#wbWorld'), secL=$('#wbSec'), objL=$('#wbObj'), lkG=$('#wbLinkG'), mqEl=$('#wbMq');
