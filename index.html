@@ -377,6 +377,18 @@ kbd{font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-r
   #bName{max-width:34vw}
 }
 
+/* ---------- 卡片全螢幕、側邊欄放入按鈕 ---------- */
+body.ed-full #editor{position:fixed;inset:0;z-index:50;border-left:0;visibility:visible;padding-top:env(safe-area-inset-top,0px)}
+body.ed-full #editor>*{width:min(100%,860px);margin-left:auto;margin-right:auto}
+body.ed-full #editor{overflow:auto}
+body.ed-full #edBody{font-size:17.5px;line-height:1.85;flex:1 0 auto;min-height:60vh;padding:14px 24px 80px;overflow:visible}
+body.ed-full #edTitle{font-size:32px;padding:26px 24px 8px}
+body.ed-full #edTools{position:sticky;top:0;z-index:2;background:var(--surface)}
+body.ed-full .edHead{padding-top:12px}
+body.ed-full #edUse{padding-bottom:20px}
+.bi .bput{width:auto;padding:2px 8px;font-size:12px;border:1px solid var(--line);opacity:.9;margin-right:2px}
+@media (max-width:860px){#edFull{display:none}}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -473,7 +485,7 @@ kbd{font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-r
   </main>
 
   <aside id="editor" aria-label="卡片編輯">
-    <div class="edHead"><button id="edClose" class="ib" aria-label="關閉編輯器" title="關閉">✕</button><span id="edMeta"></span><button id="edDel" class="dng" title="永久刪除這張卡片">刪除卡片</button></div>
+    <div class="edHead"><button id="edClose" class="ib" aria-label="關閉編輯器" title="關閉">✕</button><span id="edMeta"></span><button id="edFull" class="ib" aria-label="全螢幕編輯" aria-pressed="false" title="全螢幕編輯（Esc 離開）">⤢</button><button id="edDel" class="dng" title="永久刪除這張卡片">刪除卡片</button></div>
     <input id="edTitle" type="text" placeholder="卡片標題" maxlength="120" aria-label="卡片標題">
     <div id="edTools" role="toolbar" aria-label="格式">
       <button data-cmd="bold" title="粗體（Ctrl＋B）"><b>B</b></button>
@@ -753,8 +765,9 @@ function openCard(id){
   renderUse(); edBody.scrollTop=0; updToolState();
   if(!c.title&&!c.html) setTimeout(()=>edTitle.focus(),30);
 }
+function setFull(on){document.body.classList.toggle('ed-full',!!on);$('#edFull').setAttribute('aria-pressed',on?'true':'false');$('#edFull').textContent=on?'⤡':'⤢';$('#edFull').title=on?'離開全螢幕（Esc）':'全螢幕編輯（Esc 離開）';}
 function closeEditor(){
-  flushEditor(); ui.editorId=null;
+  setFull(false); flushEditor(); ui.editorId=null;
   $('#editor').classList.remove('open'); document.body.classList.remove('ed-open');
 }
 function flushEditor(){
@@ -991,6 +1004,11 @@ $('#edDel').onclick=function(){
   clearTimeout(delArm);delArm=null;this.textContent='刪除卡片';deleteCard(ui.editorId);
 };
 
+$('#edFull').onclick=()=>{setFull(!document.body.classList.contains('ed-full'));edBody.focus();};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.body.classList.contains('ed-full')&&!document.querySelector('dialog[open]')&&$('#pop').hidden){e.preventDefault();setFull(false);}
+});
+
 /* ================= 介面：側邊欄、浮層、畫板切換 ================= */
 function usageMap(){
   const m={};
@@ -1038,6 +1056,17 @@ function renderSidebar(){
       bn.onclick=()=>{showBoard(b.id);if(isMobile()) closeSbMob();};
       const bm=document.createElement('button'); bm.className='bm'; bm.textContent='⋯'; bm.setAttribute('aria-label','畫板設定：'+b.name); bm.title='重新命名、複製、刪除';
       bm.onclick=()=>openBoardDlg(b.id);
+      if(type==='mm'){
+        li.draggable=true; li.title='拖曳到白板上，就能放進白板';
+        li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/x-mm',b.id);e.dataTransfer.setData('text/plain',b.name);e.dataTransfer.effectAllowed='copy';li.classList.add('drag');});
+        li.addEventListener('dragend',()=>li.classList.remove('drag'));
+        const cb=board();
+        if(cb&&cb.type==='wb'&&!ui.home){
+          const ad=document.createElement('button'); ad.className='bm bput'; ad.textContent='放入'; ad.title='放到目前的白板'; ad.setAttribute('aria-label','把「'+b.name+'」放到目前的白板');
+          ad.onclick=e=>{e.stopPropagation();addMmToBoard(b.id);if(isMobile()) closeSbMob();};
+          li.appendChild(bn); li.appendChild(ad); li.appendChild(bm); ul.appendChild(li); return;
+        }
+      }
       li.appendChild(bn); li.appendChild(bm); ul.appendChild(li);
     });
   });
@@ -1648,11 +1677,11 @@ function wbAfterRestore(){
 /* ----- 工具列 ----- */
 $('#wNew').onclick=()=>{const c=newCard('');const o=addCardToBoard(c.id);markDirty();refreshSidebar();openCard(c.id);if(o) wbCenterOn(o);};
 $('#wAdd').onclick=()=>pickCard('把卡片放到白板',id=>{const o=addCardToBoard(id);if(o) wbCenterOn(o);});
-function addMmToBoard(mid){
+function addMmToBoard(mid,x,y){
   const b=board(); if(!b||b.type!=='wb') return null;
   const ex=b.objs.find(o=>o.t==='mm'&&o.mid===mid);
   if(ex){wsel=new Set([ex.id]);wLink=null;wbRefreshSel();wbCenterOn(ex);toast('這個心智圖已經在這塊白板上');return ex;}
-  snap(); const p=wbCenter(), s=freeSpot(p.x-170,p.y-120);
+  snap(); const p=(x==null)?wbCenter():{x:x,y:y}, s=freeSpot(p.x-170,p.y-120);
   const o={id:uid('o'),t:'mm',mid:mid,x:s.x,y:s.y,w:340,h:240}; b.objs.push(o);
   wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); renderSidebar(); return o;
 }
@@ -1834,8 +1863,10 @@ wb.addEventListener('wheel',e=>{
   if(e.ctrlKey||e.metaKey){const r=wb.getBoundingClientRect();wbZoomAt(Math.exp(-clamp(e.deltaY,-40,40)*0.01),e.clientX-r.left,e.clientY-r.top);}
   else{v.x-=e.deltaX;v.y-=e.deltaY;wbApply();}
 },{passive:false});
-wb.addEventListener('dragover',e=>{if(e.dataTransfer&&Array.from(e.dataTransfer.types||[]).indexOf('text/x-card')>=0){e.preventDefault();e.dataTransfer.dropEffect='copy';}});
+wb.addEventListener('dragover',e=>{if(e.dataTransfer&&Array.from(e.dataTransfer.types||[]).some(t=>t==='text/x-card'||t==='text/x-mm')){e.preventDefault();e.dataTransfer.dropEffect='copy';}});
 wb.addEventListener('drop',e=>{
+  const mid=e.dataTransfer&&e.dataTransfer.getData('text/x-mm');
+  if(mid){e.preventDefault();const bm=boardById(mid);if(bm&&bm.type==='mm'){const w=wbToWorld(e.clientX,e.clientY);addMmToBoard(mid,w.x,w.y);}return;}
   const id=e.dataTransfer&&e.dataTransfer.getData('text/x-card'); if(!id||!S.cards[id]) return;
   e.preventDefault(); const w=wbToWorld(e.clientX,e.clientY); addCardToBoard(id,w.x,w.y);
 });
