@@ -2,7 +2,11 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eef2f6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="心智圖">
 <title>心智圖工具</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -20,7 +24,8 @@
   --bg:#12171e;--dot:#26303c;--surface:#1c2430;--text:#e6ecf3;--muted:#8d9db1;
   --bar:#1a222cee;--line:#2e3a48;--root:#8fb4f5;--roottext:#10213a;--accent:#6b9bff;
   --c0:#6b9bff;--c1:#3cc7ae;--c2:#f0a94a;--c3:#ee7aa8;--c4:#a58bf0;--c5:#7fc95f;}
-html,body{height:100%;margin:0;overflow:hidden}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+@supports (height:100dvh){html,body{height:100dvh}}
 body{background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
 #stage{position:absolute;inset:0;background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:22px 22px;touch-action:none;cursor:grab}
 #stage.pan{cursor:grabbing}
@@ -60,7 +65,7 @@ dialog input:not([type=file]){width:100%;box-sizing:border-box;margin:4px 0;font
 #barOpen{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 10px);z-index:5;background:var(--bar);border:1px solid var(--line);backdrop-filter:blur(8px);border-radius:12px;padding:8px 14px}
 body.barhid #bar{display:none}
 body.barhid #barOpen{display:block}
-button{font:inherit;font-size:14px;color:var(--text);background:transparent;border:1px solid transparent;border-radius:8px;padding:7px 11px;cursor:pointer;white-space:nowrap}
+button{touch-action:manipulation;font:inherit;font-size:14px;color:var(--text);background:transparent;border:1px solid transparent;border-radius:8px;padding:7px 11px;cursor:pointer;white-space:nowrap}
 button:hover{background:var(--bg);border-color:var(--line)}
 button:focus-visible,#ed:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 button.primary{background:var(--accent);color:#fff}
@@ -110,6 +115,26 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 .gmore{flex:none;padding:4px 10px}
 .gnew{min-height:190px;border:2px dashed var(--line);border-radius:14px;font-size:15px;color:var(--muted)}
 .gnew:hover{border-color:var(--accent);color:var(--text)}
+dialog ul{margin:0 0 6px;padding-left:20px;font-size:14px;line-height:1.8}
+dialog li{margin-bottom:4px}
+@media (pointer:coarse){
+  button{min-height:40px;padding:8px 12px}
+  .sw,.sw:hover{width:30px;height:30px;min-height:0}
+  #cpick{width:40px;height:40px}
+  .gmore{min-width:44px}
+}
+@media (max-width:760px){
+  #bar{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:8px;right:8px;transform:none;max-width:none;flex-direction:column-reverse;align-items:stretch;padding:6px}
+  .brow{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .brow::-webkit-scrollbar{display:none}
+  .brow>*{flex:none}
+  #bExtra{border-top:0;padding-top:0;border-bottom:1px solid var(--line);padding-bottom:4px}
+  #barOpen{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+  #pages{right:auto;left:8px;top:calc(env(safe-area-inset-top,0px) + 8px);bottom:auto;max-width:calc(100% - 16px)}
+  #toast{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}
+  #galgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:12px;gap:12px}
+  .galhead{flex-wrap:wrap;padding:12px}
+}
 </style>
 </head>
 <body>
@@ -139,6 +164,8 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
     <button class="tg on" data-t="fill" title="修改節點內部顏色">填滿</button><button class="tg" data-t="tc" title="修改文字顏色">文字</button><button class="tg" data-t="bd" title="修改邊框與連線顏色">邊框</button>
     <button class="sw" data-c="var(--c0)" style="background:var(--c0)" aria-label="顏色 1"></button><button class="sw" data-c="var(--c1)" style="background:var(--c1)" aria-label="顏色 2"></button><button class="sw" data-c="var(--c2)" style="background:var(--c2)" aria-label="顏色 3"></button><button class="sw" data-c="var(--c3)" style="background:var(--c3)" aria-label="顏色 4"></button><button class="sw" data-c="var(--c4)" style="background:var(--c4)" aria-label="顏色 5"></button><button class="sw" data-c="var(--c5)" style="background:var(--c5)" aria-label="顏色 6"></button><input type="color" id="cpick" value="#2f6fed" aria-label="自訂顏色" title="自訂顏色"><button id="bClr" title="還原目前項目的預設色">還原</button>
     <span class="sep"></span>
+    <button id="bPaste" title="貼上剪貼簿中的圖片或影片網址">貼上</button>
+    <button id="bHelp" title="操作說明">說明</button>
     <button id="bIO">匯出／匯入</button>
     <button id="bTheme" aria-label="切換深淺色">◐</button>
   </div>
@@ -156,6 +183,18 @@ textarea{width:100%;height:220px;box-sizing:border-box;resize:vertical;font:12.5
 <dialog id="pdlg"><div id="pbox"></div><div class="row"><button id="popen">在新分頁開啟</button><button id="pclose" class="primary">關閉</button></div></dialog>
 <dialog id="idlg"><img id="bigimg" alt=""><div class="row"><button id="iclose">關閉</button></div></dialog>
 <div id="gal" role="dialog" aria-label="頁面圖庫"><div class="galhead"><h2>我的心智圖</h2><span id="galcount" class="gmeta"></span><button id="galclose" class="primary">回到編輯</button></div><div id="galgrid"></div></div>
+<dialog id="hdlg"><h2>操作說明</h2>
+<ul>
+<li><b>選取與編輯</b>：點一下節點選取，快速點兩下編輯文字，點空白處取消選取。</li>
+<li><b>新增子節點</b>：選取後點節點旁邊的「＋」。</li>
+<li><b>調整結構</b>：拖曳節點，放到另一個節點上會變成它的子節點，放在同層節點之間可調整順序。</li>
+<li><b>移動與縮放</b>：單指拖曳空白處平移；雙指捏合縮放（滾輪也可縮放）。</li>
+<li><b>多選</b>：按「框選」進入多選模式，拖曳空白處框選，或點節點加減選；再按一次「框選」離開。</li>
+<li><b>圖片與影片</b>：按「圖片」選擇檔案（手機可直接拍照）；「貼上」會貼上剪貼簿中的圖片或影片網址。</li>
+<li><b>工具列</b>：「更多」展開其他工具，「︿」收起整條工具列。</li>
+<li><b>電腦快捷鍵</b>：Tab 新增子節點、Enter 新增同層、F2 編輯、Delete 刪除、空白鍵收合、方向鍵移動、Ctrl＋Z 復原。</li>
+</ul>
+<div class="row"><button id="hclose" class="primary">知道了</button></div></dialog>
 <div id="toast"></div>
 
 <dialog id="dlg">
@@ -351,12 +390,13 @@ function render(){
       '<text x="'+n.x+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" style="fill:'+tcol(n)+'">'+(editing===n.id?"":esc(n.text))+'</text></g>';
     if(n.children.length){
       var ty=n.y+n.h/2+11;
-      tog+='<g class="tog" data-tog="'+n.id+'"><circle cx="'+n.x+'" cy="'+ty+'" r="8" style="stroke:'+n._c+'"/><text x="'+n.x+'" y="'+ty+'" dominant-baseline="central">'+(n.collapsed?n.children.length:"−")+'</text></g>';
+      tog+='<g class="tog" data-tog="'+n.id+'"><rect x="'+(n.x-18)+'" y="'+(ty-10)+'" width="36" height="28" fill="transparent"/><circle cx="'+n.x+'" cy="'+ty+'" r="8" style="stroke:'+n._c+'"/><text x="'+n.x+'" y="'+ty+'" dominant-baseline="central">'+(n.collapsed?n.children.length:"−")+'</text></g>';
     }
   });
   if(sn&&!editing&&!(drag&&drag.moved)) (sn===root?[-1,1]:[sn._dir===-1?-1:1]).forEach(function(d){
     var px=sn.x+d*(sn.w/2+22);
-    plus+='<g class="add" data-add="'+d+'"><circle cx="'+px+'" cy="'+sn.y+'" r="12"/><text x="'+px+'" y="'+sn.y+'" dominant-baseline="central">+</text></g>';
+    var hs=Math.min(120,Math.max(40,44/view.k));
+    plus+='<g class="add" data-add="'+d+'"><rect x="'+(px-hs/2)+'" y="'+(sn.y-hs/2)+'" width="'+hs+'" height="'+hs+'" fill="transparent"/><circle cx="'+px+'" cy="'+sn.y+'" r="12"/><text x="'+px+'" y="'+sn.y+'" dominant-baseline="central">+</text></g>';
   });
   if(drag&&drag.moved&&drag.ins&&drag.ins.sibs.length){
     var I=drag.ins, S=I.sibs, iy;
@@ -380,8 +420,8 @@ function fit(){
   visList(); var a=1e9,b=-1e9,c=1e9,d=-1e9;
   list.forEach(function(n){a=Math.min(a,n.x-n.w/2);b=Math.max(b,n.x+n.w/2);c=Math.min(c,n.y-n.h/2);d=Math.max(d,n.y+n.h/2);});
   var W=stage.clientWidth,Hh=stage.clientHeight;
-  var k=Math.min(1.2,Math.max(.25,Math.min((W-120)/(b-a),(Hh-200)/(d-c))));
-  view.k=k; view.x=W/2-(a+b)/2*k; view.y=Hh/2-(c+d)/2*k+30; applyView();
+  var mob=W<=760, k=Math.min(1.2,Math.max(.25,Math.min((W-(mob?40:120))/(b-a),(Hh-(mob?260:200))/(d-c))));
+  view.k=k; view.x=W/2-(a+b)/2*k; view.y=Hh/2-(c+d)/2*k+(mob?0:30); applyView();
 }
 function zoomAt(f,cx,cy){
   var k=Math.min(2.5,Math.max(.25,view.k*f)); f=k/view.k;
@@ -390,7 +430,7 @@ function zoomAt(f,cx,cy){
 
 /* ---------- 編輯與操作 ---------- */
 function select(id){msel={};selId=id;render();save();}
-var editOrig="";
+var editOrig="", editT=0;
 function posEd(){
   var r=find(root,editing); if(!r) return;
   var g=vp.querySelector('[data-id="'+editing+'"] rect'); if(!g) return;
@@ -402,8 +442,8 @@ function startEdit(id){
   var r=find(root,id); if(!r) return;
   if(editing) endEdit(true);
   if(r.node.media){selId=id; if(r.node.media.type==="video") openVideoDlg(id); else toast("圖片節點沒有文字可以編輯"); render(); return;}
-  selId=id; editing=id; editOrig=r.node.text; render();
-  ed.style.display="block"; ed.value=r.node.text; posEd(); ed.focus();
+  selId=id; editing=id; editOrig=r.node.text; editT=Date.now(); render();
+  ed.style.display="block"; ed.value=r.node.text; posEd(); ed.focus(); if(coarse()) keepEdit();
   if(r.node.text==="新節點") ed.select(); else ed.setSelectionRange(ed.value.length,ed.value.length);
 }
 function endEdit(ok){
@@ -412,6 +452,7 @@ function endEdit(ok){
   if(r){r.node.text=editOrig; if(ok&&v&&v!==editOrig){snapshot();r.node.text=v;}}
   commit();
 }
+document.addEventListener("mousedown",function(e){if(editing&&Date.now()-editT<800&&e.target!==ed) e.preventDefault();},true);
 ed.addEventListener("input",function(){
   var r=find(root,editing); if(!r) return;
   r.node.text=ed.value; render(); posEd();
@@ -519,14 +560,14 @@ stage.addEventListener("pointerdown",function(e){
   if(editing) endEdit(true);
   pts[e.pointerId]={x:e.clientX,y:e.clientY};
   var ids=Object.keys(pts);
-  if(ids.length===2){var a=pts[ids[0]],b=pts[ids[1]];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};drag=null;return;}
+  if(ids.length===2){var a=pts[ids[0]],b=pts[ids[1]];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),cx:(a.x+b.x)/2,cy:(a.y+b.y)/2};drag=null;$("mq").style.display="none";return;}
   var t=e.target.closest("[data-tog]"); if(t){toggle(t.getAttribute("data-tog"));return;}
   var ad=e.target.closest("[data-add]"); if(ad){addAt(+ad.getAttribute("data-add"));return;}
   stage.setPointerCapture(e.pointerId); if(desTimer){clearTimeout(desTimer);desTimer=null;}
   var nd=e.target.closest("[data-id]");
   if(nd){
     var id=nd.getAttribute("data-id");
-    if(e.shiftKey||e.ctrlKey||e.metaKey){
+    if(e.shiftKey||e.ctrlKey||e.metaKey||mqMode){
       var cur=mids().length?mids():(selId?[selId]:[]), ix=cur.indexOf(id);
       if(ix>=0) cur.splice(ix,1); else cur.push(id);
       setSel(cur); render(); save(); drag=null; return;
@@ -544,7 +585,8 @@ stage.addEventListener("pointermove",function(e){
   var ids=Object.keys(pts);
   if(pinch&&ids.length===2){
     var a=pts[ids[0]],b=pts[ids[1]],d=Math.hypot(a.x-b.x,a.y-b.y);
-    zoomAt(d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2); pinch.d=d; return;
+    var ccx=(a.x+b.x)/2, ccy=(a.y+b.y)/2; view.x+=ccx-pinch.cx; view.y+=ccy-pinch.cy; pinch.cx=ccx; pinch.cy=ccy;
+    zoomAt(d/pinch.d,ccx,ccy); pinch.d=d; return;
   }
   if(!drag) return;
   if(drag.m==="mq"){
@@ -609,7 +651,17 @@ document.addEventListener("keydown",function(e){
   else if(k===" "){e.preventDefault();toggle(selId);}
   else if(k.indexOf("Arrow")===0){e.preventDefault();nav(k.slice(5));}
 });
-window.addEventListener("resize",function(){if(editing) endEdit(true);});
+function coarse(){return !!(window.matchMedia&&matchMedia("(pointer:coarse)").matches);}
+function keepEdit(){
+  if(!editing) return; var r=find(root,editing); if(!r) return;
+  if(coarse()){
+    var vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+    view.y+=vh*0.3-(view.y+r.node.y*view.k); applyView();
+  }
+  posEd();
+}
+window.addEventListener("resize",keepEdit);
+if(window.visualViewport) window.visualViewport.addEventListener("resize",keepEdit);
 
 $("bChild").onclick=addChild; $("bSib").onclick=addSibling; $("bUnl").onclick=unlink; $("bMq").onclick=function(){mqMode=!mqMode;stage.style.cursor=mqMode?"crosshair":"";render();};
 $("bEdit").onclick=function(){startEdit(selId);}; $("bDel").onclick=del;
@@ -833,6 +885,27 @@ $("pgdup").onclick=function(){$("pgdlg").close(); dupPage(pgIdx);};
 $("pgdel").onclick=function(){
   if(!pgConfirm){pgConfirm=true; this.textContent="再按一次確認刪除"; return;}
   $("pgdlg").close(); delPageAt(pgIdx);
+};
+
+$("bHelp").onclick=function(){$("hdlg").showModal();};
+$("hclose").onclick=function(){$("hdlg").close();};
+$("bPaste").onclick=function(){
+  var cb=navigator.clipboard;
+  if(!cb){toast("此瀏覽器不支援讀取剪貼簿");return;}
+  function viaText(){
+    if(!cb.readText){toast("無法讀取剪貼簿");return;}
+    cb.readText().then(function(t){t=(t||"").trim(); if(/^https?:\/\/\S+$/.test(t)) pasteUrl(t); else toast("剪貼簿裡沒有圖片或網址");},
+      function(){toast("無法讀取剪貼簿，請允許瀏覽器的貼上權限");});
+  }
+  if(cb.read){
+    cb.read().then(function(items){
+      for(var i=0;i<items.length;i++){
+        var ty=items[i].types.filter(function(t){return /^image\//.test(t);})[0];
+        if(ty){items[i].getType(ty).then(function(b){loadImage(b);}); return;}
+      }
+      viaText();
+    },viaText);
+  }else viaText();
 };
 
 /* ---------- 介面收合 ---------- */
