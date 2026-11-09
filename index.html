@@ -457,6 +457,16 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 #edBody p[data-ph]::before,#edBody h1.tl.e::before{position:absolute;left:0;top:0;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 #edBody h1.tl{min-height:1.35em}
 
+/* ===== 標題併入內文、卡片預覽 ===== */
+#edBody h1.tl{display:none}
+#edBody p[data-ph]::before,#edBody h1[data-ph]::before,#edBody h2[data-ph]::before,#edBody h3[data-ph]::before{content:attr(data-ph);color:var(--muted);opacity:.6;pointer-events:none;position:absolute;left:0;top:0;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+#edBody h1[data-ph],#edBody h2[data-ph],#edBody h3[data-ph]{position:relative}
+#edBody h1{min-height:1.35em}
+.cprev{color:var(--ink);font-size:13px;padding:12px 14px}
+.cprev h1{font-size:1.5em;margin:0 0 .35em}
+.cprev.cimg{padding:0;-webkit-mask-image:none;mask-image:none}
+.cprev.cimg img{width:100%;height:100%;max-height:none;object-fit:cover;display:block;margin:0;border-radius:0}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -465,11 +475,9 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
       <button id="goHome" class="homeBtn">⌂ 主頁</button>
       <div id="sbTabs" role="tablist" aria-label="切換資料庫">
         <button role="tab" data-tab="wb">白板<span class="n" id="nWb"></span></button>
-        <button role="tab" data-tab="mm">心智圖<span class="n" id="nMm"></span></button>
         <button role="tab" data-tab="card">卡片<span class="n" id="nCard"></span></button>
       </div>
       <section class="sbSec" data-pane="wb"><div class="sbT"><h2>白板庫</h2><span class="sp"></span><button class="sbAll" data-lib="wb" title="用完整頁面檢視全部白板">全部 ›</button><button class="ib" id="addWb" aria-label="新增白板" title="新增白板">＋</button></div><input id="wbQ" type="search" placeholder="篩選白板" aria-label="篩選白板"><ul id="wbList" class="blist"></ul></section>
-      <section class="sbSec" data-pane="mm"><div class="sbT"><h2>心智圖庫</h2><span class="sp"></span><button class="sbAll" data-lib="mm" title="用完整頁面檢視全部心智圖">全部 ›</button><button class="ib" id="addMm" aria-label="新增心智圖" title="新增心智圖">＋</button></div><input id="mmQ" type="search" placeholder="篩選心智圖" aria-label="篩選心智圖"><ul id="mmList" class="blist"></ul></section>
       <section class="sbSec" data-pane="card"><div class="sbT"><h2>卡片庫</h2><span class="sp"></span><button class="sbAll" data-lib="card" title="用完整頁面檢視全部卡片">全部 ›</button><button class="ib" id="addCard" aria-label="新增卡片" title="新增卡片">＋</button></div>
         <input id="cardQ" type="search" placeholder="篩選卡片" aria-label="篩選卡片"><ul id="cardList"></ul></section>
     </div>
@@ -520,7 +528,6 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
         <header class="hmHead"><h1>主頁</h1><button id="hmSearch" class="fakeSearch">搜尋卡片、白板、心智圖的內容…<kbd>Ctrl K</kbd></button><p>卡片是筆記的最小單位。白板把卡片和心智圖擺在一起，改任何一處，所有出現的地方都會更新。點標題可以進入各庫的完整頁面。</p></header>
         <div class="hmGrid">
           <section class="hmBlk"><header class="bh"><button class="bt" data-open="wb"><h2>白板庫</h2><span class="cnt" id="hmWbN"></span></button><button class="ba" id="hmAddWb">＋ 新增</button></header><div class="bp" id="hmWb"></div><button class="bo" data-open="wb">查看全部白板 ›</button></section>
-          <section class="hmBlk"><header class="bh"><button class="bt" data-open="mm"><h2>心智圖庫</h2><span class="cnt" id="hmMmN"></span></button><button class="ba" id="hmAddMm">＋ 新增</button></header><div class="bp" id="hmMm"></div><button class="bo" data-open="mm">查看全部心智圖 ›</button></section>
           <section class="hmBlk"><header class="bh"><button class="bt" data-open="card"><h2>卡片庫</h2><span class="cnt" id="hmCardN"></span></button><button class="ba" id="hmAddCard">＋ 新增</button></header><div class="bp list" id="hmCards"></div><button class="bo" data-open="card">查看全部卡片 ›</button></section>
         </div>
       </div>
@@ -605,6 +612,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 <dialog id="urldlg"><h2>貼上網址或影片連結</h2><p>支援 YouTube、Vimeo、bilibili 與一般網頁。會在白板上產生一張縮圖卡，可以像卡片一樣連線。</p>
   <input id="urlin" type="url" placeholder="https://" aria-label="網址">
   <div class="row"><button id="urlcancel">取消</button><button id="urlok" class="pri">加入白板</button></div></dialog>
+<dialog id="cfdlg"><h2 id="cfT"></h2><p id="cfM"></p><div class="row"><button id="cfNo">取消</button><button id="cfYes" class="dng"></button></div></dialog>
 <dialog id="lbx" class="lbx"><img id="lbxImg" alt=""><div class="row"><button id="lbxClose" class="pri">關閉</button></div></dialog>
 <div id="toast" role="status"></div>
 
@@ -668,7 +676,34 @@ let S=null;                       // 整個工作區
 const ui={editorId:null};
 const board=()=>S.boards.find(b=>b.id===S.cur)||null;
 const boardById=id=>S.boards.find(b=>b.id===id)||null;
-function newCard(title){const t=Date.now();const c={id:uid('c'),title:title||'',html:'',created:t,updated:t};S.cards[c.id]=c;return c;}
+function newCard(title){const t=Date.now();const c={id:uid('c'),v:2,title:title||'',html:title?'<h1>'+esc(title)+'</h1>':'',created:t,updated:t};S.cards[c.id]=c;return c;}
+/* 卡片標題就是內文第一個有字的區塊（預設 H1）；title 欄位只是從內文推出來的快取 */
+function htmlTitle(html){
+  const body=new DOMParser().parseFromString('<body>'+String(html||''),'text/html').body;
+  for(const ch of Array.from(body.children)){const t=ch.textContent.replace(/\u200b/g,'').replace(/\s+/g,' ').trim();if(t) return t.slice(0,200);}
+  return '';
+}
+function firstImgSrc(html){
+  if(!/<img/i.test(html||'')) return '';
+  const im=new DOMParser().parseFromString('<body>'+String(html),'text/html').body.querySelector('img');
+  return im?(im.getAttribute('src')||''):'';
+}
+function cardSetTitle(c,v){
+  const doc=new DOMParser().parseFromString('<body>'+(c.html||''),'text/html'), body=doc.body;
+  const f=Array.from(body.children).find(x=>x.textContent.replace(/\u200b/g,'').trim());
+  if(f){const t=f.matches('ul,ol,table')?(f.querySelector('li,td,th')||f):f;t.textContent=v;}
+  else{const h=doc.createElement('h1');h.textContent=v;body.insertBefore(h,body.firstChild);}
+  c.html=sanitizeHtml(body.innerHTML); c.title=v;
+}
+/* 心智圖只活在白板裡：沒有任何白板引用的心智圖會被收進暫存區（讓復原還找得回來），不會存進資料 */
+const mmTrash={};
+function pruneOrphans(){
+  if(!S) return; const ref={};
+  S.boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref[o.mid]=1;});});
+  S.boards=S.boards.filter(b=>{if(b.type==='mm'&&!ref[b.id]&&b.id!==S.cur){mmTrash[b.id]=b;return false;}return true;});
+}
+function reidMm(n){n.id=uid('m');(n.children||[]).forEach(reidMm);return n;}
+function cloneMmBoard(mb){return {id:uid('b'),name:mb.name,type:'mm',view:null,root:reidMm(JSON.parse(JSON.stringify(mb.root)))};}
 const cardTitle=c=>(c&&c.title&&c.title.trim())||'未命名卡片';
 function newMmRoot(text){return {id:uid('m'),text:text||'中心主題',cid:null,side:0,collapsed:false,children:[]};}
 function boardsUsing(cid){
@@ -695,6 +730,7 @@ let saving=false,again=false;
 function setSave(t,err){const el=$('#saveState');if(!el) return;el.textContent=t;el.classList.toggle('err',!!err);}
 async function persist(){
   if(!S) return;
+  pruneOrphans();
   if(saving){again=true;return;}
   saving=true;
   try{
@@ -718,7 +754,7 @@ const hist={};
 const histOf=b=>hist[b.id]||(hist[b.id]={u:[],r:[]});
 const content=b=>b.type==='wb'?{objs:b.objs,links:b.links}:{root:b.root};
 function snap(){const b=board();const h=histOf(b);h.u.push(JSON.stringify(content(b)));if(h.u.length>80) h.u.shift();h.r=[];updHist();}
-function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;}else b.root=c.root;}
+function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;b.objs.forEach(o=>{if(o.t==='mm'&&!boardById(o.mid)&&mmTrash[o.mid]){S.boards.push(mmTrash[o.mid]);delete mmTrash[o.mid];}});}else b.root=c.root;}
 function undo(){const b=board();const h=histOf(b);if(!h.u.length) return;h.r.push(JSON.stringify(content(b)));restore(b,h.u.pop());afterRestore();toast('已復原');}
 function redo(){const b=board();const h=histOf(b);if(!h.r.length) return;h.u.push(JSON.stringify(content(b)));restore(b,h.r.pop());afterRestore();toast('已重做');}
 function updHist(){const b=board();if(!b) return;const h=histOf(b);$('#tUndo').disabled=!h.u.length;$('#tRedo').disabled=!h.r.length;}
@@ -813,7 +849,9 @@ function normCards(raw){
   Object.keys(cs).slice(0,5000).forEach(k=>{
     const c=cs[k]; if(!c||typeof c!=='object') return;
     const id=String(c.id||k);
-    out[id]={id,title:String(c.title||'').slice(0,200),html:sanitizeHtml(String(c.html||'')),created:num(c.created,Date.now()),updated:num(c.updated,Date.now())};
+    let html=sanitizeHtml(String(c.html||'')); const old=String(c.title||'').replace(/\s+/g,' ').trim().slice(0,200);
+    if(c.v!==2&&old) html='<h1>'+esc(old)+'</h1>'+html;
+    out[id]={id,v:2,title:htmlTitle(html),html:html,created:num(c.created,Date.now()),updated:num(c.updated,Date.now())};
   });
   return out;
 }
@@ -832,6 +870,11 @@ function normalizeWS(raw){
     if(Object.keys(dead).length) b.links=b.links.filter(l=>!dead[l.a]&&!dead[l.b]);
   });
   Object.keys(files).forEach(k=>{if(!used[k]) delete files[k];});
+  /* 舊版的獨立心智圖：各自包進一塊白板，不讓資料消失 */
+  const ref={}; boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref[o.mid]=1;});});
+  boards.filter(b=>b.type==='mm'&&!ref[b.id]).forEach(m=>{
+    boards.push({id:uid('b'),name:m.name,type:'wb',view:null,objs:[{id:uid('o'),t:'mm',mid:m.id,x:-170,y:-120,w:340,h:240}],links:[]});
+  });
   return {v:1,cards,boards,files,cur:boards.some(b=>b.id===raw.cur)?raw.cur:boards[0].id};
 }
 
@@ -841,8 +884,8 @@ let edDirty=false, edTimer=null, savedRange=null, delArm=null;
 try{document.execCommand('defaultParagraphSeparator',false,'p');}catch(e){}
 
 const fmtTime=t=>new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-const titleEl=()=>edBody.querySelector('h1.tl');
-const inTitle=n=>{const t=titleEl();return !!(t&&n&&t.contains(n));};
+const titleEl=()=>null;   /* 標題已併入內文：第一個有字的區塊就是標題 */
+const inTitle=()=>false;
 const BLK_SEL='ul,ol,h1,h2,h3,pre,blockquote,table,hr,p,div';
 /* 瀏覽器有時會把清單或標題塞進 <p> 裡，導致一個區塊吞掉後面所有內容；這裡把它們拆回頂層區塊 */
 function normalizeBlocks(){
@@ -869,44 +912,39 @@ function normalizeBlocks(){
 }
 function ensureBlock(){
   normalizeBlocks();
-  let t=titleEl();
-  edBody.querySelectorAll('h1.tl').forEach((x,i)=>{if(i>0) x.classList.remove('tl');});
-  if(!t){t=document.createElement('h1');t.className='tl';edBody.insertBefore(t,edBody.firstChild);}
-  else if(edBody.firstChild!==t) edBody.insertBefore(t,edBody.firstChild);
-  /* 標題只能是純文字：把混進來的子元素攤平，並盡量保留游標位置 */
-  if(Array.from(t.children).some(c=>c.tagName!=='BR')){
-    const s=getSelection(); let off=-1;
-    if(s.rangeCount&&t.contains(s.anchorNode)){const r=document.createRange();r.selectNodeContents(t);r.setEnd(s.anchorNode,s.anchorOffset);off=r.toString().length;}
-    t.textContent=t.textContent.replace(/\s+/g,' ');
-    if(off>=0&&t.firstChild){const r=document.createRange();r.setStart(t.firstChild,Math.min(off,t.firstChild.length));r.collapse(true);s.removeAllRanges();s.addRange(r);}
-  }
-  if(!t.nextSibling) edBody.appendChild(Object.assign(document.createElement('p'),{innerHTML:'<br>'}));
-  t.classList.toggle('e',!t.textContent);
+  Array.from(edBody.childNodes).forEach(n=>{
+    if(n.nodeType===3){if(n.nodeValue.replace(/\u200b/g,'').trim()){const p=document.createElement('p');n.replaceWith(p);p.appendChild(n);}else n.remove();}
+    else if(n.nodeType===1&&n.tagName==='BR') n.remove();
+  });
+  if(!edBody.firstElementChild) edBody.innerHTML='<h1><br></h1>';
+  const last=edBody.lastElementChild;
+  if(last&&/^(HR|TABLE|IMG)$/.test(last.tagName)) edBody.appendChild(Object.assign(document.createElement('p'),{innerHTML:'<br>'}));
 }
 function markEmpty(){
   $$('#edBody [data-ph]').forEach(x=>x.removeAttribute('data-ph'));
-  const t=titleEl(); if(!t) return; t.classList.toggle('e',!t.textContent);
-  if(!t.firstChild) t.appendChild(document.createElement('br'));
-  const body=Array.from(edBody.children).filter(x=>x!==t);
-  if(body.length===1&&body[0].tagName==='P'&&!body[0].textContent&&!body[0].querySelector('img')) body[0].setAttribute('data-ph','1');
+  const kids=Array.from(edBody.children);
+  if(kids.length===1&&/^(P|H1|H2|H3)$/.test(kids[0].tagName)&&!kids[0].textContent.replace(/\u200b/g,'')&&!kids[0].querySelector('img'))
+    kids[0].setAttribute('data-ph',kids[0].tagName==='H1'?'標題':'輸入內容，或按「/」選擇區塊…');
 }
 function edGet(){
-  const cl=edBody.cloneNode(true), t=cl.querySelector('h1.tl'); let title='';
-  if(t){title=t.textContent.replace(/\s+/g,' ').trim().slice(0,200);t.remove();}
-  return {title:title,html:sanitizeHtml(cl.innerHTML)};
+  const html0=sanitizeHtml(edBody.innerHTML), title=htmlTitle(html0);
+  return {title:title,html:(!title&&!/<(img|hr|table)/i.test(html0))?'':html0};
+}
+function edFirstText(){
+  for(const ch of Array.from(edBody.children)){const t=ch.textContent.replace(/\u200b/g,'').replace(/\s+/g,' ').trim();if(t) return t.slice(0,200);}
+  return '';
 }
 function syncTitle(){
-  const c=S.cards[ui.editorId]; if(!c) return; const t=titleEl(); if(!t) return;
-  const v=t.textContent.replace(/\s+/g,' ').trim().slice(0,200);
+  const c=S.cards[ui.editorId]; if(!c) return;
+  const v=edFirstText();
   if(v!==c.title){c.title=v;c.updated=Date.now();cardChanged(c.id);markDirty();}
 }
-function edSetTitle(v){const t=titleEl();if(t&&t.textContent.replace(/\s+/g,' ').trim()!==v){t.textContent=v;markEmpty();}}
-function focusTitle(){edBody.focus();const t=titleEl();if(t) caretIn(t);}
-function focusFirstBody(){
-  const t=titleEl(); let n=t&&t.nextElementSibling;
-  if(!n||!/^(P|DIV|H1|H2|H3|BLOCKQUOTE|PRE|UL|OL)$/.test(n.tagName)){const p=document.createElement('p');p.innerHTML='<br>';edBody.insertBefore(p,n||null);n=p;}
-  edBody.focus(); caretIn(n);
+function edSetTitle(){
+  const c=S.cards[ui.editorId]; if(!c) return;
+  edBody.innerHTML=c.html||'<h1><br></h1>'; ensureBlock(); markEmpty(); edDirty=false;
 }
+function focusTitle(){edBody.focus();const f=edBody.firstElementChild;if(f) caretIn(f);}
+function focusFirstBody(){focusTitle();}
 function notifyChange(){
   edDirty=true;normalizeBlocks();markEmpty();clearTimeout(edTimer);edTimer=setTimeout(flushEditor,400);
 }
@@ -914,11 +952,11 @@ function openCard(id){
   const c=S.cards[id]; if(!c) return;
   if(ui.editorId&&ui.editorId!==id) flushEditor();
   ui.editorId=id;
-  edBody.innerHTML='<h1 class="tl"></h1>'+(c.html||''); titleEl().textContent=c.title; ensureBlock(); markEmpty(); edDirty=false;
+  edBody.innerHTML=c.html||'<h1><br></h1>'; ensureBlock(); markEmpty(); edDirty=false;
   $('#editor').classList.add('open'); document.body.classList.add('ed-open');
   if(isMobile()) document.body.classList.remove('sb-mob');
   renderUse(); edBody.scrollTop=0; updToolState();
-  if(!c.title&&!c.html) setTimeout(focusTitle,30);
+  if(!c.html) setTimeout(focusTitle,30);
 }
 function setFull(on){document.body.classList.toggle('ed-full',!!on);$('#edFull').setAttribute('aria-pressed',on?'true':'false');$('#edFull').textContent=on?'⤡':'⤢';$('#edFull').title=on?'離開全螢幕（Esc）':'全螢幕編輯（Esc 離開）';}
 function closeEditor(){
@@ -1157,9 +1195,11 @@ edBody.addEventListener('drop',e=>{
 });
 edBody.addEventListener('compositionend',()=>{ensureBlock();markEmpty();syncTitle();});
 $('#edClose').onclick=closeEditor;
-$('#edDel').onclick=function(){
-  if(!delArm){this.textContent='再按一次確認';delArm=setTimeout(()=>{this.textContent='刪除卡片';delArm=null;},3000);return;}
-  clearTimeout(delArm);delArm=null;this.textContent='刪除卡片';deleteCard(ui.editorId);
+$('#edDel').onclick=async function(){
+  const c=S.cards[ui.editorId]; if(!c) return; flushEditor();
+  const n=boardsUsing(c.id).length;
+  const ok=await confirmDlg('刪除這張卡片？','「'+cardTitle(c)+'」'+(n?'目前出現在 '+n+' 個白板或心智圖，刪除後會從那些地方一併移除。':'')+'此操作無法復原。','刪除卡片');
+  if(ok) deleteCard(c.id);
 };
 
 $('#edFull').onclick=()=>{setFull(!document.body.classList.contains('ed-full'));edBody.focus();};
@@ -1529,7 +1569,7 @@ function filteredCards(q){
 function cardItem(c,usage,withAdd,onOpen){
   const li=document.createElement('li'); li.className='ci'; li.dataset.cid=c.id;
   const t=document.createElement('div'); t.className='t'; t.textContent=cardTitle(c);
-  const s=document.createElement('div'); s.className='s'; s.textContent=cardText(c)||'（空白）';
+  const s=document.createElement('div'); s.className='s'; const full=cardText(c), tt=c.title||''; s.textContent=(full.startsWith(tt)?full.slice(tt.length).trim():full)||'（沒有其他內容）';
   li.appendChild(t); li.appendChild(s);
   if(usage!==null){
     const m=document.createElement('div'); m.className='m';
@@ -1546,7 +1586,7 @@ function cardItem(c,usage,withAdd,onOpen){
 }
 function renderSidebar(){
   const cur=ui.home?null:S.cur; $('#goHome').classList.toggle('on',!!ui.home&&!ui.lib); renderTabs(); if(ui.home) renderMain();
-  ['wb','mm'].forEach(type=>{
+  ['wb'].forEach(type=>{
     const ul=$(type==='wb'?'#wbList':'#mmList'); ul.textContent='';
     const q=$(type==='wb'?'#wbQ':'#mmQ').value.trim().toLowerCase(), list=S.boards.filter(b=>b.type===type&&(!q||b.name.toLowerCase().includes(q)));
     if(!list.length){const li=document.createElement('li');li.className='none';li.textContent=q?'沒有符合的項目':(type==='wb'?'還沒有白板，按上方「＋」新增':'還沒有心智圖，按上方「＋」新增');ul.appendChild(li);}
@@ -1582,7 +1622,7 @@ function renderSidebar(){
   });
 }
 const refreshSidebar=debounce(renderSidebar,150);
-$('#cardQ').addEventListener('input',renderSidebar); $('#wbQ').addEventListener('input',renderSidebar); $('#mmQ').addEventListener('input',renderSidebar);
+$('#cardQ').addEventListener('input',renderSidebar); $('#wbQ').addEventListener('input',renderSidebar);
 function closeSbMob(){document.body.classList.remove('sb-mob');}
 function toggleSb(){
   if(isMobile()) document.body.classList.toggle('sb-mob');
@@ -1598,17 +1638,17 @@ function addBoard(type,fromHome){
   const b=type==='wb'?{id:uid('b'),name:base+n,type:'wb',view:null,objs:[],links:[]}:{id:uid('b'),name:base+n,type:'mm',view:null,root:newMmRoot()};
   S.boards.push(b); showBoard(b.id); if(isMobile()) closeSbMob(); toast('已新增「'+b.name+'」');
 }
-$('#addWb').onclick=()=>addBoard('wb'); $('#addMm').onclick=()=>addBoard('mm');
+$('#addWb').onclick=()=>addBoard('wb');
 $('#addCard').onclick=()=>{const c=newCard('');markDirty();renderSidebar();openCard(c.id);if(isMobile()) closeSbMob();};
 let bdId=null, bdArm=null;
 function openBoardDlg(id){
   const b=boardById(id); if(!b) return; bdId=id;
   $('#bdname').value=b.name; $('#bddel').textContent='刪除'; clearTimeout(bdArm); bdArm=null;
-  $('#bddel').disabled=S.boards.length<2; $('#bdlg').showModal(); $('#bdname').focus(); $('#bdname').select();
+  $('#bddup').hidden=b.type==='mm'; $('#bddel').disabled=b.type==='wb'&&S.boards.filter(x=>x.type==='wb').length<2; $('#bdlg').showModal(); $('#bdname').focus(); $('#bdname').select();
 }
 function dupBoard(b){
   const nb=JSON.parse(JSON.stringify(b)); nb.id=uid('b'); nb.name=(b.name+' 副本').slice(0,40);
-  if(nb.type==='wb'){const map={};nb.objs.forEach(o=>{const n=uid('o');map[o.id]=n;o.id=n;});nb.links.forEach(l=>{l.id=uid('l');l.a=map[l.a];l.b=map[l.b];});}
+  if(nb.type==='wb'){const map={};nb.objs.forEach(o=>{const n=uid('o');map[o.id]=n;o.id=n;if(o.t==='mm'){const mb=boardById(o.mid);if(mb){const cp=cloneMmBoard(mb);S.boards.push(cp);o.mid=cp.id;}}});nb.links.forEach(l=>{l.id=uid('l');l.a=map[l.a];l.b=map[l.b];});}
   else (function re(n){n.id=uid('m');n.children.forEach(re);})(nb.root);
   S.boards.splice(S.boards.indexOf(b)+1,0,nb); return nb;
 }
@@ -1620,10 +1660,12 @@ $('#bdok').onclick=()=>{
 };
 $('#bdname').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();$('#bdok').click();}});
 $('#bddup').onclick=()=>{const b=boardById(bdId);if(!b) return;$('#bdlg').close();const nb=dupBoard(b);showBoard(nb.id);toast('已複製畫板');};
-$('#bddel').onclick=function(){
-  if(!bdArm){this.textContent='再按一次確認';bdArm=setTimeout(()=>{this.textContent='刪除';bdArm=null;},3000);return;}
-  clearTimeout(bdArm);bdArm=null;
-  if(S.boards.length<2){toast('至少要保留一個畫板');return;}
+$('#bddel').onclick=async function(){
+  const tb=boardById(bdId); if(!tb) return;
+  if(tb.type==='wb'&&S.boards.filter(b=>b.type==='wb').length<2){toast('至少要保留一塊白板');return;}
+  const nm=tb.objs?tb.objs.filter(o=>o.t==='mm').length:0;
+  const ok=await confirmDlg(tb.type==='wb'?'刪除這塊白板？':'刪除這張心智圖？','「'+tb.name+'」'+(tb.type==='wb'?'會被刪除'+(nm?'，白板上的 '+nm+' 張心智圖也會一併刪除':'')+'。卡片仍會保留在卡片庫。':'會從白板上移除。')+'此操作無法復原。','刪除');
+  if(!ok) return;
   const i=S.boards.findIndex(b=>b.id===bdId); if(i<0) return;
   const gone=S.boards[i], was=gone.id===S.cur; Object.keys(hist).forEach(k=>delete hist[k]); S.boards.splice(i,1); $('#bdlg').close();
   if(gone.type==='mm') S.boards.forEach(w=>{if(w.type!=='wb') return;const dead={};w.objs=w.objs.filter(o=>{if(o.t==='mm'&&o.mid===gone.id){dead[o.id]=1;return false;}return true;});w.links=w.links.filter(l=>!dead[l.a]&&!dead[l.b]);});
@@ -1631,10 +1673,19 @@ $('#bddel').onclick=function(){
   if(ui.home||!was){renderSidebar();markDirty();}
   if(ui.back===gone.id) ui.back=null;
   if(ui.editorId) renderUse();
-  toast('已刪除畫板（卡片仍在卡片庫）');
+  toast('已刪除（卡片仍在卡片庫）');
 };
 $('#bName').onclick=()=>{if(!ui.home) openBoardDlg(S.cur);};
 
+/* ----- 確認視窗 ----- */
+function confirmDlg(title,msg,yes){
+  return new Promise(res=>{
+    const d=$('#cfdlg'); $('#cfT').textContent=title; $('#cfM').textContent=msg; $('#cfYes').textContent=yes||'刪除';
+    let done=false; const fin=v=>{if(done) return;done=true;if(d.open) d.close();res(v);};
+    $('#cfYes').onclick=()=>fin(true); $('#cfNo').onclick=()=>fin(false); d.onclose=()=>fin(false);
+    d.showModal(); $('#cfNo').focus();
+  });
+}
 /* ----- 卡片挑選視窗 ----- */
 let pkCb=null;
 function renderPicker(){
@@ -1700,7 +1751,8 @@ function showBoard(id,opts){
   opts=opts||{};
   if(!boardById(id)) return;
   inlClose(true); if(typeof mmEndEdit==='function') mmEndEdit(true); closePop();
-  S.cur=id; const b=board(); ui.home=false; ui.lib=null; setTab(b.type); ui.back=(opts.keepBack&&b.type==='mm')?opts.keepBack:null;
+  S.cur=id; const b=board(); ui.home=false; ui.lib=null; setTab(b.type==='mm'?'wb':b.type);
+  ui.back=null; if(b.type==='mm'){const ow=opts.keepBack&&boardById(opts.keepBack)?opts.keepBack:(S.boards.find(w=>w.type==='wb'&&w.objs.some(o=>o.t==='mm'&&o.mid===id))||{}).id; ui.back=ow||null;}
   document.body.dataset.view=b.type;
   $('#bName').textContent=b.name;
   const bk=$('#bBack'), bb=ui.back&&boardById(ui.back); bk.hidden=!bb; if(bb) bk.textContent='‹ '+bb.name;
@@ -1796,13 +1848,12 @@ function mkTile(thumb,name,sub,onOpen,onMenu){
 function newTile(label,fn){const b=document.createElement('button');b.className='tile new';b.innerHTML='<span class="plus">＋</span>';b.appendChild(document.createTextNode(label));b.onclick=fn;return b;}
 /* ----- 側邊欄分頁 ----- */
 function setTab(t){
-  ui.tab=t; try{localStorage.setItem('cardbench-tab',t);}catch(e){}
+  if(t==='mm') t='wb'; ui.tab=t; try{localStorage.setItem('cardbench-tab',t);}catch(e){}
   $$('#sbTabs button').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false');});
   $$('.sbSec').forEach(s=>s.classList.toggle('on',s.dataset.pane===t));
 }
 function renderTabs(){
   $('#nWb').textContent=S.boards.filter(b=>b.type==='wb').length;
-  $('#nMm').textContent=S.boards.filter(b=>b.type==='mm').length;
   $('#nCard').textContent=Object.keys(S.cards).length;
 }
 $$('#sbTabs button').forEach(b=>{b.onclick=()=>setTab(b.dataset.tab);});
@@ -1833,24 +1884,21 @@ function boardTile(b){
     const cn=b.objs.filter(o=>o.t==='card').length, mn=b.objs.filter(o=>o.t==='mm').length;
     return mkTile(wbThumb(b),b.name,b.objs.length?cn+' 張卡片'+(mn?' · '+mn+' 個心智圖':''):'空白白板',()=>{showBoard(b.id);closeSbMob();},()=>openBoardDlg(b.id));
   }
-  const used=S.boards.filter(w=>w.type==='wb'&&w.objs.some(o=>o.t==='mm'&&o.mid===b.id));
-  return mkTile(mmThumb(b,false),b.name,countNodes(b.root)+' 個節點 · '+(used.length?'在 '+used.length+' 塊白板':'未放進白板'),()=>{showBoard(b.id);closeSbMob();},()=>openBoardDlg(b.id));
+  return null;
 }
 function renderHome(){
-  const wbs=S.boards.filter(b=>b.type==='wb'), mms=S.boards.filter(b=>b.type==='mm'), cs=filteredCards(''), um=usageMap();
-  $('#hmWbN').textContent=wbs.length+' 塊'; $('#hmMmN').textContent=mms.length+' 張'; $('#hmCardN').textContent=cs.length+' 張';
-  const w=$('#hmWb'), m=$('#hmMm'), c=$('#hmCards'); w.textContent='';m.textContent='';c.textContent='';
+  const wbs=S.boards.filter(b=>b.type==='wb'), cs=filteredCards(''), um=usageMap();
+  $('#hmWbN').textContent=wbs.length+' 塊'; $('#hmCardN').textContent=cs.length+' 張';
+  const w=$('#hmWb'), c=$('#hmCards'); w.textContent='';c.textContent='';
   if(!wbs.length) w.appendChild(emptyNote('還沒有白板')); wbs.slice(0,4).forEach(b=>w.appendChild(boardTile(b)));
-  if(!mms.length) m.appendChild(emptyNote('還沒有心智圖')); mms.slice(0,4).forEach(b=>m.appendChild(boardTile(b)));
   if(!cs.length) c.appendChild(emptyNote('還沒有卡片')); cs.slice(0,5).forEach(x=>{const li=cardItem(x,um[x.id]||0,false,id=>openCard(id));li.className='ci hc';c.appendChild(li);});
-  $$('.bo').forEach(b=>{const k=b.dataset.open,n=k==='wb'?wbs.length:k==='mm'?mms.length:cs.length,shown=k==='card'?5:4;b.hidden=n<=shown&&false;});
+  $$('.bo').forEach(b=>{const k=b.dataset.open,n=k==='wb'?wbs.length:cs.length,shown=k==='card'?5:4;b.hidden=n<=shown&&false;});
 }
 function renderMain(){if(ui.lib) renderLib(); else renderHome();}
 
 /* ----- 各庫的獨立檢視頁 ----- */
 const LIBS={
   wb:{title:'白板庫',add:'＋ 新增白板',ph:'搜尋白板名稱',sorts:[['default','預設順序'],['name','依名稱']]},
-  mm:{title:'心智圖庫',add:'＋ 新增心智圖',ph:'搜尋心智圖名稱',sorts:[['default','預設順序'],['name','依名稱']]},
   card:{title:'卡片庫',add:'＋ 新增卡片',ph:'搜尋標題或內文',sorts:[['recent','最近更新'],['name','依標題'],['unused','尚未使用優先']]}
 };
 function showLib(k){
@@ -1875,7 +1923,7 @@ function renderLib(){
     return;
   }
   box.className='grid';
-  const type=k==='wb'?'wb':'mm', all=S.boards.filter(b=>b.type===type);
+  const type='wb', all=S.boards.filter(b=>b.type===type);
   let list=all.filter(b=>!q||b.name.toLowerCase().includes(q));
   if(sort==='name') list=list.slice().sort((a,b)=>a.name.localeCompare(b.name,'zh-Hant'));
   $('#lbCount').textContent=q?list.length+' / '+all.length+' '+(type==='wb'?'塊':'張'):all.length+' '+(type==='wb'?'塊':'張');
@@ -1896,7 +1944,7 @@ function showHome(){
 }
 $('#goHome').onclick=showHome;
 $$('[data-open]').forEach(b=>{b.onclick=()=>showLib(b.dataset.open);});
-$('#hmAddWb').onclick=()=>addBoard('wb'); $('#hmAddMm').onclick=()=>addBoard('mm'); $('#hmAddCard').onclick=addCardHere;
+$('#hmAddWb').onclick=()=>addBoard('wb'); $('#hmAddCard').onclick=addCardHere;
 $('#bBack').onclick=()=>{const id=ui.back; if(id&&boardById(id)) showBoard(id); else showHome();};
 
 /* ================= 全站搜尋：卡片內文、白板文字、心智圖節點 ================= */
@@ -2035,7 +2083,7 @@ function wbReset(){
 /* ----- 元素 ----- */
 function makeObjEl(o){
   const el=document.createElement('div'); el.className='obj '+(o.t==='sec'?'sec':o.t==='text'?'txt':'card'); el.dataset.id=o.id;
-  if(o.t==='card') el.innerHTML='<div class="cin"><div class="ct"></div><div class="cprev prose"></div></div>';
+  if(o.t==='card') el.innerHTML='<div class="cin"><div class="cprev prose"></div></div>';
   else if(o.t==='mm'){el.className='obj card mmo';el.innerHTML='<div class="cin"><div class="ct"></div><div class="mmprev"></div></div>';}
   else if(o.t==='text') el.innerHTML='<div class="tx"></div>';
   else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxMake(el,o);
@@ -2050,8 +2098,15 @@ function updateObjEl(el,o){
   el.classList.toggle('sel',wsel.has(o.id));
   el.classList.toggle('solo',wsel.size===1&&wsel.has(o.id));
   if(o.t==='card'){
-    const c=S.cards[o.cid], key=c?c.updated+'|'+c.title:'x';
-    if(el._k!==key){el._k=key;$('.ct',el).textContent=cardTitle(c);$('.cprev',el).innerHTML=c?c.html:'';}
+    const c=S.cards[o.cid], key=c?c.updated+'|'+(c.html||'').length:'x';
+    if(el._k!==key){
+      el._k=key; const pv=$('.cprev',el); pv.textContent=''; pv.classList.remove('cimg');
+      if(c&&c.html){
+        const im=firstImgSrc(c.html);
+        if(im){pv.classList.add('cimg');const i=document.createElement('img');i.alt='';i.draggable=false;i.src=im;pv.appendChild(i);}
+        else pv.innerHTML=c.html;
+      }
+    }
   }else if(o.t==='mm'){
     const mb=boardById(o.mid); let key='x';
     if(mb){const ids=[];(function w(n){if(n.cid) ids.push(n.cid);n.children.forEach(w);})(mb.root);key=mb.name+'|'+JSON.stringify(mb.root)+'|'+ids.map(i=>S.cards[i]?S.cards[i].title:'').join('\u0001');}
@@ -2590,7 +2645,7 @@ function wbObjLabel(o){
 }
 function wbCopy(){
   const b=board(); if(!b||b.type!=='wb'||!wsel.size) return false;
-  const objs=b.objs.filter(o=>wsel.has(o.id)).map(o=>JSON.parse(JSON.stringify(o)));
+  const objs=b.objs.filter(o=>wsel.has(o.id)).map(o=>{const c=JSON.parse(JSON.stringify(o));if(o.t==='mm'){const mb=boardById(o.mid);if(mb){c.snap=JSON.parse(JSON.stringify(mb.root));c.mname=mb.name;}}return c;});
   if(!objs.length) return false;
   const ids={}; objs.forEach(o=>{ids[o.id]=1;});
   const links=b.links.filter(l=>ids[l.a]&&ids[l.b]).map(l=>({a:l.a,b:l.b,label:l.label}));
@@ -2606,23 +2661,24 @@ function wbPasteClip(pos){
   else{wbClip.n++;dx=dy=36*wbClip.n;}
   const made=[];
   wbClip.objs.forEach(o=>{
-    if((o.t==='card'&&b.objs.some(x=>x.t==='card'&&x.cid===o.cid))||(o.t==='mm'&&b.objs.some(x=>x.t==='mm'&&x.mid===o.mid))){skipped++;return;}
+    if(o.t==='card'&&b.objs.some(x=>x.t==='card'&&x.cid===o.cid)){skipped++;return;}
     if(o.t==='card'&&!S.cards[o.cid]) return;
-    if(o.t==='mm'&&!boardById(o.mid)) return;
+    if(o.t==='mm'&&!o.snap) return;
     if((o.t==='img'||o.t==='pdf')&&!fileUrl(o.fid)) return;
-    const n=JSON.parse(JSON.stringify(o)); n.id=uid('o'); n.x=o.x+dx; n.y=o.y+dy; map[o.id]=n.id; b.objs.push(n); made.push(n.id);
+    const n=JSON.parse(JSON.stringify(o)); n.id=uid('o');
+    if(o.t==='mm'){const nb={id:uid('b'),name:o.mname||'心智圖',type:'mm',view:null,root:reidMm(JSON.parse(JSON.stringify(o.snap)))};S.boards.push(nb);n.mid=nb.id;delete n.snap;delete n.mname;} n.x=o.x+dx; n.y=o.y+dy; map[o.id]=n.id; b.objs.push(n); made.push(n.id);
   });
   wbClip.links.forEach(l=>{if(map[l.a]&&map[l.b]) b.links.push({id:uid('l'),a:map[l.a],b:map[l.b],label:l.label||''});});
-  if(!made.length){toast(skipped?'這些卡片或心智圖已經在這塊白板上':'沒有可貼上的內容');return false;}
+  if(!made.length){toast(skipped?'這些卡片已經在這塊白板上':'沒有可貼上的內容');return false;}
   wsel=new Set(made); wLink=null; renderWB(); markDirty(); refreshSidebar(); if(ui.editorId) renderUse();
-  if(skipped) toast('已貼上；'+skipped+' 個卡片或心智圖本來就在這塊白板，已略過');
+  if(skipped) toast('已貼上；'+skipped+' 張卡片本來就在這塊白板，已略過');
   return true;
 }
 function wbDuplicate(){if(wbCopy()) wbPasteClip(null);}
 function wbCut(){if(wbCopy()) wbDelete();}
 function wbDupCard(id){
   const o=wbObj(id), c=o&&S.cards[o.cid]; if(!c) return;
-  const n=newCard((c.title?c.title+' 副本':'')); n.html=c.html; n.updated=Date.now();
+  const n=newCard(''); n.html=c.html; n.title=c.title; n.updated=Date.now();
   const no=addCardToBoard(n.id,o.x+o.w/2+40,o.y+o.h/2+40); markDirty(); refreshSidebar(); return no;
 }
 
@@ -2893,7 +2949,7 @@ function mmEndEdit(commit){
   if(commit!==false&&v){
     const c=f.n.cid?S.cards[f.n.cid]:null;
     if(c){
-      if(v!==c.title){if(!isNew) snap();c.title=v;c.updated=Date.now();if(ui.editorId===c.id) edSetTitle(v);markDirty();refreshSidebar();wbCardUpdate(c.id);}
+      if(v!==c.title){if(!isNew) snap();cardSetTitle(c,v);c.updated=Date.now();if(ui.editorId===c.id) edSetTitle();markDirty();refreshSidebar();wbCardUpdate(c.id);}
     }else if(v!==f.n.text){if(!isNew) snap();f.n.text=v;markDirty();}
   }
   if(board()&&board().type==='mm') renderMM();
@@ -3607,7 +3663,7 @@ mmSvg.addEventListener('contextmenu',e=>{
 });
 
 /* ================= 匯出／匯入、範例資料、啟動 ================= */
-function exportText(){flushAll();return JSON.stringify({app:'cardbench',v:1,cards:S.cards,boards:S.boards,files:S.files||{},cur:S.cur},null,1);}
+function exportText(){pruneOrphans();flushAll();return JSON.stringify({app:'cardbench',v:1,cards:S.cards,boards:S.boards,files:S.files||{},cur:S.cur},null,1);}
 
 /* 舊版心智圖工具的 JSON → 新版心智圖（每一頁一張，媒體節點轉成文字） */
 function legacyNode(o,d){
@@ -3683,11 +3739,9 @@ $('#ioImp').onclick=()=>{
     refreshSidebar(); showBoard(first); markDirty.now(); $('#iodlg').close(); toast('已匯入 '+ns.boards.length+' 個畫板、'+Object.keys(ns.cards).length+' 張卡片');
   }catch(e){ioHint('匯入失敗：'+e.message,true);}
 };
-let repArmed=0;
-$('#ioRep').onclick=()=>{
-  const b=$('#ioRep');
-  if(!repArmed){repArmed=1;b.textContent='再按一次：確定取代';setTimeout(()=>{repArmed=0;b.textContent='取代全部資料';},3500);return;}
-  repArmed=0; b.textContent='取代全部資料';
+$('#ioRep').onclick=async()=>{
+  try{parseImport(ioTa.value);}catch(e){ioHint('匯入失敗：'+e.message,true);return;}
+  if(!await confirmDlg('取代全部資料？','目前所有卡片、白板和心智圖都會被匯入的內容取代，此操作無法復原。建議先按「下載」備份。','取代全部資料')) return;
   try{
     const ns=parseImport(ioTa.value); closeEditor(); S=ns; Object.keys(hist).forEach(k=>delete hist[k]);
     showHome(); markDirty.now(); $('#iodlg').close(); toast('已取代全部資料');
@@ -3727,7 +3781,7 @@ function sampleWS(){
   try{if(!isMobile()&&localStorage.getItem('cardbench-sb')==='off') document.body.classList.add('sb-off');}catch(e){}
   let ws=null; try{ws=normalizeWS(await loadWS());}catch(e){ws=null;}
   S=ws||sampleWS();
-  try{const t=localStorage.getItem('cardbench-tab');if(t==='wb'||t==='mm'||t==='card') ui.tab=t;}catch(e){}
+  try{const t=localStorage.getItem('cardbench-tab');if(t==='wb'||t==='card') ui.tab=t;}catch(e){}
   showHome(); setTab(ui.tab||'wb');
   if(!ws) markDirty.now();
   try{if(navigator.storage&&navigator.storage.persist) navigator.storage.persist();}catch(e){}
