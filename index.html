@@ -467,6 +467,28 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 .cprev.cimg{padding:0;-webkit-mask-image:none;mask-image:none}
 .cprev.cimg img{width:100%;height:100%;max-height:none;object-fit:cover;display:block;margin:0;border-radius:0}
 
+/* ===== 移除上方工具列、對焦框；浮動列的表格組 ===== */
+#edBody:focus,#edBody:focus-visible{outline:none}
+#bub .fmtg,#bub .tblg{display:flex;align-items:center;gap:1px}
+#bub .tblg{display:none}
+#bub.tbl .tblg{display:flex}
+#bub.tbl .fmtg{display:none}
+.cprev.cimg{position:absolute;inset:0;padding:0;background-size:cover;background-position:center;background-repeat:no-repeat;-webkit-mask-image:none;mask-image:none}
+.ci{min-height:46px}
+
+/* ===== 白板上的心智圖（直接顯示節點，可切換外框） ===== */
+.obj.mmo{border-top:0}
+.obj.mmo.frm{border-top:3px solid var(--c0)}
+.obj.mmo .mmsv{position:absolute;line-height:0}
+.obj.mmo .mmsv svg{display:block;overflow:visible;pointer-events:none}
+.obj.mmo .mmt{position:absolute;left:16px;top:8px;font:700 13px/1.4 var(--f-title);color:var(--muted);pointer-events:none}
+.obj.mmo .rz{display:none!important}
+.obj.mmo.bare{pointer-events:none}
+.obj.mmo.bare .mn{pointer-events:auto}
+.obj.mmo .mn{cursor:pointer}
+.obj.mmo .mn text{pointer-events:none}
+.obj.mmo.bare.sel{outline:2px dashed var(--accent);outline-offset:4px}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -506,6 +528,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
         <button id="wUrl" title="貼上網址或影片連結，產生縮圖卡">網址／影片</button>
         <span class="sepv"></span>
         <button id="wOpen" title="開啟編輯（卡片、心智圖、便利貼；也可雙擊）">開啟</button>
+        <button id="wFrame" title="心智圖外框：像卡片一樣把整組心智圖框起來／取消外框">外框</button>
         <button id="wAlign" title="對齊與等距分布（選取兩個以上項目）">對齊 ▾</button>
         <button id="wColor" title="改變便利貼或分區的顏色">顏色</button>
         <button id="wLbl" title="替選取的連線加文字">連線文字</button>
@@ -518,7 +541,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
         <span class="sepv"></span>
         <button id="mUp" title="上移（Alt＋↑）">↑ 上移</button><button id="mDn" title="下移（Alt＋↓）">↓ 下移</button>
         <button id="mCard" title="把節點轉成卡片，或連結到既有卡片">卡片 ▾</button>
-        <button id="mColor" title="改變節點的顏色">顏色</button>
+        <button id="mColor" title="節點樣式：填色、外框、文字顏色、字級、字體">樣式</button>
         <span class="sepv"></span>
         <button id="mExp" title="匯出成 Markdown 大綱或圖片">匯出 ▾</button>
       </div>
@@ -560,36 +583,6 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 
   <aside id="editor" aria-label="卡片編輯">
     <div class="edHead"><button id="edClose" class="ib" aria-label="關閉編輯器" title="關閉">✕</button><span id="edMeta"></span><button id="edFull" class="ib" aria-label="全螢幕編輯" aria-pressed="false" title="全螢幕編輯（Esc 離開）">⤢</button><button id="edDel" class="dng" title="永久刪除這張卡片">刪除卡片</button></div>
-    <div id="edTools" role="toolbar" aria-label="格式">
-      <button data-cmd="bold" title="粗體（Ctrl＋B）"><b>B</b></button>
-      <button data-cmd="italic" title="斜體（Ctrl＋I）"><i>I</i></button>
-      <button data-cmd="underline" title="底線（Ctrl＋U）"><u>U</u></button>
-      <button data-cmd="strike" title="刪除線（Ctrl＋Shift＋X）"><s>S</s></button>
-      <button data-cmd="mark" title="標亮（Ctrl＋Shift＋H，或輸入 ==文字==）"><mark>亮</mark></button>
-      <span class="sepv"></span>
-      <button data-cmd="h1" title="大標題">H1</button>
-      <button data-cmd="h2" title="中標題">H2</button>
-      <button data-cmd="h3" title="小標題">H3</button>
-      <span class="sepv"></span>
-      <button data-cmd="ul" title="項目清單">• 清單</button>
-      <button data-cmd="ol" title="編號清單">1. 清單</button>
-      <button data-cmd="check" title="待辦清單">☐ 待辦</button>
-      <button data-cmd="quote" title="引用">❝</button>
-      <span class="sepv"></span>
-      <button data-cmd="code" title="行內程式碼">&lt;/&gt;</button>
-      <button data-cmd="pre" title="程式碼區塊">{ }</button>
-      <button data-cmd="link" title="加入連結（Ctrl＋K）">連結</button>
-      <button data-cmd="open" title="開啟游標所在的連結">開啟</button>
-      <button data-cmd="image" title="插入圖片（也可以直接貼上或拖入）">圖片</button>
-      <button data-cmd="hr" title="分隔線">—</button>
-      <button data-cmd="table" title="插入表格">表格</button>
-      <span class="sepv tblop" hidden></span>
-      <button data-cmd="tr+" class="tblop" hidden title="在下方新增一列">＋列</button>
-      <button data-cmd="tc+" class="tblop" hidden title="在右方新增一欄">＋欄</button>
-      <button data-cmd="tr-" class="tblop" hidden title="刪除這一列">－列</button>
-      <button data-cmd="tc-" class="tblop" hidden title="刪除這一欄">－欄</button>
-      <button data-cmd="tdel" class="tblop dng" hidden title="刪除整個表格">刪表格</button>
-    </div>
     <div id="edBody" class="prose" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="卡片內容"></div>
     <div id="edUse"></div>
     <div id="blkH" hidden><button id="blkBtn" aria-label="區塊選單，拖曳可移動" title="拖曳移動，點一下開啟選單">⋮⋮</button></div>
@@ -605,9 +598,10 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 <input type="file" id="wfin" accept="image/*,application/pdf" multiple hidden>
 <div id="ctx" role="menu" hidden></div>
 <div id="bub" hidden role="toolbar" aria-label="快速格式">
-  <button data-cmd="bold" title="粗體"><b>B</b></button><button data-cmd="italic" title="斜體"><i>I</i></button><button data-cmd="underline" title="底線"><u>U</u></button><button data-cmd="strike" title="刪除線"><s>S</s></button>
-  <span class="sepv"></span><button data-cmd="mark" title="標亮"><mark>亮</mark></button><button data-cmd="code" title="行內程式碼">&lt;/&gt;</button><button data-cmd="link" title="連結">連結</button>
-  <span class="sepv"></span><button data-cmd="h2" title="標題">H2</button><button data-cmd="quote" title="引用">❝</button><button data-cmd="ul" title="清單">•</button>
+  <span class="fmtg"><button data-cmd="bold" title="粗體"><b>B</b></button><button data-cmd="italic" title="斜體"><i>I</i></button><button data-cmd="underline" title="底線"><u>U</u></button><button data-cmd="strike" title="刪除線"><s>S</s></button>
+  <span class="sepv"></span><button data-cmd="mark" title="標亮"><mark>亮</mark></button><button data-cmd="code" title="行內程式碼">&lt;/&gt;</button><button data-cmd="link" title="連結">連結</button><button data-cmd="open" title="開啟連結">開啟</button>
+  <span class="sepv"></span><button data-cmd="h2" title="標題">H2</button><button data-cmd="quote" title="引用">❝</button><button data-cmd="ul" title="清單">•</button></span>
+  <span class="tblg"><button data-cmd="tr+" title="在下方新增一列">＋列</button><button data-cmd="tc+" title="在右方新增一欄">＋欄</button><button data-cmd="tr-" title="刪除這一列">－列</button><button data-cmd="tc-" title="刪除這一欄">－欄</button><button data-cmd="tdel" class="dng" title="刪除整個表格">刪表格</button></span>
 </div>
 <dialog id="urldlg"><h2>貼上網址或影片連結</h2><p>支援 YouTube、Vimeo、bilibili 與一般網頁。會在白板上產生一張縮圖卡，可以像卡片一樣連線。</p>
   <input id="urlin" type="url" placeholder="https://" aria-label="網址">
@@ -753,7 +747,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 const hist={};
 const histOf=b=>hist[b.id]||(hist[b.id]={u:[],r:[]});
 const content=b=>b.type==='wb'?{objs:b.objs,links:b.links}:{root:b.root};
-function snap(){const b=board();const h=histOf(b);h.u.push(JSON.stringify(content(b)));if(h.u.length>80) h.u.shift();h.r=[];updHist();}
+function snap(bb){const b=bb||board();const h=histOf(b);h.u.push(JSON.stringify(content(b)));if(h.u.length>80) h.u.shift();h.r=[];updHist();}
 function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;b.objs.forEach(o=>{if(o.t==='mm'&&!boardById(o.mid)&&mmTrash[o.mid]){S.boards.push(mmTrash[o.mid]);delete mmTrash[o.mid];}});}else b.root=c.root;}
 function undo(){const b=board();const h=histOf(b);if(!h.u.length) return;h.r.push(JSON.stringify(content(b)));restore(b,h.u.pop());afterRestore();toast('已復原');}
 function redo(){const b=board();const h=histOf(b);if(!h.r.length) return;h.u.push(JSON.stringify(content(b)));restore(b,h.r.pop());afterRestore();toast('已重做');}
@@ -810,6 +804,9 @@ function normNode(n,cards,d){
   if(!n||typeof n!=='object'||d>60) return null;
   const o={id:String(n.id||uid('m')),text:String(n.text||'').slice(0,200),cid:(n.cid&&cards[n.cid])?String(n.cid):null,side:n.side===-1?-1:(n.side===1?1:0),collapsed:!!n.collapsed,children:[]};
   ['fill','bd','tc'].forEach(k=>{if(okColor(n[k])) o[k]=n[k];});
+  if(typeof n.fs==='number'&&isFinite(n.fs)) o.fs=clamp(Math.round(n.fs),10,48);
+  if(n.ff==='serif'||n.ff==='mono') o.ff=n.ff;
+  if(typeof n.fb==='boolean') o.fb=n.fb;
   (Array.isArray(n.children)?n.children:[]).slice(0,500).forEach(c=>{const x=normNode(c,cards,d+1);if(x) o.children.push(x);});
   return o;
 }
@@ -825,7 +822,7 @@ function normBoard(b,cards){
     const base={id:oid,x:num(o.x,0),y:num(o.y,0),w:Math.max(60,num(o.w,260)),h:Math.max(40,num(o.h,160))};
     const col=(typeof o.color==='number'&&o.color>=0&&o.color<6)?(o.color|0):null;
     if(o.t==='card'){if(!cards[o.cid]) return;objs.push(Object.assign(base,{t:'card',cid:String(o.cid)}));}
-    else if(o.t==='mm'){if(!o.mid) return;objs.push(Object.assign(base,{t:'mm',mid:String(o.mid)}));}
+    else if(o.t==='mm'){if(!o.mid) return;objs.push(Object.assign(base,{t:'mm',mid:String(o.mid),frame:!!o.frame,ox:num(o.ox,null),oy:num(o.oy,null)}));}
     else if(o.t==='text') objs.push(Object.assign(base,{t:'text',text:String(o.text||'').slice(0,2000),color:col}));
     else if(o.t==='sec') objs.push(Object.assign(base,{t:'sec',title:String(o.title||'').slice(0,80),color:col}));
     else if(o.t==='img'){if(!o.fid) return;objs.push(Object.assign(base,{t:'img',fid:String(o.fid),ar:clamp(num(o.ar,.75),.05,20),name:String(o.name||'').slice(0,120)}));}
@@ -1111,8 +1108,6 @@ function runCmd(n){
   }
   notifyChange();updToolState();
 }
-$('#edTools').addEventListener('pointerdown',e=>e.preventDefault());
-$('#edTools').addEventListener('click',e=>{const b=e.target.closest('button[data-cmd]');if(b&&!b.disabled) runCmd(b.dataset.cmd);});
 $('#fimg').addEventListener('change',function(){const f=this.files&&this.files[0];this.value='';if(f) insertImageFile(f);});
 
 function updToolState(){
@@ -1120,7 +1115,7 @@ function updToolState(){
   const val=(document.queryCommandValue('formatBlock')||'').toLowerCase().replace(/[<>]/g,'');
   const s=getSelection(), has=s.rangeCount&&edBody.contains(s.anchorNode)&&!inTitle(s.anchorNode);
   const a=has?closestEl(s.anchorNode,'a'):null, ul=has?closestEl(s.anchorNode,'ul'):null, ol=has?closestEl(s.anchorNode,'ol'):null, cd=has?closestEl(s.anchorNode,'code'):null;
-  $$('#edTools button,#bub button').forEach(b=>{
+  $$('#bub button').forEach(b=>{
     const c=b.dataset.cmd; let on=false;
     if(has){
       if(c==='bold') on=q('bold'); else if(c==='italic') on=q('italic'); else if(c==='underline') on=q('underline'); else if(c==='strike') on=q('strikeThrough');
@@ -1131,7 +1126,7 @@ function updToolState(){
     b.classList.toggle('on',on);
     if(c==='open') b.disabled=!a;
   });
-  const inT=!!has&&!!closestEl(s.anchorNode,'table'); $$('#edTools .tblop').forEach(b=>{b.hidden=!inT;});
+  const inT=!!has&&!!closestEl(s.anchorNode,'table');
 }
 document.addEventListener('selectionchange',()=>{if(document.activeElement===edBody) updToolState();});
 
@@ -1433,8 +1428,17 @@ function autoLink(e){
   }catch(_){}
   notifyChange();
 }
+/* 刪到整個區塊空了：清掉殘留的行內格式（粗體、連結…），讓游標回到乾淨的一行 */
+function cleanEmptyBlock(){
+  const s=getSelection(); if(!s.rangeCount||!s.isCollapsed) return;
+  const blk=blockOf(s.anchorNode); if(!blk||blk===edBody||!edBody.contains(blk)) return;
+  if(blk.textContent.replace(/\u200b/g,'')!==''||blk.querySelector('img,ul,ol,table,hr,li')) return;
+  if(blk.childNodes.length===1&&blk.firstChild.nodeName==='BR') return;
+  blk.innerHTML='<br>'; caretIn(blk);
+}
 edBody.addEventListener('input',e=>{
   if(e.isComposing) return;
+  if(e.inputType&&e.inputType.indexOf('delete')===0) cleanEmptyBlock();
   if(!mdInline(e)) autoLink(e);
   clearTimeout(updCount.t); updCount.t=setTimeout(updCount,300);
 });
@@ -1533,13 +1537,17 @@ edBody.addEventListener('click',e=>{
 const bub=$('#bub');
 function bubHide(){bub.hidden=true;}
 function bubUpdate(){
-  if(isCoarse()||document.activeElement!==edBody){bubHide();return;}
+  if(document.activeElement!==edBody){bubHide();return;}
   const s=getSelection();
-  if(!s.rangeCount||s.isCollapsed||!edBody.contains(s.anchorNode)||inTitle(s.anchorNode)||inTitle(s.focusNode)||closestEl(s.anchorNode,'pre')){bubHide();return;}
-  const rc=s.getRangeAt(0).getBoundingClientRect(); if(!rc.width&&!rc.height){bubHide();return;}
+  if(!s.rangeCount||!edBody.contains(s.anchorNode)){bubHide();return;}
+  const cell=closestEl(s.anchorNode,'td,th'); let rc;
+  if(s.isCollapsed&&cell){bub.classList.add('tbl');rc=cell.getBoundingClientRect();}
+  else if(!s.isCollapsed&&!closestEl(s.anchorNode,'pre')){bub.classList.remove('tbl');rc=s.getRangeAt(0).getBoundingClientRect();}
+  else{bubHide();return;}
+  if(!rc.width&&!rc.height){bubHide();return;}
   bub.hidden=false; updToolState();
-  const w=bub.offsetWidth, h=bub.offsetHeight;
-  let top=rc.top-h-8; if(top<8) top=rc.bottom+8;
+  const w=bub.offsetWidth, h=bub.offsetHeight, below=isCoarse()||bub.classList.contains('tbl')&&false;
+  let top=below?rc.bottom+26:rc.top-h-8; if(top<8) top=rc.bottom+8;
   bub.style.left=clamp(rc.left+rc.width/2-w/2,8,innerWidth-w-8)+'px'; bub.style.top=clamp(top,8,innerHeight-h-8)+'px';
 }
 let bubRaf=0;
@@ -1568,8 +1576,8 @@ function filteredCards(q){
 }
 function cardItem(c,usage,withAdd,onOpen){
   const li=document.createElement('li'); li.className='ci'; li.dataset.cid=c.id;
-  const t=document.createElement('div'); t.className='t'; t.textContent=cardTitle(c);
-  const s=document.createElement('div'); s.className='s'; const full=cardText(c), tt=c.title||''; s.textContent=(full.startsWith(tt)?full.slice(tt.length).trim():full)||'（沒有其他內容）';
+  const t=document.createElement('div'); t.className='t'; t.textContent=c.title||'';
+  const s=document.createElement('div'); s.className='s'; const full=cardText(c), tt=c.title||''; s.textContent=(full.startsWith(tt)?full.slice(tt.length).trim():full)||'';
   li.appendChild(t); li.appendChild(s);
   if(usage!==null){
     const m=document.createElement('div'); m.className='m';
@@ -1729,6 +1737,7 @@ function inlOpen(rect,text,o){
   const t=$('#inl'); inlCb=o.onDone; inlMulti=!!o.multi;
   t.style.display='block'; t.style.left=rect.left+'px'; t.style.top=rect.top+'px'; t.style.width=Math.max(rect.width,o.minW||0)+'px'; t.style.height=Math.max(rect.height,o.minH||0)+'px';
   t.style.fontSize=(o.size||14)+'px'; t.style.fontFamily=o.family||'inherit'; t.style.fontWeight=o.weight||'400'; t.style.textAlign=o.align||'left';
+  t.style.background=o.bg||''; t.style.color=o.color||'';
   t.value=text; t.focus(); t.select(); inlT=Date.now();
 }
 function inlClose(commit){
@@ -2084,13 +2093,28 @@ function wbReset(){
 function makeObjEl(o){
   const el=document.createElement('div'); el.className='obj '+(o.t==='sec'?'sec':o.t==='text'?'txt':'card'); el.dataset.id=o.id;
   if(o.t==='card') el.innerHTML='<div class="cin"><div class="cprev prose"></div></div>';
-  else if(o.t==='mm'){el.className='obj card mmo';el.innerHTML='<div class="cin"><div class="ct"></div><div class="mmprev"></div></div>';}
+  else if(o.t==='mm'){el.className='obj mmo bare';el.innerHTML='<div class="mmt"></div><div class="mmsv"></div>';}
   else if(o.t==='text') el.innerHTML='<div class="tx"></div>';
   else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxMake(el,o);
   else el.innerHTML='<div class="stitle"></div>';
   el.insertAdjacentHTML('beforeend','<div class="rz"></div>');
   if(o.t!=='sec') el.insertAdjacentHTML('beforeend','<i class="cn" data-side="t"></i><i class="cn" data-side="r"></i><i class="cn" data-side="b"></i><i class="cn" data-side="l"></i>');
   return el;
+}
+/* 白板上的心智圖：直接畫出節點；外框（像卡片一樣包起來）可切換。根節點位置固定，外框大小自動跟著節點走 */
+function wbMmLayout(el,o,mb){
+  const sv=$('.mmsv',el), tt=$('.mmt',el); if(!mb){sv.innerHTML='';tt.textContent='';return;}
+  const pad=o.frame?22:8, top=o.frame?28:0, r=mmRender(mb);
+  const ox=-r.x+pad, oy=-r.y+pad+top;
+  if(typeof o.ox==='number'&&typeof o.oy==='number'){o.x+=o.ox-ox;o.y+=o.oy-oy;}
+  o.ox=ox;o.oy=oy;o.w=r.w+pad*2;o.h=r.h+pad*2+top;
+  sv.innerHTML=r.svg; sv.style.left=pad+'px'; sv.style.top=(pad+top)+'px';
+  tt.textContent=o.frame?'心智圖・'+mb.name:'';
+  posEl(o);
+}
+function wbToggleFrame(){
+  const b=board(), ms=b.objs.filter(o=>wsel.has(o.id)&&o.t==='mm'); if(!ms.length) return;
+  snap(); const on=!ms[0].frame; ms.forEach(o=>{o.frame=on;}); renderWB(); markDirty();
 }
 function posEl(o){const el=wbEls[o.id];if(!el) return;const s=el.style;s.left=o.x+'px';s.top=o.y+'px';s.width=o.w+'px';s.height=o.h+'px';}
 function updateObjEl(el,o){
@@ -2100,17 +2124,18 @@ function updateObjEl(el,o){
   if(o.t==='card'){
     const c=S.cards[o.cid], key=c?c.updated+'|'+(c.html||'').length:'x';
     if(el._k!==key){
-      el._k=key; const pv=$('.cprev',el); pv.textContent=''; pv.classList.remove('cimg');
+      el._k=key; const pv=$('.cprev',el); pv.textContent=''; pv.classList.remove('cimg'); pv.style.backgroundImage='';
       if(c&&c.html){
         const im=firstImgSrc(c.html);
-        if(im){pv.classList.add('cimg');const i=document.createElement('img');i.alt='';i.draggable=false;i.src=im;pv.appendChild(i);}
+        if(im){pv.classList.add('cimg');pv.style.backgroundImage='url("'+im.replace(/["\\\n]/g,encodeURIComponent)+'")';}
         else pv.innerHTML=c.html;
       }
     }
   }else if(o.t==='mm'){
     const mb=boardById(o.mid); let key='x';
-    if(mb){const ids=[];(function w(n){if(n.cid) ids.push(n.cid);n.children.forEach(w);})(mb.root);key=mb.name+'|'+JSON.stringify(mb.root)+'|'+ids.map(i=>S.cards[i]?S.cards[i].title:'').join('\u0001');}
-    if(el._k!==key){el._k=key;$('.ct',el).textContent='心智圖・'+(mb?mb.name:'（已刪除）');$('.mmprev',el).innerHTML=mb?mmThumb(mb,true):'';}
+    if(mb){const ids=[];(function w(n){if(n.cid) ids.push(n.cid);n.children.forEach(w);})(mb.root);key=mb.name+'|'+(o.frame?1:0)+'|'+JSON.stringify(mb.root)+'|'+ids.map(i=>S.cards[i]?S.cards[i].title:'').join('\u0001');}
+    el.classList.toggle('card',!!o.frame); el.classList.toggle('frm',!!o.frame); el.classList.toggle('bare',!o.frame);
+    if(el._k!==key){el._k=key;wbMmLayout(el,o,mb);}
   }else if(o.t==='img'||o.t==='pdf'||o.t==='link'){
     wbxUpdate(el,o);
   }else if(o.t==='text'){
@@ -2212,10 +2237,22 @@ function wbDelete(){
   wsel=new Set(); renderWB(); markDirty(); refreshSidebar(); if(ui.editorId) renderUse();
   toast(hadCard?'已移出白板（卡片仍保留在卡片庫）':'已刪除');
 }
+function wbMmEditNode(o,nid){
+  const mb=boardById(o.mid), el=wbEls[o.id]; if(!mb||!el) return;
+  const f=mmFind(nid,mb), g=$('[data-nid="'+nid+'"]',el); if(!f||!g) return;
+  const n=f.n, root=!f.p, c=n.cid?S.cards[n.cid]:null, k=wbV().k, r=g.getBoundingClientRect(), rc=$('rect',g), tx=$('text',g);
+  inlOpen(r,c?c.title:n.text,{size:mmFS(n,root)*k,align:'center',weight:mmBold(n,root)?'700':'400',family:MM_FF[n.ff]||'inherit',
+    bg:getComputedStyle(rc).fill,color:getComputedStyle(tx).fill,onDone:v=>{
+      v=v.trim().slice(0,120); if(!v||v===(c?c.title:n.text)) return;
+      if(c){cardSetTitle(c,v);c.updated=Date.now();if(ui.editorId===c.id) edSetTitle();refreshSidebar();wbCardUpdate(c.id);}
+      else{snap(mb);n.text=v;}
+      updateObjEl(el,o);renderLinks();markDirty();
+    }});
+}
 function wbEditText(id){
   const o=wbObj(id), el=wbEls[id]; if(!o||!el) return;
   const r=el.getBoundingClientRect();
-  inlOpen(r,o.text,{multi:true,size:14*wbV().k,minH:40,onDone:v=>{if(v!==o.text){snap();o.text=v;}updateObjEl(el,o);markDirty();}});
+  inlOpen(r,o.text,{multi:true,size:14*wbV().k,minH:40,bg:getComputedStyle(el).backgroundColor,onDone:v=>{if(v!==o.text){snap();o.text=v;}updateObjEl(el,o);markDirty();}});
 }
 function wbEditSec(id){
   const o=wbObj(id), el=wbEls[id]; if(!o||!el) return;
@@ -2243,8 +2280,10 @@ function addMmToBoard(mid,x,y){
   const ex=b.objs.find(o=>o.t==='mm'&&o.mid===mid);
   if(ex){wsel=new Set([ex.id]);wLink=null;wbRefreshSel();wbCenterOn(ex);toast('這個心智圖已經在這塊白板上');return ex;}
   snap(); const p=(x==null)?wbCenter():{x:x,y:y}, s=freeSpot(p.x-170,p.y-120);
-  const o={id:uid('o'),t:'mm',mid:mid,x:s.x,y:s.y,w:340,h:240}; b.objs.push(o);
-  wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); renderSidebar(); return o;
+  const o={id:uid('o'),t:'mm',mid:mid,x:s.x,y:s.y,w:340,h:240,frame:false,ox:null,oy:null}; b.objs.push(o);
+  wsel=new Set([o.id]); wLink=null; renderWB();
+  if(typeof o.ox==='number'){o.x=s.x+170-o.ox;o.y=s.y+120-o.oy;posEl(o);renderLinks();}
+  markDirty(); renderSidebar(); return o;
 }
 function openMmFrom(mid){
   const b=board(); if(!boardById(mid)) return;
@@ -2253,9 +2292,11 @@ function openMmFrom(mid){
 function wbNewMm(p){
   const n=S.boards.filter(b=>b.type==='mm').length+1; let nm='心智圖 '+n; while(S.boards.some(b=>b.name===nm)) nm='心智圖 '+(++n);
   const mb={id:uid('b'),name:nm,type:'mm',view:null,root:newMmRoot()}; S.boards.push(mb);
-  if(p) addMmToBoard(mb.id,p.x,p.y); else addMmToBoard(mb.id); markDirty(); toast('已新增「'+nm+'」，雙擊它就能編輯'); openMmFrom(mb.id);
+  const o=p?addMmToBoard(mb.id,p.x,p.y):addMmToBoard(mb.id); markDirty();
+  if(o){setTimeout(()=>wbMmEditNode(o,mb.root.id),60);toast('輸入中心主題；雙擊節點可直接改文字，要加入子節點請按「開啟」');}
 }
 $('#wMm').onclick=()=>wbNewMm();
+$('#wFrame').onclick=wbToggleFrame;
 $('#wOpen').onclick=()=>{if(wsel.size===1) wbActivate(Array.from(wsel)[0]);};
 function wbNewText(q){
   const b=board(); snap(); const p=q||wbCenter(), s=freeSpot(p.x-100,p.y-55);
@@ -2289,6 +2330,7 @@ function wbUpdTools(){
   const b=board(); if(!b||b.type!=='wb') return;
   const canColor=b.objs.some(o=>wsel.has(o.id)&&(o.t==='text'||o.t==='sec'));
   $('#wAlign').disabled=wsel.size<2;
+  $('#wFrame').disabled=!b.objs.some(o=>wsel.has(o.id)&&o.t==='mm');
   $('#wOpen').disabled=!(wsel.size===1&&b.objs.some(o=>wsel.has(o.id)&&o.t!=='sec'));
   $('#wDel').disabled=!(wsel.size||wLink); $('#wColor').disabled=!canColor; $('#wLbl').disabled=!wLink;
 }
@@ -2345,8 +2387,8 @@ wb.addEventListener('pointerdown',e=>{
     const id=ob.dataset.id;
     if(e.shiftKey||e.ctrlKey||e.metaKey||wMode){wLink=null;if(wsel.has(id)) wsel.delete(id);else wsel.add(id);wbRefreshSel();wDrag=null;return;}
     if(!wsel.has(id)){wsel=new Set([id]);wLink=null;wbBringFront(id);wbRefreshSel();}
-    const ac=t.closest('[data-act]');
-    wDrag={m:'move',id:id,sx:e.clientX,sy:e.clientY,moved:false,act:ac?ac.dataset.act:null};
+    const ac=t.closest('[data-act]'), nn=t.closest('[data-nid]');
+    wDrag={m:'move',id:id,sx:e.clientX,sy:e.clientY,moved:false,act:ac?ac.dataset.act:null,nid:nn?nn.dataset.nid:null};
     if(e.pointerType==='touch'){const d0=wDrag,x0=e.clientX,y0=e.clientY;lpT=setTimeout(()=>wbLongPress(d0,x0,y0),520);}
     return;
   }
@@ -2424,7 +2466,7 @@ function wbUp(e){
     if(!up) return;
     if(d.act){wLast={};wbxAct(d.id,d.act);return;}
     const now=Date.now(), dbl=wLast.id===d.id&&now-wLast.t<350; wLast={id:d.id,t:now};
-    if(dbl){wLast={};wbActivate(d.id);return;}
+    if(dbl){wLast={};const oo=wbObj(d.id);if(oo&&oo.t==='mm'&&d.nid) wbMmEditNode(oo,d.nid); else wbActivate(d.id);return;}
     if(wsel.size>1){wsel=new Set([d.id]);wbRefreshSel();}
     return;
   }
@@ -2723,7 +2765,12 @@ const mmCtx=document.createElement('canvas').getContext('2d');
 let mmSet=new Set(), mmSetPrim=null, mmSel=null, mmLay={}, mmDrag=null, mmPts={}, mmPinch=null, mmTap={}, mmEditing=null, mmEditNew=null, mmEditT=0;
 const GX=56, GY=12;
 
-function mmTW(s,size,bold){mmCtx.font=(bold?'700 ':'400 ')+size+'px '+FONT;return mmCtx.measureText(s).width;}
+const MM_FF={serif:'"Noto Serif TC","Songti TC","PMingLiU",serif',mono:'ui-monospace,Menlo,Consolas,monospace'};
+const mmFS=(n,root)=>n.fs||(root?18:15);
+const mmBold=(n,root)=>n.fb!==undefined?!!n.fb:!!root;
+const mmFam=n=>MM_FF[n.ff]||FONT;
+const mmTW=(s,n,root)=>{mmCtx.font=(mmBold(n,root)?'700 ':'400 ')+mmFS(n,root)+'px '+mmFam(n);return mmCtx.measureText(s).width;};
+const mmTStyle=(n,root,fill)=>'fill:'+fill+';font-size:'+mmFS(n,root)+'px;font-weight:'+(mmBold(n,root)?700:400)+';font-family:'+(MM_FF[n.ff]||'inherit');
 function mmFind(id,b){
   b=b||board(); let r=null;
   (function w(n,p,i){if(r) return;if(n.id===id){r={n:n,p:p,i:i};return;}n.children.forEach((c,j)=>w(c,n,j));})(b.root,null,0);
@@ -2774,10 +2821,10 @@ function mmInk(f){
 }
 function mmText(n){const c=n.cid?S.cards[n.cid]:null;return c?cardTitle(c):(n.text||'');}
 function mmSize(n,isRoot){
-  let t=mmText(n); const fs=isRoot?18:15;
-  if(mmTW(t,fs,isRoot)>260){while(t.length>1&&mmTW(t+'…',fs,isRoot)>260) t=t.slice(0,-1);t+='…';}
-  const tw=mmTW(t,fs,isRoot), ico=n.cid?24:0;
-  return {t:t,tw:tw,ico:ico,w:Math.max(isRoot?96:56,Math.ceil(tw)+(isRoot?36:28)+ico),h:isRoot?46:36};
+  let t=mmText(n); const fs=mmFS(n,isRoot), lim=Math.max(260,fs*14);
+  if(mmTW(t,n,isRoot)>lim){while(t.length>1&&mmTW(t+'…',n,isRoot)>lim) t=t.slice(0,-1);t+='…';}
+  const tw=mmTW(t,n,isRoot), ico=n.cid?24:0;
+  return {t:t,tw:tw,ico:ico,w:Math.max(isRoot?96:56,Math.ceil(tw)+(isRoot?36:28)+ico),h:Math.max(isRoot?46:36,Math.ceil(fs*1.9)+(isRoot?10:6))};
 }
 function mmLayout(b,out){
   b=b||board(); const root=b.root, LAY=out||(mmLay={});
@@ -2835,7 +2882,7 @@ function renderMM(){
     nd+='<g class="mn'+(root?' root':'')+'" data-id="'+esc(id)+'"'+op+'>';
     nd+='<rect x="'+L.x+'" y="'+L.y+'" width="'+L.w+'" height="'+L.h+'" rx="'+(root?16:11)+'" style="fill:'+st.fill+';stroke:'+st.bd+'" stroke-width="'+(root?2.4:2)+'"/>';
     if(id===mmSel||mmSet.has(id)) nd+='<rect class="halo" x="'+(L.x-4)+'" y="'+(L.y-4)+'" width="'+(L.w+8)+'" height="'+(L.h+8)+'" rx="'+(root?19:14)+'" fill="none" style="stroke:var(--accent)" stroke-width="2.5"/>';
-    if(!hide) nd+='<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" style="fill:'+st.tc+'">'+esc(L.s.t)+'</text>';
+    if(!hide) nd+='<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" style="'+mmTStyle(n,root,st.tc)+'">'+esc(L.s.t)+'</text>';
     if(n.cid){
       const ix=L.x+L.w-26, iy=L.cy-10;
       nd+='<g class="cico" data-ico="'+esc(id)+'" transform="translate('+ix+','+iy+')"><rect x="-4" y="-6" width="30" height="32" fill="transparent"/>'
@@ -2874,9 +2921,28 @@ function mmThumb(b,withText){
     if(L.p){const P=L.p,x1=L.dir>0?P.x+P.w:P.x,x2=L.dir>0?L.x:L.x+L.w,mx=(x1+x2)/2;
       eg+='<path d="M'+x1+' '+P.cy+'C'+mx+' '+P.cy+' '+mx+' '+L.cy+' '+x2+' '+L.cy+'" fill="none" style="stroke:'+L.ec+'" stroke-width="'+(withText?2.4:5)+'"/>';}
     nd+='<rect x="'+L.x+'" y="'+L.y+'" width="'+L.w+'" height="'+L.h+'" rx="'+(root?16:11)+'" style="fill:'+st.fill+';stroke:'+st.bd+'" stroke-width="'+(root?(withText?2.4:5):(withText?2:4))+'"/>';
-    if(withText) nd+='<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" font-size="'+(root?18:15)+'" style="fill:'+st.tc+'">'+esc(L.s.t)+'</text>';
+    if(withText) nd+='<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" style="'+mmTStyle(n,root,st.tc)+'">'+esc(L.s.t)+'</text>';
   });
   return '<svg viewBox="'+a+' '+c+' '+(d-a)+' '+(e-c)+'" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" aria-hidden="true">'+eg+nd+'</svg>';
+}
+/* 白板上直接顯示的心智圖：用原始大小畫出節點，回傳 SVG 與外框範圍（根節點中心在 0,0） */
+function mmRender(b){
+  const lay={}; mmLayout(b,lay); const ids=Object.keys(lay);
+  let a=1e9,c=1e9,d=-1e9,e=-1e9;
+  ids.forEach(id=>{const L=lay[id];a=Math.min(a,L.x);c=Math.min(c,L.y);d=Math.max(d,L.x+L.w);e=Math.max(e,L.y+L.h);});
+  a-=3;c-=3;d+=3;e+=3;
+  let eg='',nd='';
+  ids.forEach(id=>{
+    const L=lay[id], n=L.n, root=L.depth===0, st=mmStyle(n,L);
+    if(L.p){const P=L.p,x1=L.dir>0?P.x+P.w:P.x,x2=L.dir>0?L.x:L.x+L.w,mx=(x1+x2)/2;
+      eg+='<path d="M'+x1+' '+P.cy+'C'+mx+' '+P.cy+' '+mx+' '+L.cy+' '+x2+' '+L.cy+'" fill="none" stroke-linecap="round" style="stroke:'+L.ec+'" stroke-width="'+(L.depth===1?3.2:L.depth===2?2.6:2)+'"/>';}
+    nd+='<g class="mn" data-nid="'+esc(id)+'"><rect x="'+L.x+'" y="'+L.y+'" width="'+L.w+'" height="'+L.h+'" rx="'+(root?16:11)+'" style="fill:'+st.fill+';stroke:'+st.bd+'" stroke-width="'+(root?2.4:2)+'"/>'
+      +'<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" style="'+mmTStyle(n,root,st.tc)+'">'+esc(L.s.t)+'</text>';
+    if(n.cid) nd+='<g transform="translate('+(L.x+L.w-26)+','+(L.cy-10)+')"><rect x="5" y="2" width="12" height="16" rx="2.5" fill="none" style="stroke:'+st.tc+'" stroke-width="1.6"/><path d="M8 8h6M8 11.5h6M8 15h4" style="stroke:'+st.tc+'" stroke-width="1.4" stroke-linecap="round"/></g>';
+    nd+='</g>';
+  });
+  const w=Math.ceil(d-a), h=Math.ceil(e-c);
+  return {svg:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+a+' '+c+' '+w+' '+h+'" width="'+w+'" height="'+h+'" aria-hidden="true">'+eg+nd+'</svg>',x:a,y:c,w:w,h:h};
 }
 function mmParentVisible(id){
   let f=mmFind(id); while(f&&!mmLay[f.n.id]){const p=f.p;if(!p) return null;f=mmFind(p.id);}
@@ -2924,7 +2990,7 @@ function mmPlaceEd(){
   const id=mmEditing, L=id&&mmLay[id]; if(!L){return;}
   const v=mmV(), tl=mmToScreen(L.x,L.y), w=Math.max(L.w*v.k,90), st=mmStyle(L.n,L);
   const s=mmEd.style; s.display='block'; s.width=w+'px'; s.height=(L.h*v.k)+'px'; s.left=(tl.x+L.w*v.k/2-w/2)+'px'; s.top=tl.y+'px';
-  s.fontSize=((L.depth===0?18:15)*v.k)+'px'; s.fontWeight=L.depth===0?'700':'400'; s.fontFamily='inherit';
+  s.fontSize=(mmFS(L.n,L.depth===0)*v.k)+'px'; s.fontWeight=mmBold(L.n,L.depth===0)?'700':'400'; s.fontFamily=MM_FF[L.n.ff]||'inherit';
   s.background=st.fill; s.color=st.tc; s.borderRadius=(11*v.k)+'px';
 }
 function mmEdit(id){
@@ -3167,14 +3233,24 @@ $('#mColor').onclick=function(){
   mmColorPop(this);
 };
 function mmColorPop(anchor){
-  const ids=mmSet.size?Array.from(mmSet):(mmSel?[mmSel]:[]), ns=ids.map(i=>mmFind(i)).filter(Boolean).map(f=>f.n);
-  if(!ns.length){toast('請先選取一個節點');return;}
-  const n=ns[0], cols=[0,1,2,3,4,5].map(i=>'var(--c'+i+')');
+  const ids=mmSet.size?Array.from(mmSet):(mmSel?[mmSel]:[]), fs=ids.map(i=>mmFind(i)).filter(Boolean);
+  if(!fs.length){toast('請先選取一個節點');return;}
+  const ns=fs.map(f=>f.n), n=ns[0], rootN=!fs[0].p, cols=[0,1,2,3,4,5].map(i=>'var(--c'+i+')'), tcols=['#17212d','#ffffff'].concat(cols);
+  const done=()=>{renderMM();markDirty();closePop();};
   openPop(anchor,p=>{
-    const h1=document.createElement('div');h1.className='ph';h1.textContent='填色'+(ns.length>1?'（'+ns.length+' 個節點）':'');p.appendChild(h1);
-    p.appendChild(swatchRow(cols,n.fill===undefined?null:n.fill,c=>{snap();ns.forEach(x=>{if(c) x.fill=c;else delete x.fill;});renderMM();markDirty();closePop();},true));
-    const h2=document.createElement('div');h2.className='ph';h2.textContent='外框';p.appendChild(h2);
-    p.appendChild(swatchRow(cols,n.bd===undefined?null:n.bd,c=>{snap();ns.forEach(x=>{if(c) x.bd=c;else delete x.bd;});renderMM();markDirty();closePop();},true));
+    const hd=t=>{const h=document.createElement('div');h.className='ph';h.textContent=t;p.appendChild(h);};
+    hd('填色'+(ns.length>1?'（'+ns.length+' 個節點）':''));
+    p.appendChild(swatchRow(cols,n.fill===undefined?null:n.fill,c=>{snap();ns.forEach(x=>{if(c) x.fill=c;else delete x.fill;});done();},true));
+    hd('外框'); p.appendChild(swatchRow(cols,n.bd===undefined?null:n.bd,c=>{snap();ns.forEach(x=>{if(c) x.bd=c;else delete x.bd;});done();},true));
+    hd('文字顏色'); p.appendChild(swatchRow(tcols,n.tc===undefined?null:n.tc,c=>{snap();ns.forEach(x=>{if(c) x.tc=c;else delete x.tc;});done();},true));
+    const seg=(label,opts,cur,fn)=>{
+      hd(label); const row=document.createElement('div'); row.className='seg';
+      opts.forEach(o=>{const b=document.createElement('button');b.textContent=o[0];if(o[1]===cur){b.classList.add('on');b.style.background='var(--accent)';b.style.color='var(--on-accent)';}b.onclick=()=>{snap();ns.forEach(x=>fn(x,o[1]));done();};row.appendChild(b);});
+      p.appendChild(row);
+    };
+    seg('字級',[['小',12],['中',15],['大',18],['特大',24],['超大',32]],mmFS(n,rootN),(x,v)=>{x.fs=v;});
+    seg('字體',[['預設',''],['襯線','serif'],['等寬','mono']],n.ff||'',(x,v)=>{if(v) x.ff=v;else delete x.ff;});
+    seg('粗細',[['一般',0],['粗體',1]],mmBold(n,rootN)?1:0,(x,v)=>{x.fb=!!v;});
   });
 }
 function mmUpdTools(){
@@ -3518,10 +3594,11 @@ function wbCtxAt(x,y,id){
   const sel=b.objs.filter(o=>wsel.has(o.id)), one=sel.length===1?sel[0]:null, I=[];
   if(sel.length){
     if(one){
-      const lbl={card:'開啟卡片',mm:'開啟心智圖',text:'編輯文字',sec:'編輯標題',img:'放大檢視',pdf:'開啟 PDF',link:'開啟連結'}[one.t];
+      const lbl={card:'開啟卡片',mm:'完整編輯心智圖',text:'編輯文字',sec:'編輯標題',img:'放大檢視',pdf:'開啟 PDF',link:'開啟連結'}[one.t];
       I.push({t:lbl,k:'Enter',fn:()=>wbActivate(one.id)});
       if(one.t==='pdf') I.push({t:'下載 PDF',fn:()=>wbxAct(one.id,'save')});
       if(one.t==='card') I.push({t:'製作卡片副本',fn:()=>wbDupCard(one.id)});
+      if(one.t==='mm') I.push({t:one.frame?'取消外框':'加上外框（像卡片一樣框起來）',fn:wbToggleFrame});
       if(one.t==='link'&&embedUrl(one)) I.push({t:'在白板上播放',fn:()=>wbxAct(one.id,'play')});
       I.push('-');
     }
@@ -3566,7 +3643,7 @@ wb.addEventListener('contextmenu',e=>{
 let mmClip=null;
 function mmCloneFresh(n){
   const c={id:uid('m'),text:n.text,cid:(n.cid&&S.cards[n.cid])?n.cid:null,side:0,collapsed:!!n.collapsed,children:n.children.map(mmCloneFresh)};
-  ['fill','bd','tc'].forEach(k=>{if(n[k]) c[k]=n[k];});
+  ['fill','bd','tc','fs','ff','fb'].forEach(k=>{if(n[k]!==undefined) c[k]=n[k];});
   return c;
 }
 function mmOutlineOf(nodes){const out=[];const w=(n,d)=>{out.push('  '.repeat(d)+mmText(n));n.children.forEach(c=>w(c,d+1));};nodes.forEach(n=>w(n,0));return out.join('\n');}
@@ -3635,7 +3712,7 @@ function mmCtxAt(x,y,id){
     if(!root||multi) I.push({t:'剪下',k:KM+'X',fn:mmCut});
     I.push({t:multi?'貼上為子節點':'貼上為子節點',k:KM+'V',fn:()=>mmCtxPaste(id)});
     I.push('-');
-    I.push({t:'顏色…',fn:()=>mmColorPop(fakeAnchor(x,y))});
+    I.push({t:'樣式…（顏色、字級、字體）',fn:()=>mmColorPop(fakeAnchor(x,y))});
     if(!multi){
       const c=n.cid?S.cards[n.cid]:null;
       if(c){
@@ -3771,7 +3848,7 @@ function sampleWS(){
   const mk2=(text,cid,kids)=>({id:uid('m'),text:text,cid:cid||null,side:0,collapsed:false,children:kids||[]});
   root.children=[mk2('目標',null,[mk2('第一階段'),mk2('第二階段')]),mk2('心智圖怎麼用',c3),mk2('資源',null,[mk2('文件'),mk2('工具')]),mk2('白板怎麼用',c2)];
   const mmd={id:uid('b'),name:'範例心智圖',type:'mm',view:null,root:root};
-  wbd.objs.push({id:uid('o'),t:'mm',mid:mmd.id,x:-340,y:150,w:190,h:200});
+  wbd.objs.push({id:uid('o'),t:'mm',mid:mmd.id,x:-120,y:420,w:420,h:300,frame:false,ox:null,oy:null});
   return normalizeWS({v:1,cards:cards,boards:[wbd,mmd],cur:wbd.id});
 }
 
