@@ -528,13 +528,13 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
     <nav id="tools" aria-label="工具列">
       <div class="tgrp" data-for="wb">
         <button id="wNew" class="pri" title="建立一張新卡片並放到白板上">＋ 新卡片</button>
-        <button id="wMm" title="在這塊白板新增一張心智圖，雙擊就能編輯">＋ 心智圖</button>
+        <button id="wMm" title="在這塊白板新增一張心智圖，所有編輯都直接在白板上進行">＋ 心智圖</button>
         <button id="wText" title="新增便利貼">便利貼</button>
         <button id="wSec" title="新增分區，用來把相關卡片框在一起">分區</button>
         <button id="wFile" title="上傳圖片或 PDF（也可直接貼上或拖入）">圖片／PDF</button>
         <button id="wUrl" title="貼上網址或影片連結，產生縮圖卡">網址／影片</button>
         <span class="sepv"></span>
-        <button id="wOpen" title="開啟編輯（卡片、心智圖、便利貼；也可雙擊）">開啟</button>
+        <button id="wOpen" title="開啟編輯（卡片、便利貼、圖片；也可雙擊）">開啟</button>
         <button id="wFrame" title="心智圖外框：像卡片一樣把整組心智圖框起來／取消外框">外框</button>
         <button id="wAlign" title="對齊與等距分布（選取兩個以上項目）">對齊 ▾</button>
         <button id="wColor" title="改變便利貼或分區的顏色">顏色</button>
@@ -645,12 +645,13 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
     <li><b>編輯快捷鍵</b>：Ctrl＋B/I/U、Ctrl＋E 行內程式碼、Ctrl＋Shift＋H 標亮、Ctrl＋Shift＋X 刪除線、Ctrl＋K 連結、Ctrl＋Alt＋1/2/3 標題、Ctrl＋Shift＋7/8/9 編號／清單／待辦、Ctrl＋Shift＋↑↓ 移動整段、程式碼區塊內 Ctrl＋Enter 離開。標題、引用開頭按退格會變回一般段落。</li>
     <li><b>白板</b>：拖曳卡片移動、拖右下角調整大小；選取卡片後拖四邊的圓點到另一張卡片就能連線；雙擊卡片開啟編輯。</li>
     <li><b>分區</b>：拖曳分區標題時，裡面的卡片會一起移動。</li>
-    <li><b>心智圖</b>：選取節點後點旁邊的「＋」新增子節點；拖曳節點到別的節點上變成子節點，放在同層之間調整順序。</li>
-    <li><b>心智圖接卡片</b>：選取節點，按「卡片」可轉成卡片或連結既有卡片，節點右側的文件圖示可開啟卡片。</li>
-    <li><b>框選與平移</b>：滑鼠左鍵在空白處拖曳＝框選（Shift 加選）；按住滾輪（中鍵）或按住空白鍵拖曳＝平移畫面；滾輪平移，Ctrl（⌘）＋滾輪縮放。觸控裝置：單指拖曳平移、雙指捏合縮放、長按空白處開啟選單，選「框選模式」即可用單指框選。</li>
-    <li><b>右鍵選單</b>：在白板或心智圖上按右鍵（觸控長按），可複製、剪下、貼上，也能新增卡片、心智圖、便利貼、分區。</li>
+    <li><b>心智圖（只在白板上）</b>：按「＋ 心智圖」或右鍵新增。點節點選取，兩側出現「＋」新增子節點；雙擊或 F2 改文字；拖曳節點到別的節點上換階層，放在同層之間調整順序；按住中心節點拖曳會移動整張心智圖。</li>
+    <li><b>心智圖快捷鍵</b>：Tab 新增子節點、Enter 新增同層、Delete 刪除、Alt＋↑↓ 調整順序、Ctrl＋C／X／V 複製、剪下、貼上節點（也能貼上縮排文字變成節點）。</li>
+    <li><b>心智圖樣式與卡片</b>：選取節點後按「顏色」可改填色、外框、文字色、字級、字體、粗細；右鍵可轉成卡片或連結既有卡片，節點上的文件圖示可開啟卡片；「外框」把整張心智圖像卡片一樣框起來；右鍵可匯出 PNG／SVG／Markdown。</li>
+    <li><b>右鍵選單</b>：在白板或節點上按右鍵（觸控長按），可複製、剪下、貼上，也能新增卡片、心智圖、便利貼、分區。</li>
     <li><b>圖片、PDF、影片</b>：直接貼上（Ctrl＋V）或拖入圖片、PDF、影片網址，會變成白板物件，同樣能拖曳圓點連到卡片和心智圖。</li>
-    <li><b>快捷鍵</b>：Ctrl＋Z 復原、Ctrl＋Shift＋Z 重做、Delete 刪除；心智圖用 Tab、Enter、F2、空白鍵和方向鍵。</li>
+    <li><b>滑鼠</b>：左鍵拖曳空白處框選；中鍵或空白鍵＋拖曳平移；滾輪捲動，Ctrl＋滾輪縮放。</li>
+    <li><b>快捷鍵</b>：Ctrl＋Z 復原、Ctrl＋Shift＋Z 重做、Delete 刪除。</li>
     <li><b>備份</b>：資料只存在這個瀏覽器，請用「匯出／匯入」定期備份。</li>
   </ul>
   <div class="row"><button id="hclose" class="pri">知道了</button></div></dialog>
@@ -777,7 +778,7 @@ function cleanInto(src,dst){
     }else if(tag==='IMG'){
       const s=(ch.getAttribute('src')||'').trim();
       if(!(/^data:image\/(png|jpeg|gif|webp);base64,[a-z0-9+\/=]+$/i.test(s)||/^https:\/\//i.test(s))) return;
-      el.setAttribute('src',s);el.setAttribute('alt',String(ch.getAttribute('alt')||'').slice(0,200));
+      el.setAttribute('src',s);el.setAttribute('alt','');
     }else if(tag==='UL'){
       if((ch.getAttribute('class')||'').split(/\s+/).indexOf('check')>=0) el.setAttribute('class','check');
     }else if(tag==='LI'){
@@ -1167,6 +1168,13 @@ edBody.addEventListener('click',e=>{
   const a=e.target.closest&&e.target.closest('a');
   if(a&&(e.ctrlKey||e.metaKey)){e.preventDefault();openLink(a.href);}
 });
+function pasteExtImgs(urls){
+  let fail=0, left=urls.length;
+  urls.slice(0,6).forEach(u=>{
+    fetch(u,{mode:'cors'}).then(r=>{if(!r.ok) throw 0;return r.blob();}).then(bl=>{if(!/^image\//.test(bl.type)) throw 0;restoreRange();insertImageFile(new File([bl],'img',{type:bl.type}));})
+    .catch(()=>{fail++;}).then(()=>{if(--left<=0&&fail) toast('有 '+fail+' 張圖片來自外部網站，瀏覽器不允許讀取。請對圖片按右鍵「複製圖片」再貼上，或直接把圖片檔拖進來');});
+  });
+}
 edBody.addEventListener('paste',e=>{
   const cd=e.clipboardData; if(!cd) return;
   const files=Array.from(cd.files||[]).filter(f=>/^image\//.test(f.type));
@@ -1175,8 +1183,18 @@ edBody.addEventListener('paste',e=>{
   const sp=getSelection();
   if(sp.rangeCount&&inTitle(sp.anchorNode)){e.preventDefault();ex('insertText',t.replace(/\s+/g,' ').trim());return;}
   if(html&&html.trim()){
-    const clean=cleanPasted(html);
-    if(clean){e.preventDefault();ex('insertHTML',clean);notifyChange();return;}
+    let clean=cleanPasted(html); const ext=[];
+    if(clean){
+      const tmp=document.createElement('div'); tmp.innerHTML=clean;
+      tmp.querySelectorAll('img').forEach(im=>{const u=im.getAttribute('src')||'';if(/^https:/i.test(u)){ext.push(u);im.remove();}});
+      clean=tmp.innerHTML;
+    }
+    if(clean||ext.length){
+      e.preventDefault(); if(clean.replace(/<[^>]*>|&nbsp;|\s/g,'')||/<(hr|table|img)/i.test(clean)) ex('insertHTML',clean);
+      notifyChange(); saveRange();
+      if(ext.length) pasteExtImgs(ext);
+      return;
+    }
   }
   if(t!==''){
     e.preventDefault();
@@ -1771,6 +1789,12 @@ document.addEventListener('mousedown',e=>{
 function showBoard(id,opts){
   opts=opts||{};
   if(!boardById(id)) return;
+  if(boardById(id).type==='mm'){
+    const wbd=S.boards.find(w=>w.type==='wb'&&w.objs.some(o=>o.t==='mm'&&o.mid===id));
+    if(!wbd){toast('這個心智圖不在任何白板上');return;}
+    showBoard(wbd.id,opts); const mo=wbd.objs.find(o=>o.t==='mm'&&o.mid===id);
+    if(mo){wsel=new Set([mo.id]);wbRefreshSel();wbCenterOn(mo);} return;
+  }
   inlClose(true); if(typeof mmEndEdit==='function') mmEndEdit(true); closePop();
   S.cur=id; const b=board(); ui.home=false; ui.lib=null; setTab(b.type==='mm'?'wb':b.type);
   ui.back=null; if(b.type==='mm'){const ow=opts.keepBack&&boardById(opts.keepBack)?opts.keepBack:(S.boards.find(w=>w.type==='wb'&&w.objs.some(o=>o.t==='mm'&&o.mid===id))||{}).id; ui.back=ow||null;}
@@ -2274,7 +2298,7 @@ function wbEditSec(id){
 }
 function wbActivate(id){
   const o=wbObj(id); if(!o) return;
-  if(o.t==='card') openCard(o.cid); else if(o.t==='mm') openMmFrom(o.mid); else if(o.t==='text') wbEditText(id); else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxOpen(o); else wbEditSec(id);
+  if(o.t==='card') openCard(o.cid); else if(o.t==='mm'){const mb=boardById(o.mid);if(mb) wmPick(o,mb.root.id);} else if(o.t==='text') wbEditText(id); else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxOpen(o); else wbEditSec(id);
 }
 function wbFocusCard(cid){
   const b=board(), o=b.objs.find(x=>x.t==='card'&&x.cid===cid); if(!o) return;
@@ -2345,7 +2369,7 @@ function wbUpdTools(){
   const canColor=!!wmSel||b.objs.some(o=>wsel.has(o.id)&&(o.t==='text'||o.t==='sec'));
   $('#wAlign').disabled=wsel.size<2;
   $('#wFrame').disabled=!b.objs.some(o=>wsel.has(o.id)&&o.t==='mm');
-  $('#wOpen').disabled=!(wsel.size===1&&b.objs.some(o=>wsel.has(o.id)&&o.t!=='sec'));
+  $('#wOpen').disabled=!(wsel.size===1&&b.objs.some(o=>wsel.has(o.id)&&o.t!=='sec'&&o.t!=='mm'));
   $('#wDel').disabled=!(wsel.size||wLink); $('#wColor').disabled=!canColor; $('#wLbl').disabled=!wLink;
 }
 
@@ -2402,7 +2426,7 @@ wb.addEventListener('pointerdown',e=>{
     if(e.shiftKey||e.ctrlKey||e.metaKey||wMode){wLink=null;if(wsel.has(id)) wsel.delete(id);else wsel.add(id);wbRefreshSel();wDrag=null;return;}
     if(!wsel.has(id)){wsel=new Set([id]);wLink=null;wbBringFront(id);wbRefreshSel();}
     const ac=t.closest('[data-act]'), nn=t.closest('[data-nid]'), ad=t.closest('[data-add]'), tg=t.closest('[data-tog]');
-    wDrag={m:'move',id:id,sx:e.clientX,sy:e.clientY,moved:false,act:ac?ac.dataset.act:null,nid:nn?nn.dataset.nid:null,add:ad?{id:ad.dataset.add,side:+ad.dataset.side}:null,tog:tg?tg.dataset.tog:null};
+    wDrag={m:'move',id:id,sx:e.clientX,sy:e.clientY,moved:false,act:ac?ac.dataset.act:null,nid:nn?nn.dataset.nid:null,add:ad?{id:ad.dataset.add,side:+ad.dataset.side}:null,tog:tg?tg.dataset.tog:null,ico:!!t.closest('[data-ico]')};
     if(nn&&!ad&&!tg&&wsel.size===1&&wmIsChild(id,nn.dataset.nid)) wDrag.m='nmove';
     if(e.pointerType==='touch'){const d0=wDrag,x0=e.clientX,y0=e.clientY;lpT=setTimeout(()=>wbLongPress(d0,x0,y0),520);}
     return;
@@ -2481,6 +2505,7 @@ function wbUp(e){
   if(d.m==='move'){
     if(d.moved){markDirty();renderLinks();return;}
     if(!up) return;
+    if(d.ico&&d.nid){const oo=wbObj(d.id),mm0=oo&&boardById(oo.mid),ff=mm0&&mmFind(d.nid,mm0);if(ff&&ff.n.cid&&S.cards[ff.n.cid]){wLast={};openCard(ff.n.cid);return;}}
     if(d.add){wLast={};wmAdd(wbObj(d.id),d.add.id,d.add.side);return;}
     if(d.tog){wLast={};wmToggle(wbObj(d.id),d.tog);return;}
     if(d.act){wLast={};wbxAct(d.id,d.act);return;}
@@ -2513,7 +2538,7 @@ wb.addEventListener('drop',e=>{
 });
 function wbKey(e){
   const k=e.key, mod=e.ctrlKey||e.metaKey;
-  if(wmSel&&!mod&&wmKey(e)) return;
+  if(wmSel&&(!mod)&&wmKey(e)) return;
   if(k==='Delete'||k==='Backspace'){e.preventDefault();wbDelete();}
   else if(k==='Escape'){if(wMode){wbSetMode(false);}wsel=new Set();wLink=null;wbRefreshSel();}
   else if(mod&&k.toLowerCase()==='d'){e.preventDefault();wbDuplicate();}
@@ -2749,15 +2774,18 @@ function isTyping(t){return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.i
 function pasteOK(e){return !ui.home&&board()&&!document.querySelector('dialog[open]')&&!isTyping(e.target);}
 document.addEventListener('copy',e=>{
   if(!pasteOK(e)) return; const b=board(); if(b.type!=='wb') return;
+  if(wmClipEvt(e,'copy')) return;
   if(wbCopy()){e.preventDefault();e.clipboardData.setData('text/plain',wbClip.text);toast('已複製 '+wbClip.objs.length+' 個項目');}
 });
 document.addEventListener('cut',e=>{
   if(!pasteOK(e)) return; const b=board(); if(b.type!=='wb') return;
+  if(wmClipEvt(e,'cut')) return;
   if(wbCopy()){e.preventDefault();e.clipboardData.setData('text/plain',wbClip.text);wbDelete();}
 });
 document.addEventListener('paste',e=>{
   if(!pasteOK(e)) return; const b=board(); if(!b) return;
   if(b.type!=='wb'){if(typeof mmPaste==='function') mmPaste(e);return;}
+  if(wmClipEvt(e,'paste')) return;
   const cd=e.clipboardData; if(!cd) return;
   const pos=wbPtrWorld();
   const files=Array.from(cd.files||[]).filter(f=>/^image\//.test(f.type)||f.type==='application/pdf'||/\.pdf$/i.test(f.name||''));
@@ -2818,6 +2846,7 @@ function wmKey(e){
   if(k==='Enter'){e.preventDefault();wmSibling(o,id);return true;}
   if(k==='F2'){e.preventDefault();wbMmEditNode(o,id);return true;}
   if((k==='Delete'||k==='Backspace')&&!root){e.preventDefault();wmDelete(o,id);return true;}
+  if(e.altKey&&(k==='ArrowUp'||k==='ArrowDown')){e.preventDefault();wmShift(o,id,k==='ArrowUp'?-1:1);return true;}
   if(k==='Escape'){wmSel=null;wbRefreshSel();return true;}
   return false;
 }
@@ -2879,6 +2908,7 @@ function wmUp(d,up){
     wmPick(o,d.nid); markDirty(); return;
   }
   if(!up||!o) return;
+  if(d.ico){const ff=mmFind(d.nid,mb);if(ff&&ff.n.cid&&S.cards[ff.n.cid]){wLast={};openCard(ff.n.cid);return;}}
   const now=Date.now(), dbl=wLast.id===d.id&&now-wLast.t<350; wLast={id:d.id,t:now};
   if(dbl){wLast={};wbMmEditNode(o,d.nid);return;}
   wmPick(o,d.nid);
@@ -2891,10 +2921,69 @@ function wmCtxItems(o,nid,x,y){
   if(!root) I.push({t:'新增同層節點',k:'Enter',fn:()=>wmSibling(o,nid)});
   I.push({t:'編輯文字',k:'F2',fn:()=>wbMmEditNode(o,nid)});
   I.push({t:'樣式…（顏色、字級、字體）',fn:()=>wmStyle(fakeAnchor(x,y))});
+  I.push('-');
+  I.push({t:'複製節點',k:KM+'C',fn:()=>{if(wmCopy()) toast('已複製節點');}});
+  if(!root) I.push({t:'剪下節點',k:KM+'X',fn:()=>{if(wmCopy()) wmDelete(o,nid);}});
+  I.push({t:'貼上為子節點',k:KM+'V',fn:()=>{if(mmClip) wmPaste(mmClip.nodes.map(mmCloneFresh)); else toast('還沒有複製節點');}});
+  I.push('-');
+  wmCardItems(o,nid).forEach(i=>I.push(i));
   if(!root&&f.n.children.length) I.push({t:f.n.collapsed?'展開子節點':'收合子節點',fn:()=>wmToggle(o,nid)});
+  if(!root){I.push({t:'上移',k:'Alt+↑',fn:()=>wmShift(o,nid,-1)});I.push({t:'下移',k:'Alt+↓',fn:()=>wmShift(o,nid,1)});}
   if(!root) I.push({t:'刪除節點',k:'Delete',danger:true,fn:()=>wmDelete(o,nid)});
   I.push('-');
   return I;
+}
+
+/* ----- 節點：複製／剪下／貼上、上下移、卡片連結、匯出 ----- */
+function wmCur(){const o=wmSel&&wbObj(wmSel.oid), mb=o&&boardById(o.mid), f=mb&&mmFind(wmSel.nid,mb); return f?{o:o,mb:mb,f:f,id:wmSel.nid}:null;}
+function wmCopy(){
+  const c=wmCur(); if(!c) return false;
+  const n=JSON.parse(JSON.stringify(c.f.n)); mmClip={nodes:[n],text:mmOutlineOf([n])}; return true;
+}
+function wmPaste(nodes){
+  const c=wmCur(); if(!c||!nodes.length) return;
+  snap(); nodes.forEach(n=>c.f.n.children.push(n)); c.f.n.collapsed=false;
+  wmPick(c.o,nodes[0].id); markDirty(); toast('已貼上 '+nodes.length+' 個節點');
+}
+function wmClipEvt(e,type){
+  if(!wmSel||!wmCur()) return false;
+  if(type==='copy'||type==='cut'){
+    if(!wmCopy()) return false; e.preventDefault(); e.clipboardData.setData('text/plain',mmClip.text);
+    if(type==='cut'){const c=wmCur();if(c&&c.f.p) wmDelete(c.o,c.id);} else toast('已複製節點');
+    return true;
+  }
+  const cd=e.clipboardData; if(!cd) return false;
+  if(Array.from(cd.files||[]).length) return false;
+  const txt=(cd.getData('text/plain')||'').trim();
+  if(mmClip&&(!txt||txt===mmClip.text)){e.preventDefault();wmPaste(mmClip.nodes.map(mmCloneFresh));return true;}
+  if(txt&&!/^https?:\/\/\S+$/i.test(txt)){e.preventDefault();wmPaste(mmTextToNodes(txt));return true;}
+  return false;
+}
+function wmShift(o,nid,delta){
+  const mb=boardById(o.mid), f=mmFind(nid,mb); if(!f||!f.p) return;
+  const arr=f.p.children, root=f.p===mb.root; let j=f.i+delta;
+  while(j>=0&&j<arr.length&&root&&arr[j].side!==f.n.side) j+=delta;
+  if(j<0||j>=arr.length){toast(delta<0?'已經在最上面':'已經在最下面');return;}
+  snap(); const t=arr[f.i]; arr[f.i]=arr[j]; arr[j]=t; wmPick(o,nid); markDirty();
+}
+function wmCardItems(o,nid){
+  const mb=boardById(o.mid), f=mmFind(nid,mb), n=f.n, c=n.cid?S.cards[n.cid]:null, I=[];
+  const done=()=>{wbRefreshSel();markDirty();refreshSidebar();};
+  if(!c) I.push({t:'轉成新卡片',fn:()=>{snap();const nc=newCard(n.text);n.cid=nc.id;done();openCard(nc.id);}});
+  else{
+    I.push({t:'開啟卡片',fn:()=>openCard(c.id)});
+    I.push({t:'取消連結卡片',fn:()=>{snap();n.text=cardTitle(c);n.cid=null;done();}});
+  }
+  I.push({t:c?'換成其他卡片…':'連結既有卡片…',fn:()=>pickCard('連結到節點',cid=>{snap();n.cid=cid;done();})});
+  return I;
+}
+function wmMapItems(o){
+  const mb=boardById(o.mid), nm=(mb.name||'心智圖').replace(/[\\/:*?"<>|]/g,'_');
+  return [
+    {t:'複製 Markdown 大綱',fn:()=>copyText(mmOutline(mb),'已複製 Markdown 大綱')},
+    {t:'下載 PNG 圖片',fn:async()=>{try{saveBlob(await mmPngBlob(mb),nm+'.png');}catch(e){toast('無法產生圖片');}}},
+    {t:'下載 SVG 向量圖',fn:()=>saveBlob(new Blob([mmSvgExport(mb,1).svg],{type:'image/svg+xml'}),nm+'.svg')}
+  ];
 }
 
 /* ================= 心智圖：階層式自動排版，節點可連結卡片 ================= */
@@ -3076,7 +3165,7 @@ function mmRender(b,sel){
       eg+='<path d="M'+x1+' '+P.cy+'C'+mx+' '+P.cy+' '+mx+' '+L.cy+' '+x2+' '+L.cy+'" fill="none" stroke-linecap="round" style="stroke:'+L.ec+'" stroke-width="'+(L.depth===1?3.2:L.depth===2?2.6:2)+'"/>';}
     nd+='<g class="mn" data-nid="'+esc(id)+'"><rect x="'+L.x+'" y="'+L.y+'" width="'+L.w+'" height="'+L.h+'" rx="'+(root?16:11)+'" style="fill:'+st.fill+';stroke:'+st.bd+'" stroke-width="'+(root?2.4:2)+'"/>'
       +'<text x="'+(L.x+(L.w-L.s.ico)/2)+'" y="'+L.cy+'" text-anchor="middle" dominant-baseline="central" style="'+mmTStyle(n,root,st.tc)+'">'+esc(L.s.t)+'</text>';
-    if(n.cid) nd+='<g transform="translate('+(L.x+L.w-26)+','+(L.cy-10)+')"><rect x="5" y="2" width="12" height="16" rx="2.5" fill="none" style="stroke:'+st.tc+'" stroke-width="1.6"/><path d="M8 8h6M8 11.5h6M8 15h4" style="stroke:'+st.tc+'" stroke-width="1.4" stroke-linecap="round"/></g>';
+    if(n.cid) nd+='<g data-ico="1" style="cursor:pointer" transform="translate('+(L.x+L.w-26)+','+(L.cy-10)+')"><rect x="5" y="2" width="12" height="16" rx="2.5" fill="none" style="stroke:'+st.tc+'" stroke-width="1.6"/><path d="M8 8h6M8 11.5h6M8 15h4" style="stroke:'+st.tc+'" stroke-width="1.4" stroke-linecap="round"/></g>';
     nd+='</g>';
   });
   let ox='';
@@ -3752,11 +3841,11 @@ function wbCtxAt(x,y,id){
   }
   if(sel.length){
     if(one){
-      const lbl={card:'開啟卡片',mm:'完整編輯心智圖',text:'編輯文字',sec:'編輯標題',img:'放大檢視',pdf:'開啟 PDF',link:'開啟連結'}[one.t];
+      const lbl={card:'開啟卡片',mm:'選取中心主題',text:'編輯文字',sec:'編輯標題',img:'放大檢視',pdf:'開啟 PDF',link:'開啟連結'}[one.t];
       I.push({t:lbl,k:'Enter',fn:()=>wbActivate(one.id)});
       if(one.t==='pdf') I.push({t:'下載 PDF',fn:()=>wbxAct(one.id,'save')});
       if(one.t==='card') I.push({t:'製作卡片副本',fn:()=>wbDupCard(one.id)});
-      if(one.t==='mm') I.push({t:one.frame?'取消外框':'加上外框（像卡片一樣框起來）',fn:wbToggleFrame});
+      if(one.t==='mm'){I.push({t:one.frame?'取消外框':'加上外框（像卡片一樣框起來）',fn:wbToggleFrame});wmMapItems(one).forEach(i=>I.push(i));}
       if(one.t==='link'&&embedUrl(one)) I.push({t:'在白板上播放',fn:()=>wbxAct(one.id,'play')});
       I.push('-');
     }
@@ -3989,7 +4078,7 @@ function sampleWS(){
   const mk=(title,html)=>{const id=uid('c');cards[id]={id:id,title:title,html:html,created:t,updated:t};return id;};
   const c1=mk('歡迎使用卡片工作台','<h2>卡片就是筆記</h2><p>同一張卡片可以放進<strong>多個白板</strong>，也能接在<strong>心智圖</strong>節點上。改一個地方，每個地方都會更新。</p><ul><li>在這裡寫內容，輸入「# 」變標題、「- 」變清單</li><li>貼上或拖入圖片也可以</li></ul>');
   const c2=mk('白板怎麼用','<p>拖曳卡片移動，拖右下角調整大小。選取卡片後，拖曳四邊的圓點到另一張卡片就能連線。</p><ul class="check"><li data-done="1">打開這張卡片</li><li data-done="0">拖一條連線</li><li data-done="0">新增一個分區</li></ul>');
-  const c3=mk('心智圖怎麼用','<p>選取節點，點兩側的「＋」新增子節點；雙擊節點改文字；拖曳節點到別的節點上可以改變階層。</p><p>按工具列的「卡片」，可以把節點轉成卡片，或連結到既有卡片。</p>');
+  const c3=mk('心智圖怎麼用','<p>選取節點，點兩側的「＋」新增子節點；雙擊節點改文字；拖曳節點到別的節點上可以改變階層。</p><p>在節點上按右鍵，可以把節點轉成卡片，或連結到既有卡片；Tab 新增子節點、Enter 新增同層。</p>');
   const c4=mk('我的第一個想法','<p>在這裡寫下任何想法。</p>');
   const sec=uid('o'), o1=uid('o'), o2=uid('o'), o3=uid('o'), o4=uid('o'), o5=uid('o');
   const wbd={id:uid('b'),name:'開始使用',type:'wb',view:null,
