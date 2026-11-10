@@ -545,6 +545,22 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 .obj.tblo .tadd.tc{right:-30px;top:calc(50% - 12px)}
 .obj.tblo .tadd.tr{bottom:-30px;left:calc(50% - 12px)}
 
+/* 卡片與便利貼造型 */
+.obj.kcard{border-radius:3px;border:1px solid var(--line);border-top:5px solid var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 14px -6px rgba(0,0,0,.2)}
+.obj.kcard .cin{border-radius:0}
+.obj.txt{isolation:isolate;background:none;border-radius:0;box-shadow:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.2));padding:14px 16px 24px}
+.obj.txt::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--tc,var(--p2));clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%)}
+.obj.txt::after{content:"";position:absolute;right:0;bottom:0;width:22px;height:22px;z-index:-1;background:linear-gradient(135deg,rgba(0,0,0,.17) 50%,transparent 50%)}
+.obj.txt.sel{outline-offset:3px}
+/* 編輯器頂部 */
+.edHead{border-bottom:0}
+#edDel{width:32px;color:var(--danger,#d64545)}
+#edFull.on{color:var(--accent)}
+.infoP{min-width:190px;padding:8px 12px}
+.infoR{display:flex;justify-content:space-between;gap:18px;padding:4px 0;font-size:13px}
+.infoR span{color:var(--muted)}
+#tools .tgrp button svg{vertical-align:-3px}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -562,7 +578,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
       <section class="sbSec" data-pane="card" hidden><div class="sbT"><h2>卡片庫</h2><span class="sp"></span><button class="sbAll" data-lib="card" title="用完整頁面檢視全部卡片">全部 ›</button><button class="ib" id="addCard" aria-label="新增卡片" title="新增卡片">＋</button></div>
         <input id="cardQ" type="search" placeholder="篩選卡片" aria-label="篩選卡片"><ul id="cardList"></ul></section>
     </div>
-    <div class="sbFoot"><button id="bIO">匯出／匯入</button><button id="bHelp">說明</button><button id="bTheme" aria-label="切換深淺色" title="切換深淺色">◐</button><span id="saveState" role="status"></span></div>
+    <div class="sbFoot"><button id="bIO" class="tic" aria-label="匯出／匯入" title="匯出／匯入"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg></button><button id="bHelp" class="tic" aria-label="說明" title="說明"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 115 0c0 1.7-2.5 2-2.5 4M12 17.2v.1"/></svg></button><button id="bTheme" aria-label="切換深淺色" title="切換深淺色">◐</button><span id="saveState" role="status"></span></div>
   </aside>
   <div id="sbScrim"></div>
   <div id="sbResize" role="separator" aria-orientation="vertical" aria-label="拖曳調整側邊欄寬度（雙擊還原）" title="拖曳調整寬度，雙擊還原"></div>
@@ -575,7 +591,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
       <span class="sp"></span>
       <button id="bSearch" class="tic" aria-label="搜尋" title="搜尋全部內容（Ctrl＋K）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
       <button id="tUndo" class="tic" aria-label="復原" title="復原（Ctrl＋Z）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button><button id="tRedo" class="tic" aria-label="重做" title="重做（Ctrl＋Shift＋Z）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg></button>
-      <span class="zoomctl"><button id="zOut" aria-label="縮小">－</button><button id="zPct" title="回到 100%">100%</button><button id="zIn" aria-label="放大">＋</button><button id="zMap" title="顯示或隱藏小地圖">地圖</button><button id="zFit" title="縮放到看見全部內容">適合</button></span>
+      <span class="zoomctl"><button id="zOut" aria-label="縮小">－</button><button id="zPct" title="回到 100%">100%</button><button id="zIn" aria-label="放大">＋</button><button id="zMap" class="tic" aria-label="小地圖" title="顯示或隱藏小地圖"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button><button id="zFit" class="tic" aria-label="縮放到全部內容" title="縮放到看見全部內容"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></span>
     </header>
     <nav id="tools" aria-label="工具列">
       <div class="tgrp" data-for="wb">
@@ -591,7 +607,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
         <button id="wColor" title="改變便利貼或分區的顏色">顏色</button>
         <button id="wLbl" title="替選取的連線加文字">連線文字</button>
         <button id="wLs" title="連線樣式：顏色、粗細、虛線、兩端箭頭、文字大小／字體／顏色">連線樣式</button>
-        <button id="wDel" class="dng" title="從白板移除選取的項目（卡片也會一併刪除，可按復原找回）">移出白板</button>
+        <button id="wDel" class="dng" title="移除選取的項目（卡片也會一併刪除，可按復原找回）"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg> 移除</button>
       </div>
       <div class="tgrp" data-for="mm" hidden>
         <button id="mChild" class="pri" title="新增子節點（Tab）">＋ 子節點</button>
@@ -641,7 +657,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
   </main>
 
   <aside id="editor" aria-label="卡片編輯">
-    <div class="edHead"><button id="edClose" class="ib" aria-label="關閉編輯器" title="關閉">✕</button><span id="edMeta"></span><button id="edFull" class="ib" aria-label="全螢幕編輯" aria-pressed="false" title="全螢幕編輯（Esc 離開）">⤢</button><button id="edDel" class="dng" title="永久刪除這張卡片">刪除卡片</button></div>
+    <div class="edHead"><button id="edClose" class="ib" aria-label="關閉" title="關閉"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="edMeta"></span><button id="edInfo" class="ib" aria-label="卡片資訊" title="卡片資訊"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.2v.1"/></svg></button><button id="edFull" class="ib" aria-label="放大" aria-pressed="false" title="放大（Esc 離開）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button><button id="edDel" class="ib dng" aria-label="刪除卡片" title="永久刪除這張卡片"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>
     <div id="edBody" class="prose" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="卡片內容"></div>
     <div id="edUse"></div>
     <div id="blkH" hidden><button id="blkBtn" aria-label="區塊選單，拖曳可移動" title="拖曳移動，點一下開啟選單">⋮⋮</button></div>
@@ -1058,7 +1074,7 @@ function openCard(id){
   renderUse(); edBody.scrollTop=0; updToolState();
   if(!c.html) setTimeout(focusTitle,30);
 }
-function setFull(on){document.body.classList.toggle('ed-full',!!on);$('#edFull').setAttribute('aria-pressed',on?'true':'false');$('#edFull').textContent=on?'⤡':'⤢';$('#edFull').title=on?'離開全螢幕（Esc）':'全螢幕編輯（Esc 離開）';}
+function setFull(on){document.body.classList.toggle('ed-full',!!on);$('#edFull').setAttribute('aria-pressed',on?'true':'false');$('#edFull').classList.toggle('on',!!on);$('#edFull').title=on?'縮小（Esc）':'放大（Esc 離開）';}
 function closeEditor(){
   setFull(false); flushEditor(); ui.editorId=null;
   $('#editor').classList.remove('open'); document.body.classList.remove('ed-open');
@@ -1595,7 +1611,7 @@ function updCount(){
   txt=txt.replace(/​/g,'');
   const CJK=/[㐀-鿿぀-ヿ가-힯]/g;
   const n=(txt.match(CJK)||[]).length+(txt.replace(CJK,' ').match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*/g)||[]).length;
-  $('#edMeta').textContent=edMetaBase+(n?' ・ '+n+' 字':'');
+  updCount.n=n;
 }
 
 /* ----- 鍵盤：區塊行為與快捷鍵 ----- */
@@ -1701,6 +1717,17 @@ edBody.addEventListener('blur',()=>{setTimeout(()=>{if(document.activeElement!==
 edBody.addEventListener('scroll',bubHide);
 bub.addEventListener('pointerdown',e=>e.preventDefault());
 bub.addEventListener('click',e=>{const b=e.target.closest('button[data-cmd]');if(b){runCmd(b.dataset.cmd);setTimeout(bubUpdate,0);}});
+
+/* ----- 卡片資訊 ----- */
+$('#edInfo').onclick=function(){
+  const c=S.cards[ui.editorId]; if(!c) return;
+  const raw=edBody.innerText.replace(/\u200b/g,''), lines=raw.split('\n').filter(l=>l.trim()).length;
+  const noSp=raw.replace(/\s/g,'').length, withSp=raw.replace(/\n/g,'').length;
+  const imgs=edBody.querySelectorAll('img').length, vids=edBody.querySelectorAll('.vid').length;
+  const fm=t=>t?fmtTime(t):'—';
+  const rows=[['字數',(updCount.n||0)],['行數',lines],['字元（不含空白）',noSp],['字元（含空白）',withSp],['圖片',imgs],['影片',vids],['建立',fm(c.created)],['更新',fm(c.updated)]];
+  openPop(this,p=>{p.classList.add('infoP');rows.forEach(r=>{const d=document.createElement('div');d.className='infoR';d.innerHTML='<span></span><b></b>';d.firstChild.textContent=r[0];d.lastChild.textContent=r[1];p.appendChild(d);});});
+};
 
 /* ================= 介面：側邊欄、浮層、畫板切換 ================= */
 function usageMap(){
@@ -2290,7 +2317,7 @@ const PALSVG={"card": "<rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"
 (function(){
   const g=$('#palGrid'); if(!g) return;
   PAL.forEach(it=>{
-    const b=document.createElement('button'); b.type='button'; b.className='pt'; b.draggable=true; b.title=it.tip;
+    const b=document.createElement('button'); b.type='button'; b.className='pt'; b.draggable=!/^(img|pdf|video|url)$/.test(it.k); b.title=it.tip+(/^(img|pdf|video|url)$/.test(it.k)?'（只能點擊）':'');
     b.innerHTML='<span class="pi"></span><span class="pn"></span>'; b.firstChild.innerHTML='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+PALSVG[it.k]+'</svg>'; b.lastChild.textContent=it.n;
     b.onclick=()=>{palRun(it.k,null);if(isMobile()) closeSbMob();};
     b.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/x-pal',it.k);e.dataTransfer.setData('text/plain',it.n);e.dataTransfer.effectAllowed='copy';b.classList.add('drag');});
@@ -2355,7 +2382,7 @@ function wbReset(){
 
 /* ----- 元素 ----- */
 function makeObjEl(o){
-  const el=document.createElement('div'); el.className='obj '+(o.t==='sec'?'sec':o.t==='text'?'txt':'card'); el.dataset.id=o.id;
+  const el=document.createElement('div'); el.className='obj '+(o.t==='sec'?'sec':o.t==='text'?'txt':o.t==='card'?'card kcard':'card'); el.dataset.id=o.id;
   if(o.t==='card') el.innerHTML='<div class="cin"><div class="cprev prose"></div></div>';
   else if(o.t==='mm'){el.className='obj mmo bare';el.innerHTML='<div class="mmt"></div><div class="mmsv"></div>';}
   else if(o.t==='sub'){el.className='obj card sub';el.innerHTML='<div class="cin"><div class="sbh"><span class="sbi">▦</span><span class="sbn"></span></div><div class="sbt"></div></div>';}
@@ -2651,10 +2678,14 @@ function wbColorPop(anchor){
 }
 function wbUpdTools(){
   const b=board(); if(!b||b.type!=='wb') return;
-  const canColor=!!wmSel||b.objs.some(o=>wsel.has(o.id)&&(o.t==='text'||o.t==='sec'));
-  $('#wAlign').disabled=wsel.size<2;
-  $('#wOpen').disabled=!(wsel.size===1&&b.objs.some(o=>wsel.has(o.id)&&o.t!=='sec'&&o.t!=='mm'));
-  $('#wDel').disabled=!(wsel.size||wLink); $('#wColor').disabled=!canColor; $('#wLbl').disabled=!wLink; $('#wLs').disabled=!wLink;
+  const sel=b.objs.filter(o=>wsel.has(o.id));
+  const canColor=!!wmSel||sel.some(o=>o.t==='text'||o.t==='sec');
+  const show=(id,v)=>{$(id).hidden=!v;};
+  show('#wAlign',sel.length>=2);
+  show('#wOpen',sel.length===1&&(sel[0].t==='card'||sel[0].t==='sub'));
+  show('#wDel',sel.length>0||!!wLink);
+  show('#wColor',canColor); show('#wLbl',!!wLink); show('#wLs',!!wLink);
+  $('#tools .sepv').hidden=true;
 }
 
 /* ----- 指標操作 ----- */
@@ -3957,7 +3988,7 @@ function wbAlign(mode){
     const span=h?R-L:B-T, sum=s.reduce((a,o)=>a+(h?o.w:o.h),0), gap=(span-sum)/(s.length-1);
     let pos=h?L:T; s.forEach(o=>{if(h) o.x=Math.round(pos);else o.y=Math.round(pos);pos+=(h?o.w:o.h)+gap;});
   }
-  os.forEach(posEl); renderLinks(); markDirty();
+  renderWB(); markDirty();
 }
 $('#wAlign').onclick=function(){wbAlignPop(this);};
 function wbAlignPop(anchor){
