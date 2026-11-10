@@ -560,6 +560,39 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 .infoR{display:flex;justify-content:space-between;gap:18px;padding:4px 0;font-size:13px}
 .infoR span{color:var(--muted)}
 #tools .tgrp button svg{vertical-align:-3px}
+.obj.kcard[data-c="0"]{border-top-color:var(--c0)}.obj.kcard[data-c="1"]{border-top-color:var(--c1)}.obj.kcard[data-c="2"]{border-top-color:var(--c2)}.obj.kcard[data-c="3"]{border-top-color:var(--c3)}.obj.kcard[data-c="4"]{border-top-color:var(--c4)}.obj.kcard[data-c="5"]{border-top-color:var(--c5)}
+#crumbs{display:flex;align-items:center;min-width:0;overflow:hidden}
+.crb{color:var(--muted);padding:4px 6px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:none;border:0}
+.crb:hover{color:var(--accent)}.crs{color:var(--muted);opacity:.6}
+@media (min-width:861px){#bBack{display:none!important}}
+@media (max-width:860px){#crumbs{display:none}}
+.kgrid{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:6px 14px;margin:10px 0;font-size:13px;align-items:center}
+.kgrid b{grid-column:1/-1;margin-top:8px;color:var(--accent)}
+.kgrid kbd{font:600 12px var(--f-body);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 7px;white-space:nowrap}
+#kdlg{max-width:min(720px,94vw)}
+@media (max-width:640px){.kgrid{grid-template-columns:auto 1fr}}
+.obj.tblo .cresw{position:absolute;inset:0;pointer-events:none}.obj.tblo .cres{display:none;pointer-events:auto;position:absolute;top:0;bottom:0;width:9px;margin-left:-4px;cursor:col-resize;z-index:2}
+.obj.tblo .cres::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:1px;background:var(--accent);opacity:0}
+.obj.tblo.solo .cres{display:block}.obj.tblo .cres:hover::after{opacity:1;width:2px}
+.obj.tblo .tbl{position:relative;overflow:visible}
+.obj.tblo table{border-radius:12px}
+body:not([data-view="wb"]) #bExp{display:none}
+#bIO.warn{position:relative;color:var(--c2)}#bIO.warn::after{content:"";position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:4px;background:#e5484d}
+/* 卡片連結與標籤 */
+a.cl{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:6px;padding:0 6px;cursor:pointer;text-decoration:none;white-space:nowrap}
+a.cl::before{content:"↗ ";opacity:.6;font-size:.85em}
+a.cl.dead{color:var(--muted);text-decoration:line-through}
+#clPick{position:fixed;z-index:60;min-width:200px;max-width:320px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:4px;display:flex;flex-direction:column}
+#clPick .si{display:block;text-align:left;border:0;background:none;padding:7px 10px;border-radius:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+#clPick .si.act{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+#clPick .none{padding:8px 10px;color:var(--muted);font-size:13px}
+#edTags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 16px 10px;border-top:0}
+#edTags .tg{display:inline-flex;align-items:center;background:var(--panel);border-radius:12px;font-size:12.5px}
+#edTags .tg button{border:0;background:none;padding:3px 4px 3px 9px;color:var(--ink)}
+#edTags .tg .tx{padding:3px 8px 3px 2px;color:var(--muted);font-size:11px}
+#edTags .tgin{border:0;background:none;font-size:12.5px;width:84px;padding:4px 2px;color:var(--ink)}
+@media (min-width:861px){#tools{min-height:46px;box-sizing:border-box}}
+.obj.tblo th{background:color-mix(in srgb,var(--c1,#13a08a) 22%,var(--surface))}
 
 </style></head><body>
 <div id="app">
@@ -587,10 +620,10 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
     <header id="topbar">
       <button id="sbBtn" class="ib" aria-label="開啟側邊欄" title="側邊欄">☰</button>
       <button id="bBack" hidden></button>
-      <button id="bName" title="重新命名或刪除這塊 Board"></button>
+      <span id="crumbs"></span><button id="bName" title="重新命名或刪除這塊 Board"></button>
       <span class="sp"></span>
       <button id="bSearch" class="tic" aria-label="搜尋" title="搜尋全部內容（Ctrl＋K）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
-      <button id="tUndo" class="tic" aria-label="復原" title="復原（Ctrl＋Z）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button><button id="tRedo" class="tic" aria-label="重做" title="重做（Ctrl＋Shift＋Z）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg></button>
+      <button id="bExp" class="tic" aria-label="匯出白板" title="匯出整張白板（PNG／SVG／PDF）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 10l5 5 5-5"/><path d="M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg></button><button id="tUndo" class="tic" aria-label="復原" title="復原（Ctrl＋Z）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button><button id="tRedo" class="tic" aria-label="重做" title="重做（Ctrl＋Shift＋Z）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg></button>
       <span class="zoomctl"><button id="zOut" aria-label="縮小">－</button><button id="zPct" title="回到 100%">100%</button><button id="zIn" aria-label="放大">＋</button><button id="zMap" class="tic" aria-label="小地圖" title="顯示或隱藏小地圖"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button><button id="zFit" class="tic" aria-label="縮放到全部內容" title="縮放到看見全部內容"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></span>
     </header>
     <nav id="tools" aria-label="工具列">
@@ -659,7 +692,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
   <aside id="editor" aria-label="卡片編輯">
     <div class="edHead"><button id="edClose" class="ib" aria-label="關閉" title="關閉"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="edMeta"></span><button id="edInfo" class="ib" aria-label="卡片資訊" title="卡片資訊"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.2v.1"/></svg></button><button id="edFull" class="ib" aria-label="放大" aria-pressed="false" title="放大（Esc 離開）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button><button id="edDel" class="ib dng" aria-label="刪除卡片" title="永久刪除這張卡片"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>
     <div id="edBody" class="prose" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="卡片內容"></div>
-    <div id="edUse"></div>
+    <div id="edUse"></div><div id="edTags"></div>
     <div id="blkH" hidden><button id="blkBtn" aria-label="區塊選單，拖曳可移動" title="拖曳移動，點一下開啟選單">⋮⋮</button></div>
     <div id="blkDrop" hidden></div>
     <div id="slash" hidden role="listbox" aria-label="插入區塊"></div>
@@ -709,6 +742,21 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
   <p id="ioHint" style="margin-top:10px">匯入時，貼上 JSON 或選擇檔案後按「匯入」，內容會合併進目前的工作區。也能匯入舊版心智圖工具匯出的 JSON，每一頁會變成一張心智圖。</p>
   <div class="row"><button id="ioClose">關閉</button><button id="ioRep" class="dng">取代全部資料</button><button id="ioImp" class="pri">匯入（合併）</button></div>
   <input type="file" id="iofile" accept=".json,application/json,text/plain" hidden></dialog>
+<dialog id="kdlg"><h2>快捷鍵</h2><div class="kgrid">
+<b>白板</b><span></span>
+<kbd>Ctrl＋Z</kbd><span>復原</span><kbd>Ctrl＋Shift＋Z</kbd><span>重做</span>
+<kbd>Ctrl＋C / X / V</kbd><span>複製／剪下／貼上</span><kbd>Ctrl＋D</kbd><span>製作副本</span>
+<kbd>Ctrl＋A</kbd><span>全選</span><kbd>Delete</kbd><span>移除選取</span>
+<kbd>Enter</kbd><span>開啟／編輯選取物件</span><kbd>空白鍵＋拖曳</kbd><span>平移</span>
+<kbd>Ctrl＋滾輪</kbd><span>縮放</span><kbd>Ctrl＋K</kbd><span>搜尋</span>
+<b>心智圖節點</b><span></span>
+<kbd>Tab</kbd><span>新增子節點</span><kbd>Enter</kbd><span>新增同層節點</span>
+<kbd>F2</kbd><span>編輯文字</span><kbd>Alt＋↑ / ↓</kbd><span>調整順序</span>
+<b>卡片編輯</b><span></span>
+<kbd>/</kbd><span>插入區塊</span><kbd>[[</kbd><span>連到其他卡片</span>
+<kbd>Ctrl＋B / I / U</kbd><span>粗體／斜體／底線</span><kbd>Ctrl＋K</kbd><span>連結</span>
+<kbd>Esc</kbd><span>關閉／離開全螢幕</span><kbd>?</kbd><span>開啟這個面板</span>
+</div><div class="row"><button id="kclose" class="pri">關閉</button></div></dialog>
 <dialog id="hdlg"><h2>操作說明</h2>
   <ul>
     <li><b>主白板與 Board</b>：開啟就是一張主白板。左側「物件」面板可拖曳（或點一下）新增卡片、Board、分區、箭頭、心智圖、便利貼、圖片、PDF、影片、網址。Board 是可雙擊進入的子白板，Board 裡還能再放 Board，層數不限；選取物件後按右鍵「移到其他 Board」可搬過去。沒有白板庫，也沒有卡片庫：卡片就是白板上的物件，從白板移除就等於刪除。</li>
@@ -717,17 +765,16 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
     <li><b>行內格式</b>：輸入 **粗體**、*斜體*、`程式碼`、~~刪除線~~、==標亮== 後自動套用；網址後按空白自動變連結；選取文字會出現快速工具列。</li>
     <li><b>編輯快捷鍵</b>：Ctrl＋B/I/U、Ctrl＋E 行內程式碼、Ctrl＋Shift＋H 標亮、Ctrl＋Shift＋X 刪除線、Ctrl＋K 連結、Ctrl＋Alt＋1/2/3 標題、Ctrl＋Shift＋7/8/9 編號／清單／待辦、Ctrl＋Shift＋↑↓ 移動整段、程式碼區塊內 Ctrl＋Enter 離開。標題、引用開頭按退格會變回一般段落。</li>
     <li><b>白板</b>：拖曳卡片移動、拖右下角調整大小；選取卡片後拖四邊的圓點到另一張卡片就能連線；雙擊卡片開啟編輯。</li>
-    <li><b>分區</b>：拖曳分區標題時，裡面的卡片會一起移動。</li>
     <li><b>心智圖（只在白板上）</b>：從左側「物件」面板拖曳「心智圖」，或右鍵新增。點節點選取，兩側出現「＋」新增子節點；雙擊或 F2 改文字；拖曳節點到別的節點上換階層，放在同層之間調整順序；按住中心節點拖曳會移動整張心智圖。</li>
     <li><b>心智圖快捷鍵</b>：Tab 新增子節點、Enter 新增同層、Delete 刪除、Alt＋↑↓ 調整順序、Ctrl＋C／X／V 複製、剪下、貼上節點（也能貼上縮排文字變成節點）。</li>
     <li><b>心智圖樣式與卡片</b>：選取節點後按「顏色」可改填色、外框、文字色、字級、字體、粗細；右鍵可轉成卡片或連結既有卡片，轉成卡片的節點，雙擊或點文件圖示就能開啟卡片編輯；「外框」把整張心智圖像卡片一樣框起來；右鍵可匯出 PNG／SVG／Markdown。</li>
     <li><b>連線</b>：從卡片邊緣的圓點拖到另一個物件；選取連線後按「連線樣式」可改顏色、粗細、實線／虛線／點線、兩端箭頭（無／實心／空心），以及文字大小、字體、顏色。心智圖不能自由連線。</li>
-    <li><b>分區</b>：分區像一個「包裹」，裡面的卡片、心智圖、連線在白板上都完整顯示；移動分區，裡面的內容會一起移動。按分區標題右側的「⤢ 開啟」（或選取後按 Enter），畫面會放大到這個分區並淡化其他內容，方便專注編輯，按「返回白板」或 Esc 離開。沒有第二層白板。</li>
+    <li><b>分區</b>：分區像一個「包裹」，裡面的卡片、心智圖、連線在白板上都完整顯示；移動分區，裡面的內容會一起移動。要「開進去」編輯的內容請用 Board。</li>
     <li><b>表格</b>：從「物件」面板拖曳「表格」。雙擊儲存格輸入文字；點選儲存格後，邊緣的「＋欄」「＋列」可擴充，右鍵可插入或刪除列與欄、切換標題列。</li>
     <li><b>右鍵選單</b>：在白板或節點上按右鍵（觸控長按），可複製、剪下、貼上，也能新增卡片、心智圖、便利貼、分區。</li>
     <li><b>圖片、PDF、影片</b>：直接貼上（Ctrl＋V）或拖入圖片、PDF、影片網址，會變成白板物件，同樣能拖曳圓點連到卡片和心智圖。</li>
     <li><b>滑鼠</b>：左鍵拖曳空白處框選；中鍵或空白鍵＋拖曳平移；滾輪捲動，Ctrl＋滾輪縮放。</li>
-    <li><b>快捷鍵</b>：Ctrl＋Z 復原、Ctrl＋Shift＋Z 重做、Delete 刪除。</li>
+    <li><b>快捷鍵</b>：按 <kbd>?</kbd> 開啟完整快捷鍵面板。</li>
     <li><b>備份</b>：資料只存在這個瀏覽器，請用「匯出／匯入」定期備份。</li>
   </ul>
   <div class="row"><button id="hclose" class="pri">知道了</button></div></dialog>
@@ -780,6 +827,7 @@ function cardRefs(){
   const r={}, walk=n=>{if(!n) return;if(n.cid) r[n.cid]=1;(n.children||[]).forEach(walk);};
   S.boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='card') r[o.cid]=1;}); else walk(b.root);});
   Object.keys(mmTrash).forEach(k=>walk(mmTrash[k].root));
+  const q=Object.keys(r); while(q.length){const c=S.cards[q.pop()]; if(!c||!c.html) continue; const re=/data-cid="([\w-]+)"/g; let m; while((m=re.exec(c.html))){if(!r[m[1]]&&(S.cards[m[1]]||cardTrash[m[1]])){r[m[1]]=1;q.push(m[1]);}}}
   return r;
 }
 function restoreCards(){
@@ -872,6 +920,7 @@ function cleanInto(src,dst){
       const d=ch.getAttribute('data-done');
       if(d==='1'||d==='0') el.setAttribute('data-done',d);
     }
+    if(tag==='A'&&(ch.getAttribute('class')||'')==='cl'&&/^c[\w-]+$/.test(ch.getAttribute('data-cid')||'')){el.setAttribute('class','cl');el.setAttribute('data-cid',ch.getAttribute('data-cid'));el.setAttribute('contenteditable','false');}
     if(tag==='P'&&(ch.getAttribute('class')||'').split(/\s+/).indexOf('vid')>=0) el.setAttribute('class','vid');
     if(tag==='SPAN'&&(ch.getAttribute('class')||'').split(/\s+/).indexOf('vt')>=0) el.setAttribute('class','vt');
     if(tag!=='IMG'&&tag!=='BR'&&tag!=='HR') cleanInto(ch,el);
@@ -927,12 +976,12 @@ function normBoard(b,cards){
     const oid=String(o.id||uid('o')); if(ids[oid]) return;
     const base={id:oid,x:num(o.x,0),y:num(o.y,0),w:Math.max(60,num(o.w,260)),h:Math.max(40,num(o.h,160))};
     const col=(typeof o.color==='number'&&o.color>=0&&o.color<6)?(o.color|0):null;
-    if(o.t==='card'){if(!cards[o.cid]) return;objs.push(Object.assign(base,{t:'card',cid:String(o.cid)}));}
+    if(o.t==='card'){if(!cards[o.cid]) return;objs.push(Object.assign(base,{t:'card',cid:String(o.cid),color:col}));}
     else if(o.t==='mm'){if(!o.mid) return;objs.push(Object.assign(base,{t:'mm',mid:String(o.mid),frame:false,ox:num(o.ox,null),oy:num(o.oy,null)}));}
     else if(o.t==='sub'){if(!o.bid) return;objs.push(Object.assign(base,{t:'sub',bid:String(o.bid)}));}
     else if(o.t==='text') objs.push(Object.assign(base,{t:'text',text:String(o.text||'').slice(0,2000),color:col}));
     else if(o.t==='sec') objs.push(Object.assign(base,{t:'sec',title:String(o.title||'').slice(0,80),color:col}));
-    else if(o.t==='table') objs.push(tblNorm(Object.assign(base,{t:'table',rows:o.rows,hdr:o.hdr})));
+    else if(o.t==='table') objs.push(tblNorm(Object.assign(base,{t:'table',rows:o.rows,hdr:o.hdr,cws:o.cws})));
     else if(o.t==='img'){if(!o.fid) return;objs.push(Object.assign(base,{t:'img',fid:String(o.fid),ar:clamp(num(o.ar,.75),.05,20),name:String(o.name||'').slice(0,120)}));}
     else if(o.t==='pdf'){if(!o.fid) return;objs.push(Object.assign(base,{t:'pdf',fid:String(o.fid),name:String(o.name||'文件.pdf').slice(0,160),size:num(o.size,0),pages:num(o.pages,0)|0}));}
     else if(o.t==='link'){
@@ -949,6 +998,7 @@ function normBoard(b,cards){
   });
   return {id,name,type:'wb',main:!!b.main,view,objs,links};
 }
+function normTags(t){const o=[];(Array.isArray(t)?t:[]).forEach(x=>{x=String(x||'').replace(/^#+/,'').replace(/\s+/g,' ').trim().slice(0,24);if(x&&o.indexOf(x)<0&&o.length<12) o.push(x);});return o;}
 function normCards(raw){
   const out={},cs=raw&&typeof raw==='object'?raw:{};
   Object.keys(cs).slice(0,5000).forEach(k=>{
@@ -956,7 +1006,7 @@ function normCards(raw){
     const id=String(c.id||k);
     let html=sanitizeHtml(String(c.html||'')); const old=String(c.title||'').replace(/\s+/g,' ').trim().slice(0,200);
     if(c.v!==2&&old) html='<h1>'+esc(old)+'</h1>'+html;
-    out[id]={id,v:2,title:htmlTitle(html),html:html,created:num(c.created,Date.now()),updated:num(c.updated,Date.now())};
+    out[id]={id,v:2,title:htmlTitle(html),html:html,created:num(c.created,Date.now()),updated:num(c.updated,Date.now()),tags:normTags(c.tags)};
   });
   return out;
 }
@@ -1057,7 +1107,7 @@ function syncTitle(){
 }
 function edSetTitle(){
   const c=S.cards[ui.editorId]; if(!c) return;
-  edBody.innerHTML=c.html||'<h1><br></h1>'; ensureBlock(); markEmpty(); edDirty=false;
+  edBody.innerHTML=c.html||'<h1><br></h1>'; clRefresh(); ensureBlock(); markEmpty(); edDirty=false;
 }
 function focusTitle(){edBody.focus();const f=edBody.firstElementChild;if(f) caretIn(f);}
 function focusFirstBody(){focusTitle();}
@@ -1097,6 +1147,8 @@ function renderUse(){
   const lab=document.createElement('span'); lab.textContent=bs.length?'出現在：':'還沒放進任何白板或心智圖'; box.appendChild(lab);
   bs.forEach(b=>{const btn=document.createElement('button');btn.textContent=(b.type==='wb'?'白板・':'心智圖・')+b.name;btn.onclick=()=>gotoBoard(b.id,c.id);box.appendChild(btn);});
   edMetaBase='更新於 '+fmtTime(c.updated); updCount();
+  if(!bs.length&&board()&&board().type==='wb'&&!ui.home){const pb=document.createElement('button');pb.textContent='放到目前白板';pb.className='pri';pb.onclick=()=>{const w=wbCenter();addCardToBoard(c.id,w.x-130,w.y-100);renderUse();toast('已放到目前白板');};box.appendChild(pb);}
+  clBacklinks(box,c); tagRender();
 }
 function deleteCard(id){
   const c=S.cards[id]; if(!c) return;
@@ -1729,6 +1781,75 @@ $('#edInfo').onclick=function(){
   openPop(this,p=>{p.classList.add('infoP');rows.forEach(r=>{const d=document.createElement('div');d.className='infoR';d.innerHTML='<span></span><b></b>';d.firstChild.textContent=r[0];d.lastChild.textContent=r[1];p.appendChild(d);});});
 };
 
+/* ===== 卡片之間的雙向連結（輸入 [[ 選卡片）、被引用清單、標籤 ===== */
+function clRefresh(){edBody.querySelectorAll('a.cl').forEach(a=>{const c=S.cards[a.dataset.cid];if(c){const t=cardTitle(c);if(a.textContent!==t) a.textContent=t;a.classList.remove('dead');}else a.classList.add('dead');a.setAttribute('contenteditable','false');});}
+function clBacklinks(box,c){
+  const from=Object.values(S.cards).filter(x=>x.id!==c.id&&x.html&&x.html.indexOf('data-cid="'+c.id+'"')>=0);
+  if(!from.length) return;
+  const l=document.createElement('span');l.textContent='被引用：';l.style.marginLeft='10px';box.appendChild(l);
+  from.slice(0,12).forEach(x=>{const b=document.createElement('button');b.textContent='↩ '+cardTitle(x);b.onclick=()=>{flushEditor();openCard(x.id);};box.appendChild(b);});
+}
+/* --- 選單 --- */
+const clBox=document.createElement('div'); clBox.id='clPick'; clBox.hidden=true; clBox.setAttribute('role','listbox'); document.body.appendChild(clBox);
+let clSt=null, clAct=0, clList=[];
+function clClose(){clBox.hidden=true;clSt=null;}
+function clScan(){
+  const s=getSelection(); if(!s.rangeCount||!s.isCollapsed||!edBody.contains(s.anchorNode)||s.anchorNode.nodeType!==3){clClose();return;}
+  const n=s.anchorNode, off=s.anchorOffset, m=/\[\[([^\[\]]{0,30})$/.exec(n.nodeValue.slice(0,off));
+  if(!m){clClose();return;}
+  clSt={n:n,start:off-m[0].length,end:off,q:m[1]}; clShow();
+}
+function clShow(){
+  const q=clSt.q.trim().toLowerCase(), cur=ui.editorId;
+  clList=Object.values(S.cards).filter(c=>c.id!==cur&&(!q||cardTitle(c).toLowerCase().indexOf(q)>=0)).sort((a,b)=>b.updated-a.updated).slice(0,7).map(c=>({c:c}));
+  if(clSt.q.trim()) clList.push({neu:clSt.q.trim()});
+  clAct=Math.min(clAct,clList.length-1); if(clAct<0) clAct=0;
+  clBox.textContent='';
+  if(!clList.length){const d=document.createElement('div');d.className='none';d.textContent='還沒有其他卡片，輸入標題可直接新增';clBox.appendChild(d);}
+  clList.forEach((it,i)=>{const b=document.createElement('button');b.className='si'+(i===clAct?' act':'');b.textContent=it.neu?'＋ 新增卡片「'+it.neu+'」':'▤ '+cardTitle(it.c);b.onpointerdown=e=>{e.preventDefault();clPick(i);};clBox.appendChild(b);});
+  const r=document.createRange(); r.setStart(clSt.n,clSt.start); r.setEnd(clSt.n,clSt.end); const rc=r.getBoundingClientRect();
+  clBox.hidden=false; const w=clBox.offsetWidth,h=clBox.offsetHeight;
+  clBox.style.left=Math.max(8,Math.min(rc.left,innerWidth-w-8))+'px'; clBox.style.top=(rc.bottom+6+h>innerHeight?Math.max(8,rc.top-h-6):rc.bottom+6)+'px';
+}
+function clPick(i){
+  const it=clList[i], st=clSt; if(!it||!st) return;
+  let c=it.c; if(it.neu){c=newCard(it.neu);toast('已建立卡片「'+it.neu+'」；它只會出現在連結裡，可按「放到目前白板」');}
+  const r=document.createRange(); r.setStart(st.n,st.start); r.setEnd(st.n,st.end); r.deleteContents();
+  const s=getSelection(); s.removeAllRanges(); s.addRange(r); clClose();
+  ex('insertHTML','<a class="cl" data-cid="'+c.id+'" contenteditable="false">'+esc(cardTitle(c))+'</a>&nbsp;');
+  flushEditor(); markDirty(); renderUse(); refreshSidebar();
+}
+edBody.addEventListener('input',()=>clScan());
+edBody.addEventListener('keydown',e=>{
+  if(clBox.hidden) return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();clAct=(clAct+(e.key==='ArrowDown'?1:-1)+clList.length)%Math.max(1,clList.length);clShow();}
+  else if((e.key==='Enter'||e.key==='Tab')&&clList.length&&!e.isComposing){e.preventDefault();e.stopPropagation();clPick(clAct);}
+  else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();clClose();}
+},true);
+edBody.addEventListener('blur',()=>setTimeout(clClose,150));
+edBody.addEventListener('click',e=>{
+  const a=e.target.closest&&e.target.closest('a.cl'); if(!a) return;
+  e.preventDefault(); const id=a.dataset.cid;
+  if(!S.cards[id]){toast('這張卡片已被刪除');return;}
+  flushEditor(); openCard(id);
+});
+/* --- 標籤 --- */
+function tagRender(){
+  const box=$('#edTags'), c=S.cards[ui.editorId]; box.textContent=''; if(!c) return;
+  c.tags=normTags(c.tags);
+  c.tags.forEach(t=>{
+    const s=document.createElement('span'); s.className='tg';
+    const a=document.createElement('button'); a.textContent='#'+t; a.title='搜尋這個標籤'; a.onclick=()=>openSearch('#'+t);
+    const x=document.createElement('button'); x.textContent='✕'; x.className='tx'; x.setAttribute('aria-label','移除標籤'); x.onclick=()=>{c.tags=c.tags.filter(y=>y!==t);markDirty();tagRender();};
+    s.appendChild(a); s.appendChild(x); box.appendChild(s);
+  });
+  const inp=document.createElement('input'); inp.className='tgin'; inp.placeholder=c.tags.length?'＋':'＋ 標籤'; inp.maxLength=24; inp.setAttribute('aria-label','新增標籤');
+  const add=()=>{const v=inp.value.replace(/^#+/,'').trim(); if(!v) return; c.tags=normTags(c.tags.concat([v])); markDirty(); tagRender(); const n=$('#edTags .tgin'); if(n) n.focus();};
+  inp.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'&&!e.isComposing){e.preventDefault();add();}else if(e.key==='Backspace'&&!inp.value&&c.tags.length){c.tags.pop();markDirty();tagRender();$('#edTags .tgin').focus();}};
+  inp.onblur=()=>{if(inp.value.trim()) add();};
+  box.appendChild(inp);
+}
+
 /* ================= 介面：側邊欄、浮層、畫板切換 ================= */
 function usageMap(){
   const m={};
@@ -1907,10 +2028,10 @@ function swatchRow(cols,cur,onPick,withNone){
 }
 
 /* ----- 文字編輯浮層（便利貼、分區標題、連線文字） ----- */
-let inlCb=null, inlMulti=false, inlT=0;
+let inlCb=null, inlMulti=false, inlT=0, inlNL=false, inlTab=null, inlPaste=null;
 function inlOpen(rect,text,o){
   inlClose(true);
-  const t=$('#inl'); inlCb=o.onDone; inlMulti=!!o.multi;
+  const t=$('#inl'); inlCb=o.onDone; inlMulti=!!o.multi; inlNL=!!o.shiftNL; inlTab=o.onTab||null; inlPaste=o.onPaste||null;
   t.style.display='block'; t.style.left=rect.left+'px'; t.style.top=rect.top+'px'; t.style.width=Math.max(rect.width,o.minW||0)+'px'; t.style.height=Math.max(rect.height,o.minH||0)+'px';
   t.style.fontSize=(o.size||14)+'px'; t.style.fontFamily=o.family||'inherit'; t.style.fontWeight=o.weight||'400'; t.style.textAlign=o.align||'left';
   t.style.background=o.bg||''; t.style.color=o.color||'';
@@ -1925,7 +2046,8 @@ function inlClose(commit){
 $('#inl').addEventListener('keydown',e=>{
   e.stopPropagation();
   if(e.key==='Escape') inlClose(false);
-  else if(e.key==='Enter'&&!e.isComposing&&(!inlMulti||e.ctrlKey||e.metaKey)){e.preventDefault();inlClose(true);}
+  else if(e.key==='Tab'&&inlTab){e.preventDefault();const f=inlTab,sh=e.shiftKey;inlTab=null;inlClose(true);f(sh);}
+  else if(e.key==='Enter'&&!e.isComposing&&!(inlNL&&e.shiftKey)&&(!inlMulti||inlNL||e.ctrlKey||e.metaKey)){e.preventDefault();inlClose(true);}
 });
 $('#inl').addEventListener('blur',()=>inlClose(true));
 document.addEventListener('mousedown',e=>{
@@ -1952,6 +2074,8 @@ function showBoard(id,opts){
   document.body.dataset.view=b.type;
   $('#bName').textContent=b.main?'主白板':b.name; $('#bName').title=b.type==='wb'?boardPath(b):'';
   const bk=$('#bBack'), bb=ui.back&&boardById(ui.back); bk.hidden=!bb; if(bb) bk.textContent='‹ '+(bb.main?'主白板':bb.name);
+  (function(){const cr=$('#crumbs');cr.textContent='';if(b.type!=='wb'||b.main) return;const chain=[];let c=boardParent(b),k=0;while(c&&k++<50){chain.unshift(c);c=boardParent(c);}if(!chain.length||!chain[0].main) chain.unshift(mainBoard());
+    chain.forEach(a=>{const x=document.createElement('button');x.className='crb';x.textContent=a.main?'主白板':a.name;x.onclick=()=>showBoard(a.id);cr.appendChild(x);const s=document.createElement('span');s.className='crs';s.textContent='›';cr.appendChild(s);});})();
   $$('.tgrp').forEach(g=>{g.hidden=g.dataset.for!==b.type;});
   if(b.type==='wb'){wbReset();renderWB();if(!b.view||!opts.keepView&&false) wbFit(); else wbApply();}
   else{mmReset();renderMM();if(!b.view) mmFit(); else mmApply();}
@@ -2004,6 +2128,15 @@ document.addEventListener('keydown',e=>{
   if(mod&&k.toLowerCase()==='y'){e.preventDefault();redo();return;}
   if(b.type==='wb') wbKey(e); else mmKey(e);
 });
+
+$('#kclose').onclick=()=>$('#kdlg').close();
+document.addEventListener('keydown',e=>{
+  if(e.key!=='?'||e.ctrlKey||e.metaKey||e.altKey) return;
+  const t=e.target; if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+  if(document.querySelector('dialog[open]')) return; e.preventDefault(); $('#kdlg').showModal();
+});
+
+$('#inl').addEventListener('paste',e=>{if(!inlPaste) return;const tx=(e.clipboardData||window.clipboardData).getData('text');if(inlPaste(tx)) e.preventDefault();});
 
 /* ================= 主頁：白板庫、心智圖、卡片庫 ================= */
 function wbThumb(b){
@@ -2153,19 +2286,19 @@ function sMark(text,toks){
   return h;
 }
 function searchAll(q){
-  const toks=sTokens(q), out=[], um=usageMap();
-  if(!toks.length){
+  const toks0=sTokens(q), isT=t=>t.length>1&&t[0]==='#', tg=toks0.filter(isT).map(t=>t.slice(1)), toks=toks0.filter(t=>!isT(t)), out=[], um=usageMap();
+  if(!toks.length&&!tg.length){
     filteredCards('').slice(0,6).forEach(c=>out.push({k:'card',id:c.id,tag:'卡片',title:cardTitle(c),snip:cardText(c).slice(0,90),meta:'出現在 '+(um[c.id]||0)+' 個畫板',score:0}));
     S.boards.slice(0,8).forEach(b=>out.push({k:b.type,id:b.id,tag:b.type==='wb'?'白板':'心智圖',title:b.name,snip:'',meta:'',score:0}));
     return out;
   }
   Object.values(S.cards).forEach(c=>{
-    const title=cardTitle(c), body=cardText(c), inT=sMatch(title,toks), inB=sMatch(title+' '+body,toks);
-    if(!inB) return;
+    const title=cardTitle(c), body=cardText(c), tl=(c.tags||[]).map(x=>x.toLowerCase()), inT=sMatch(title,toks), inB=sMatch(title+' '+body+' '+tl.map(x=>'#'+x).join(' '),toks);
+    if(!inB) return; if(tg.length&&!tg.every(k=>tl.some(x=>x.indexOf(k)>=0))) return;
     const st=title.toLowerCase().indexOf(toks[0]);
-    out.push({k:'card',id:c.id,tag:'卡片',title:title,snip:inT&&!sMatch(body,toks)?body.slice(0,90):sSnip(body,toks),meta:'出現在 '+(um[c.id]||0)+' 個畫板',score:inT?(st===0?100:80):40});
+    out.push({k:'card',id:c.id,tag:'卡片',title:title,snip:inT&&!sMatch(body,toks)?body.slice(0,90):sSnip(body,toks),meta:(c.tags&&c.tags.length?c.tags.map(x=>'#'+x).join(' ')+'・':'')+'出現在 '+(um[c.id]||0)+' 個畫板',score:inT?(st===0?100:80):40});
   });
-  S.boards.forEach(b=>{
+  if(!tg.length) S.boards.forEach(b=>{
     const tag=b.type==='wb'?'白板':'心智圖';
     if(sMatch(b.name,toks)) out.push({k:b.type,id:b.id,tag:tag,title:b.name,snip:'',meta:'',score:90});
     if(b.type==='wb'){
@@ -2386,7 +2519,7 @@ function makeObjEl(o){
   if(o.t==='card') el.innerHTML='<div class="cin"><div class="cprev prose"></div></div>';
   else if(o.t==='mm'){el.className='obj mmo bare';el.innerHTML='<div class="mmt"></div><div class="mmsv"></div>';}
   else if(o.t==='sub'){el.className='obj card sub';el.innerHTML='<div class="cin"><div class="sbh"><span class="sbi">▦</span><span class="sbn"></span></div><div class="sbt"></div></div>';}
-  else if(o.t==='table'){el.className='obj card tblo';el.innerHTML='<div class="tbl"></div><button class="tadd tc" data-tadd="c" title="新增一欄">＋</button><button class="tadd tr" data-tadd="r" title="新增一列">＋</button>';}
+  else if(o.t==='table'){el.className='obj card tblo';el.innerHTML='<div class="tbl"></div><div class="cresw"></div><button class="tadd tc" data-tadd="c" title="新增一欄">＋</button><button class="tadd tr" data-tadd="r" title="新增一列">＋</button>';}
   else if(o.t==='text') el.innerHTML='<div class="tx"></div>';
   else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxMake(el,o);
   else el.innerHTML='<div class="stitle"><span class="sttx"></span></div>';
@@ -2411,6 +2544,7 @@ function updateObjEl(el,o){
   el.classList.toggle('sel',wsel.has(o.id));
   el.classList.toggle('solo',wsel.size===1&&wsel.has(o.id));
   if(o.t==='card'){
+    el.dataset.c=o.color==null?'':o.color;
     const c=S.cards[o.cid], key=c?c.updated+'|'+(c.html||'').length:'x';
     if(el._k!==key){
       el._k=key; const pv=$('.cprev',el); pv.textContent=''; pv.classList.remove('cimg'); pv.style.backgroundImage='';
@@ -2664,7 +2798,7 @@ $('#wLbl').onclick=()=>{if(wLink) editLinkLabel(wLink);};
 $('#wColor').onclick=function(){wbColorPop(this);};
 function wbColorPop(anchor){
   if(wmSel){wmStyle(anchor);return;}
-  const b=board(), objs=b.objs.filter(o=>wsel.has(o.id)&&(o.t==='text'||o.t==='sec')); if(!objs.length) return;
+  const b=board(), objs=b.objs.filter(o=>wsel.has(o.id)&&(o.t==='text'||o.t==='sec'||o.t==='card')); if(!objs.length) return;
   openPop(anchor,p=>{
     const h=document.createElement('div');h.className='ph';h.textContent='選擇顏色';p.appendChild(h);
     const cur=objs.every(o=>o.color===objs[0].color)?objs[0].color:undefined;
@@ -2679,7 +2813,7 @@ function wbColorPop(anchor){
 function wbUpdTools(){
   const b=board(); if(!b||b.type!=='wb') return;
   const sel=b.objs.filter(o=>wsel.has(o.id));
-  const canColor=!!wmSel||sel.some(o=>o.t==='text'||o.t==='sec');
+  const canColor=!!wmSel||sel.some(o=>o.t==='text'||o.t==='sec'||o.t==='card');
   const show=(id,v)=>{$(id).hidden=!v;};
   show('#wAlign',sel.length>=2);
   show('#wOpen',sel.length===1&&(sel[0].t==='card'||sel[0].t==='sub'));
@@ -3332,39 +3466,86 @@ function wbNewTable(q){
   const o={id:uid('o'),t:'table',x:s.x,y:s.y,w:380,h:132,rows:rows,hdr:true}; b.objs.push(o);
   wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); setTimeout(()=>wbTblEdit(o,{r:0,c:0}),0);
 }
+function tblCws(o){
+  const nc=o.rows[0].length; let c=Array.isArray(o.cws)?o.cws.filter(x=>typeof x==='number'&&x>0):[];
+  if(c.length!==nc) c=new Array(nc).fill(1/nc);
+  const sum=c.reduce((p,q)=>p+q,0); o.cws=c.map(x=>x/sum); return o.cws;
+}
 function tblHtml(o){
-  const nc=o.rows[0].length; let h='<table><tbody>';
+  const cw=tblCws(o); let h='<table><colgroup>'+cw.map(x=>'<col style="width:'+(x*100).toFixed(3)+'%">').join('')+'</colgroup><tbody>';
   o.rows.forEach((r,ri)=>{h+='<tr>';r.forEach((c,ci)=>{const tg=(o.hdr&&ri===0)?'th':'td';h+='<'+tg+' data-r="'+ri+'" data-c="'+ci+'">'+esc(c)+'</'+tg+'>';});h+='</tr>';});
   return h+'</tbody></table>';
 }
+function tblHandles(el,o){
+  const cw=tblCws(o), box=$('.cresw',el); let acc=0;
+  if(box.children.length===cw.length-1){cw.forEach((w,i)=>{acc+=w;if(i<cw.length-1) box.children[i].style.left=(acc*100)+'%';});return;}
+  box.textContent='';
+  cw.forEach((w,i)=>{acc+=w; if(i===cw.length-1) return;
+    const h=document.createElement('i'); h.className='cres'; h.style.left=(acc*100)+'%'; h.dataset.i=i;
+    h.addEventListener('pointerdown',e=>{
+      e.stopPropagation(); e.preventDefault(); h.setPointerCapture(e.pointerId);
+      const k=wbV().k, x0=e.clientX, base=o.cws.slice(), tot=o.w, mn=28/tot;
+      let snapped=false;
+      h.onpointermove=ev=>{
+        if(!snapped){snap();snapped=true;}
+        const d=(ev.clientX-x0)/k/tot, pair=base[i]+base[i+1];
+        let a=Math.min(Math.max(base[i]+d,mn),pair-mn);
+        o.cws=base.slice(); o.cws[i]=a; o.cws[i+1]=pair-a;
+        updateObjEl(el,o);
+      };
+      h.onpointerup=h.onpointercancel=()=>{h.onpointermove=null;h.onpointerup=null;markDirty();};
+    });
+    h.addEventListener('dblclick',e=>e.stopPropagation());
+    box.appendChild(h);
+  });
+}
 function tblUpdate(el,o){
-  tblNorm(o); const key=JSON.stringify([o.rows,o.hdr]);
+  tblNorm(o); const key=JSON.stringify([o.rows,o.hdr,o.cws,o.w]);
   if(el._k!==key){
     el._k=key; const box=$('.tbl',el); box.innerHTML=tblHtml(o);
   }
+  tblHandles(el,o);
   el.querySelector('.tbl table').style.width=o.w+'px';
   const h=el.querySelector('.tbl').offsetHeight; if(h&&Math.abs(h-o.h)>1){o.h=h;el.style.height=h+'px';}
+}
+function tblSetCell(o,r,c,v){
+  while(o.rows.length<=r) o.rows.push(new Array(o.rows[0].length).fill(''));
+  if(c>=o.rows[0].length){const n=c+1;o.rows.forEach(rw=>{while(rw.length<n) rw.push('');});o.cws=null;}
+  o.rows[r][c]=v.slice(0,1000);
 }
 function wbTblEdit(o,cell){
   const el=wbEls[o.id]; if(!el) return;
   const td=el.querySelector('[data-r="'+cell.r+'"][data-c="'+cell.c+'"]'); if(!td) return;
-  const r=td.getBoundingClientRect(), k=wbV().k;
-  inlOpen(r,(o.rows[cell.r]||[])[cell.c]||'',{multi:false,size:13*k,minH:r.height,bg:'var(--surface)',weight:(o.hdr&&cell.r===0)?'700':'400',
+  const r=td.getBoundingClientRect(), k=wbV().k, nc=o.rows[0].length;
+  const move=sh=>{
+    let n=cell.c+(sh?-1:1), m=cell.r;
+    if(n>=nc){n=0;m++;} if(n<0){m--;n=nc-1;}
+    if(m<0) return; if(m>=o.rows.length){snap();o.rows.push(new Array(nc).fill(''));updateObjEl(el,o);markDirty();}
+    setTimeout(()=>wbTblEdit(o,{r:m,c:n}),0);
+  };
+  inlOpen(r,(o.rows[cell.r]||[])[cell.c]||'',{multi:true,shiftNL:true,size:13*k,minH:r.height,bg:'var(--surface)',weight:(o.hdr&&cell.r===0)?'700':'400',
+    onTab:move,
+    onPaste:tx=>{
+      if(!/[\t\n]/.test(tx.replace(/\n$/,''))) return false;
+      const grid=tx.replace(/\r/g,'').replace(/\n$/,'').split('\n').map(l=>l.split('\t'));
+      snap(); grid.forEach((row,i)=>row.forEach((v,j)=>tblSetCell(o,cell.r+i,cell.c+j,v)));
+      inlClose(false); updateObjEl(el,o); markDirty(); toast('已貼上 '+grid.length+'×'+Math.max.apply(null,grid.map(g=>g.length))+' 的資料'); return true;
+    },
     onDone:v=>{if(v!==o.rows[cell.r][cell.c]){snap();o.rows[cell.r][cell.c]=v.slice(0,1000);}updateObjEl(el,o);markDirty();}});
 }
 function wbTblAdd(o,kind){
   if(!o) return; snap(); tblNorm(o);
-  if(kind==='r') o.rows.push(o.rows[0].map(()=>'')); else o.rows.forEach(r=>r.push(''));
+  if(kind==='r') o.rows.push(o.rows[0].map(()=>'')); else{o.rows.forEach(r=>r.push(''));o.cws=null;}
   wbRefreshSel(); markDirty();
 }
 function wbTblOp(o,op,cell){
   if(!o) return; tblNorm(o); snap(); const R=o.rows, nc=R[0].length;
   if(op==='rowA') R.splice(cell.r,0,new Array(nc).fill(''));
   else if(op==='rowB') R.splice(cell.r+1,0,new Array(nc).fill(''));
-  else if(op==='colA') R.forEach(r=>r.splice(cell.c,0,''));
-  else if(op==='colB') R.forEach(r=>r.splice(cell.c+1,0,''));
+  else if(op==='colA'){R.forEach(r=>r.splice(cell.c,0,''));o.cws=null;}
+  else if(op==='colB'){R.forEach(r=>r.splice(cell.c+1,0,''));o.cws=null;}
   else if(op==='rowD'){if(R.length<2){toast('至少要保留一列');return;}R.splice(cell.r,1);}
-  else if(op==='colD'){if(nc<2){toast('至少要保留一欄');return;}R.forEach(r=>r.splice(cell.c,1));}
+  else if(op==='colD'){if(nc<2){toast('至少要保留一欄');return;}R.forEach(r=>r.splice(cell.c,1));o.cws=null;}
   else if(op==='hdr') o.hdr=!o.hdr;
   wbRefreshSel(); markDirty();
 }
@@ -4247,7 +4428,7 @@ function wbCtxAt(x,y,id){
     I.push({t:'貼上',k:KM+'V',fn:()=>wbCtxPaste(null)});
     I.push({t:'製作副本',k:KM+'D',fn:wbDuplicate});
     I.push('-');
-    if(sel.some(o=>o.t==='text'||o.t==='sec')) I.push({t:'顏色…',fn:()=>wbColorPop(fakeAnchor(x,y))});
+    if(sel.some(o=>o.t==='text'||o.t==='sec'||o.t==='card')) I.push({t:'顏色…',fn:()=>wbColorPop(fakeAnchor(x,y))});
     I.push({t:'移到最上層',fn:()=>{sel.forEach(o=>wbBringFront(o.id));markDirty();}});
     if(sel.some(o=>o.t!=='sub')) I.push({t:'移到其他 Board…',fn:()=>wbMoveMenu(x,y)});
     if(sel.length>1) I.push({t:'對齊與分布…',fn:()=>wbAlignPop(fakeAnchor(x,y))});
@@ -4382,6 +4563,104 @@ mmSvg.addEventListener('contextmenu',e=>{
   e.preventDefault(); const nd=e.target.closest('.mn'); mmCtxAt(e.clientX,e.clientY,nd?nd.dataset.id:null);
 });
 
+/* ===== 整張白板匯出：PNG / SVG / 列印成 PDF ===== */
+function bxWrap(text,maxW,fs,maxLines){
+  const out=[]; String(text).split('\n').forEach(par=>{
+    let line='',w=0;
+    for(const ch of par){const cw=/[^\x00-\xff]/.test(ch)?fs:fs*.56; if(w+cw>maxW&&line){out.push(line);line='';w=0;if(out.length>=maxLines) return;} line+=ch;w+=cw;}
+    out.push(line);
+  });
+  return out.slice(0,maxLines);
+}
+function bxCardBlocks(html){
+  const d=new DOMParser().parseFromString('<body>'+html+'</body>','text/html'), r=[];
+  d.body.querySelectorAll('h1,h2,h3,p,li,blockquote,pre,td,th').forEach(e=>{const t=e.textContent.replace(/\s+/g,' ').trim();if(t) r.push({h:/^H/.test(e.tagName),t:t});});
+  return r;
+}
+function bxLinks(){
+  const src=$('#wbLinks'), cl=src.cloneNode(true), A=[src,...src.querySelectorAll('*')], B=[cl,...cl.querySelectorAll('*')];
+  const P=['fill','fill-opacity','stroke','stroke-opacity','stroke-width','stroke-dasharray','stroke-linecap','stroke-linejoin','opacity','font-size','font-family','font-weight','text-anchor','dominant-baseline','paint-order','display','visibility'];
+  A.forEach((e,i)=>{const c=getComputedStyle(e),t=B[i]; if(!t||!t.setAttribute) return; if(c.display==='none'||c.visibility==='hidden'){t.remove&&i&&t.remove();return;} t.setAttribute('style',P.map(k=>k+':'+c.getPropertyValue(k)).join(';'));});
+  cl.querySelectorAll('[stroke-width="18"],[stroke-width="16"],[stroke-width="14"],[stroke-width="12"]').forEach(e=>{if(/rgba\(0, 0, 0, 0\)|transparent/.test(e.getAttribute('style')||'')) e.remove();});
+  return cl.innerHTML;
+}
+function bxSvg(b){
+  const cs=getComputedStyle(document.documentElement), V=n=>cs.getPropertyValue(n).trim()||'#888';
+  const objs=b.objs; if(!objs.length) return null;
+  let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9; objs.forEach(o=>{x1=Math.min(x1,o.x);y1=Math.min(y1,o.y);x2=Math.max(x2,o.x+o.w);y2=Math.max(y2,o.y+o.h);});
+  const pad=40; x1-=pad;y1-=pad;x2+=pad;y2+=pad;
+  const T=(x,y,s,fs,fill,wt,anchor)=>'<text x="'+x+'" y="'+y+'" font-size="'+fs+'" fill="'+fill+'"'+(wt?' font-weight="'+wt+'"':'')+(anchor?' text-anchor="'+anchor+'"':'')+'>'+esc(s)+'</text>';
+  let g='', ci=0;
+  const ink=V('--ink'), muted=V('--muted'), line=V('--line'), surf=V('--surface');
+  objs.filter(o=>o.t==='sec').forEach(o=>{
+    g+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="14" fill="'+V('--p'+(o.color==null?5:o.color))+'" fill-opacity=".55" stroke="'+V('--p'+(o.color==null?5:o.color))+'" stroke-width="2"/>'+T(o.x+14,o.y+24,o.title||'分區',14,ink,700);
+  });
+  g+='<g>'+bxLinks()+'</g>';
+  objs.forEach(o=>{
+    if(o.t==='sec') return;
+    const id='bxc'+(ci++), clip='<clipPath id="'+id+'"><rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'"/></clipPath>';
+    if(o.t==='card'){
+      const c=S.cards[o.cid]; const col=o.color==null?V('--accent'):V('--c'+o.color);
+      g+=clip+'<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="3" fill="'+surf+'" stroke="'+line+'"/><rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="5" fill="'+col+'"/><g clip-path="url(#'+id+')">';
+      let y=o.y+36; const im=c&&c.html?firstImgSrc(c.html):null;
+      if(im&&/^data:image\//.test(im)) g+='<image href="'+im+'" x="'+o.x+'" y="'+(o.y+5)+'" width="'+o.w+'" height="'+(o.h-5)+'" preserveAspectRatio="xMidYMid slice"/>';
+      else if(c){bxCardBlocks(c.html||'').slice(0,40).forEach((bk,i)=>{if(y>o.y+o.h) return;const fs=bk.h?(i===0?20:16):13;bxWrap(bk.t,o.w-32,fs,bk.h?2:4).forEach(l=>{g+=T(o.x+16,y,l,fs,bk.h?ink:muted,bk.h?700:400);y+=fs*1.5;});y+=bk.h?4:2;});}
+      g+='</g>';
+    }else if(o.t==='text'){
+      const col=V('--p'+(o.color==null?2:o.color)), s=22;
+      g+=clip+'<polygon points="'+o.x+','+o.y+' '+(o.x+o.w)+','+o.y+' '+(o.x+o.w)+','+(o.y+o.h-s)+' '+(o.x+o.w-s)+','+(o.y+o.h)+' '+o.x+','+(o.y+o.h)+'" fill="'+col+'" stroke="rgba(0,0,0,.12)"/><polygon points="'+(o.x+o.w)+','+(o.y+o.h-s)+' '+(o.x+o.w-s)+','+(o.y+o.h-s)+' '+(o.x+o.w-s)+','+(o.y+o.h)+'" fill="rgba(0,0,0,.17)"/><g clip-path="url(#'+id+')">';
+      bxWrap(o.text||'',o.w-32,14,12).forEach((l,i)=>{g+=T(o.x+16,o.y+30+i*21,l,14,ink);}); g+='</g>';
+    }else if(o.t==='table'){
+      const cw=tblCws(o); let yy=o.y; const rh=o.h/o.rows.length;
+      o.rows.forEach((r,ri)=>{let xx=o.x;r.forEach((cv,ci2)=>{const w=cw[ci2]*o.w;g+='<rect x="'+xx+'" y="'+yy+'" width="'+w+'" height="'+rh+'" fill="'+(o.hdr&&ri===0?V('--c1'):surf)+'"'+(o.hdr&&ri===0?' fill-opacity=".25"':'')+' stroke="'+line+'"/>';
+        bxWrap(cv,w-14,13,Math.max(1,Math.floor(rh/18))).forEach((l,i)=>{g+=T(xx+7,yy+20+i*18,l,13,ink,o.hdr&&ri===0?700:400);});xx+=w;});yy+=rh;});
+    }else if(o.t==='mm'){
+      const mb=boardById(o.mid); if(mb){const r=mmRender(mb,null); g+='<g transform="translate('+(o.x+8)+','+(o.y+8)+')">'+r.svg+'</g>';}
+    }else if(o.t==='sub'){
+      const sb=boardById(o.bid);
+      g+=clip+'<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="10" fill="'+surf+'" stroke="'+line+'" stroke-width="1.5"/>'+T(o.x+14,o.y+26,'❏ '+(sb?sb.name:'Board'),15,ink,700);
+      if(sb&&sb.objs.length){const th=wbThumb(sb).replace('width="100%" height="100%"','x="'+(o.x+10)+'" y="'+(o.y+38)+'" width="'+(o.w-20)+'" height="'+(o.h-48)+'"');g+=th;}
+    }else if(o.t==='img'){
+      const u=fileUrl(o.fid); if(u) g+='<image href="'+u+'" x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" preserveAspectRatio="xMidYMid slice"/>';
+    }else if(o.t==='pdf'){
+      g+=clip+'<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="10" fill="'+surf+'" stroke="'+line+'"/><rect x="'+(o.x+14)+'" y="'+(o.y+14)+'" width="38" height="24" rx="5" fill="#d64545"/>'+T(o.x+33,o.y+31,'PDF',12,'#fff',800,'middle')+'<g clip-path="url(#'+id+')">';
+      bxWrap(o.name||'',o.w-28,14,3).forEach((l,i)=>{g+=T(o.x+14,o.y+62+i*20,l,14,ink,700);}); g+='</g>';
+    }else if(o.t==='link'){
+      g+=clip+'<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="10" fill="#243247"/><polygon points="'+(o.x+o.w/2-10)+','+(o.y+o.h/2-14)+' '+(o.x+o.w/2+14)+','+(o.y+o.h/2)+' '+(o.x+o.w/2-10)+','+(o.y+o.h/2+14)+'" fill="#fff"/><g clip-path="url(#'+id+')">'+T(o.x+12,o.y+o.h-12,(o.title||o.url).slice(0,40),12,'#fff',600)+'</g>';
+    }
+  });
+  const W=x2-x1,H=y2-y1;
+  let s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+x1+' '+y1+' '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="'+FONT+'"><rect x="'+x1+'" y="'+y1+'" width="'+W+'" height="'+H+'" fill="'+V('--bg')+'"/>'+g+'</svg>';
+  s=s.replace(/var\((--[\w-]+)\)/g,(m,n)=>V(n));
+  return {svg:s,w:W,h:H};
+}
+function bxPng(b){
+  return new Promise((res,rej)=>{
+    const x=bxSvg(b); if(!x) return rej(new Error('empty'));
+    let sc=2; while(x.w*sc*x.h*sc>16e6&&sc>.1) sc/=2;
+    const im=new Image(), W=Math.round(x.w*sc), H=Math.round(x.h*sc);
+    im.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').drawImage(im,0,0,W,H);c.toBlob(bl=>bl?res(bl):rej(new Error('png')),'image/png');};
+    im.onerror=()=>rej(new Error('img')); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(x.svg.replace('width="'+x.w+'" height="'+x.h+'"','width="'+W+'" height="'+H+'"'));
+  });
+}
+function bxPrint(b){
+  const x=bxSvg(b); if(!x){toast('白板是空的');return;}
+  const f=document.createElement('iframe'); f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  f.srcdoc='<!doctype html><title>'+esc(b.main?'主白板':b.name)+'</title><style>@page{margin:10mm}html,body{margin:0}svg{width:100%;height:auto;display:block}</style>'+x.svg;
+  f.onload=()=>{try{f.contentWindow.focus();f.contentWindow.print();}catch(e){toast('這個環境無法列印，請改下載 PNG');}setTimeout(()=>f.remove(),60000);};
+  document.body.appendChild(f);
+}
+$('#bExp').onclick=function(){
+  const b=board(); if(!b||b.type!=='wb') return; const nm=(b.main?'主白板':b.name).replace(/[\\/:*?"<>|]/g,'_');
+  const items=[
+    ['下載 PNG 圖片',async()=>{try{saveBlob(await bxPng(b),nm+'.png');}catch(e){toast(e.message==='empty'?'白板是空的':'無法產生圖片');}}],
+    ['複製 PNG 圖片',async()=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':await bxPng(b)})]);toast('已複製圖片');}catch(e){toast('這個瀏覽器無法複製圖片，請改用下載');}}],
+    ['下載 SVG 向量圖',()=>{const x=bxSvg(b);if(!x){toast('白板是空的');return;}saveBlob(new Blob([x.svg],{type:'image/svg+xml'}),nm+'.svg');}],
+    ['列印／存成 PDF',()=>bxPrint(b)]
+  ];
+  openPop(this,p=>{const h=document.createElement('div');h.className='ph';h.textContent='匯出「'+(b.main?'主白板':b.name)+'」整張白板';p.appendChild(h);items.forEach(it=>{const bt=document.createElement('button');bt.className='mi';bt.textContent=it[0];bt.onclick=()=>{closePop();it[1]();};p.appendChild(bt);});});
+};
+
 /* ================= 匯出／匯入、範例資料、啟動 ================= */
 function exportText(){pruneOrphans();flushAll();return JSON.stringify({app:'cardbench',v:1,cards:S.cards,boards:S.boards,files:S.files||{},cur:S.cur},null,1);}
 
@@ -4432,10 +4711,24 @@ function mergeWS(ns){
 const ioTa=$('#iota');
 function ioHint(t,err){const h=$('#ioHint');h.textContent=t;h.style.color=err?'var(--danger)':'';}
 $('#bIO').onclick=()=>{ioTa.value=exportText();ioHint('匯入時，貼上 JSON 或選擇檔案後按「匯入」，內容會合併進目前的工作區。也能匯入舊版心智圖工具匯出的 JSON，每一頁會變成一張心智圖。');if(isMobile()) closeSbMob();$('#iodlg').showModal();};
+/* 備份提醒：超過 7 天沒匯出就在按鈕上亮紅點，並在開啟時提示一次 */
+const BK_KEY='cardbench-bk', BK_FIRST='cardbench-first', BK_DAYS=7;
+function bkMark(){try{localStorage.setItem(BK_KEY,String(Date.now()));}catch(e){}$('#bIO').classList.remove('warn');}
+function bkCheck(){
+  try{
+    const now=Date.now(); let first=+localStorage.getItem(BK_FIRST); if(!first){first=now;localStorage.setItem(BK_FIRST,String(now));}
+    const last=+localStorage.getItem(BK_KEY)||first;
+    if(now-last>BK_DAYS*864e5){
+      $('#bIO').classList.add('warn');
+      const sk=+localStorage.getItem('cardbench-bk-ask')||0;
+      if(now-sk>864e5){localStorage.setItem('cardbench-bk-ask',String(now));toast('已經超過 '+BK_DAYS+' 天沒有備份了，點左下角的匯出圖示存一份');}
+    }
+  }catch(e){}
+}
 $('#ioClose').onclick=()=>$('#iodlg').close();
 $('#ioCopy').onclick=async()=>{
   ioTa.select();
-  try{await navigator.clipboard.writeText(ioTa.value);toast('已複製到剪貼簿');}
+  try{await navigator.clipboard.writeText(ioTa.value);toast('已複製到剪貼簿');bkMark();}
   catch(e){try{document.execCommand('copy');toast('已複製到剪貼簿');}catch(_){toast('請手動全選後複製');}}
 };
 $('#ioDown').onclick=()=>{
@@ -4443,7 +4736,7 @@ $('#ioDown').onclick=()=>{
     const blob=new Blob([exportText()],{type:'application/json'}), a=document.createElement('a');
     a.href=URL.createObjectURL(blob); a.download='cardbench-'+new Date().toISOString().slice(0,10)+'.json';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-    toast('已開始下載；若沒有反應，請改用「複製」');
+    toast('已開始下載；若沒有反應，請改用「複製」'); bkMark();
   }catch(e){toast('無法下載，請改用「複製」');}
 };
 $('#ioFile').onclick=()=>$('#iofile').click();
@@ -4505,6 +4798,7 @@ function sampleWS(){
   showHome();
   if(!ws) markDirty.now();
   try{if(navigator.storage&&navigator.storage.persist) navigator.storage.persist();}catch(e){}
+  setTimeout(bkCheck,2500);
   let rz; window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const b=board();if(b&&b.type==='mm') renderMM();},150);});
 })();
 
