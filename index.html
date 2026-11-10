@@ -530,6 +530,16 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
 @media (min-width:861px){
   #tools [data-for=wb] #wNew,#tools [data-for=wb] #wMm,#tools [data-for=wb] #wText,#tools [data-for=wb] #wSec,#tools [data-for=wb] #wFile,#tools [data-for=wb] #wUrl,#tools [data-for=wb] .sepv:first-of-type{display:none}
 }
+/* 表格 */
+.obj.tblo{padding:0;overflow:visible}
+.obj.tblo .tbl{border-radius:12px;overflow:hidden}
+.obj.tblo table{border-collapse:collapse;table-layout:fixed;font-size:13px}
+.obj.tblo td,.obj.tblo th{border:1px solid var(--line);padding:6px 8px;min-height:30px;height:32px;vertical-align:top;white-space:pre-wrap;word-break:break-word;text-align:left;font-weight:400;background:var(--surface);cursor:cell}
+.obj.tblo th{background:var(--c1,#e8eef7);font-weight:700}
+.obj.tblo .tadd{display:none;position:absolute;width:24px;height:24px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1;padding:0;box-shadow:var(--shadow)}
+.obj.tblo.solo .tadd{display:block}
+.obj.tblo .tadd.tc{right:-30px;top:calc(50% - 12px)}
+.obj.tblo .tadd.tr{bottom:-30px;left:calc(50% - 12px)}
 
 </style></head><body>
 <div id="app">
@@ -545,7 +555,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
         <div id="palGrid" class="pal" aria-label="可拖曳到白板的物件"></div>
         <p class="palHint">點一下放到畫面中央，或拖曳到想放的位置。</p></section>
       <section class="sbSec" data-pane="wb" hidden><div class="sbT"><h2>白板庫</h2><span class="sp"></span><button class="sbAll" data-lib="wb" title="用完整頁面檢視全部白板">全部 ›</button><button class="ib" id="addWb" aria-label="新增白板" title="新增白板">＋</button></div><input id="wbQ" type="search" placeholder="篩選白板" aria-label="篩選白板"><ul id="wbList" class="blist"></ul></section>
-      <section class="sbSec on" data-pane="card"><div class="sbT"><h2>卡片庫</h2><span class="sp"></span><button class="sbAll" data-lib="card" title="用完整頁面檢視全部卡片">全部 ›</button><button class="ib" id="addCard" aria-label="新增卡片" title="新增卡片">＋</button></div>
+      <section class="sbSec" data-pane="card" hidden><div class="sbT"><h2>卡片庫</h2><span class="sp"></span><button class="sbAll" data-lib="card" title="用完整頁面檢視全部卡片">全部 ›</button><button class="ib" id="addCard" aria-label="新增卡片" title="新增卡片">＋</button></div>
         <input id="cardQ" type="search" placeholder="篩選卡片" aria-label="篩選卡片"><ul id="cardList"></ul></section>
     </div>
     <div class="sbFoot"><button id="bIO">匯出／匯入</button><button id="bHelp">說明</button><button id="bTheme" aria-label="切換深淺色" title="切換深淺色">◐</button><span id="saveState" role="status"></span></div>
@@ -577,7 +587,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
         <button id="wColor" title="改變便利貼或分區的顏色">顏色</button>
         <button id="wLbl" title="替選取的連線加文字">連線文字</button>
         <button id="wLs" title="連線樣式：顏色、粗細、虛線、兩端箭頭、文字大小／字體／顏色">連線樣式</button>
-        <button id="wDel" class="dng" title="從白板移除選取的項目（卡片仍保留在卡片庫）">移出白板</button>
+        <button id="wDel" class="dng" title="從白板移除選取的項目（卡片也會一併刪除，可按復原找回）">移出白板</button>
       </div>
       <div class="tgrp" data-for="mm" hidden>
         <button id="mChild" class="pri" title="新增子節點（Tab）">＋ 子節點</button>
@@ -622,7 +632,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
       </div>
       <div id="mm" class="view"><svg id="mmSvg" role="application" aria-label="心智圖畫布"><g id="mmVp"></g></svg></div>
       <div id="mini" hidden aria-label="小地圖，點擊或拖曳可移動視角"><svg id="miniS" aria-hidden="true"></svg></div>
-      <div id="emptyHint" hidden><b>這塊白板還是空的</b>從左側「物件」面板拖曳卡片、便利貼、心智圖等到這裡，或從卡片庫把卡片拉進來。</div>
+      <div id="emptyHint" hidden><b>這塊白板還是空的</b>從左側「物件」面板拖曳卡片、便利貼、表格、心智圖等到這裡開始。</div>
     </div>
   </main>
 
@@ -681,7 +691,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
   <input type="file" id="iofile" accept=".json,application/json,text/plain" hidden></dialog>
 <dialog id="hdlg"><h2>操作說明</h2>
   <ul>
-    <li><b>主白板與 Board</b>：開啟就是一張主白板。左側「物件」面板可拖曳（或點一下）新增卡片、Board、分區、箭頭、心智圖、便利貼、圖片、PDF、影片、網址。Board 是可雙擊進入的子白板，只能放在主白板上；選取物件後按右鍵「移到其他 Board」可搬進去。沒有白板庫。</li>
+    <li><b>主白板與 Board</b>：開啟就是一張主白板。左側「物件」面板可拖曳（或點一下）新增卡片、Board、分區、箭頭、心智圖、便利貼、圖片、PDF、影片、網址。Board 是可雙擊進入的子白板，Board 裡還能再放 Board，層數不限；選取物件後按右鍵「移到其他 Board」可搬過去。沒有白板庫，也沒有卡片庫：卡片就是白板上的物件，從白板移除就等於刪除。</li>
     <li><b>卡片</b>：卡片就是筆記。同一張卡片可以放在多個地方，也可以接在心智圖節點上，改一處，每個地方都會更新。</li>
     <li><b>寫筆記</b>：輸入「# 」變標題、「- 」變清單、「1. 」變編號、「[] 」變待辦、「&gt; 」變引用、「---」加 Enter 變分隔線、「```」加 Enter 變程式碼區塊；輸入「/」開啟區塊選單。可貼上或拖入圖片。</li>
     <li><b>行內格式</b>：輸入 **粗體**、*斜體*、`程式碼`、~~刪除線~~、==標亮== 後自動套用；網址後按空白自動變連結；選取文字會出現快速工具列。</li>
@@ -693,7 +703,7 @@ body.spacepan #wb,body.spacepan #wb *{cursor:grab!important}
     <li><b>心智圖樣式與卡片</b>：選取節點後按「顏色」可改填色、外框、文字色、字級、字體、粗細；右鍵可轉成卡片或連結既有卡片，轉成卡片的節點，雙擊或點文件圖示就能開啟卡片編輯；「外框」把整張心智圖像卡片一樣框起來；右鍵可匯出 PNG／SVG／Markdown。</li>
     <li><b>連線</b>：從卡片邊緣的圓點拖到另一個物件；選取連線後按「連線樣式」可改顏色、粗細、實線／虛線／點線、兩端箭頭（無／實心／空心），以及文字大小、字體、顏色。心智圖不能自由連線。</li>
     <li><b>分區</b>：分區像一個「包裹」，裡面的卡片、心智圖、連線在白板上都完整顯示；移動分區，裡面的內容會一起移動。按分區標題右側的「⤢ 開啟」（或選取後按 Enter），畫面會放大到這個分區並淡化其他內容，方便專注編輯，按「返回白板」或 Esc 離開。沒有第二層白板。</li>
-    <li><b>卡片庫</b>：Ctrl（或 ⌘）＋點選可選多張，Shift＋點選選範圍，選好後可整批拖進白板，或按右鍵開啟、加到白板、製作副本、刪除。卡片內輸入「/影片」或貼上 YouTube 網址，會出現可播放的縮圖。</li>
+    <li><b>表格</b>：從「物件」面板拖曳「表格」。雙擊儲存格輸入文字；點選儲存格後，邊緣的「＋欄」「＋列」可擴充，右鍵可插入或刪除列與欄、切換標題列。</li>
     <li><b>右鍵選單</b>：在白板或節點上按右鍵（觸控長按），可複製、剪下、貼上，也能新增卡片、心智圖、便利貼、分區。</li>
     <li><b>圖片、PDF、影片</b>：直接貼上（Ctrl＋V）或拖入圖片、PDF、影片網址，會變成白板物件，同樣能拖曳圓點連到卡片和心智圖。</li>
     <li><b>滑鼠</b>：左鍵拖曳空白處框選；中鍵或空白鍵＋拖曳平移；滾輪捲動，Ctrl＋滾輪縮放。</li>
@@ -745,11 +755,21 @@ function cardSetTitle(c,v){
   c.html=sanitizeHtml(body.innerHTML); c.title=v;
 }
 /* 心智圖只活在白板裡：沒有任何白板引用的心智圖會被收進暫存區（讓復原還找得回來），不會存進資料 */
-const mmTrash={};
+const mmTrash={}, cardTrash={};
+function cardRefs(){
+  const r={}, walk=n=>{if(!n) return;if(n.cid) r[n.cid]=1;(n.children||[]).forEach(walk);};
+  S.boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='card') r[o.cid]=1;}); else walk(b.root);});
+  Object.keys(mmTrash).forEach(k=>walk(mmTrash[k].root));
+  return r;
+}
+function restoreCards(){
+  const need=cardRefs(); Object.keys(need).forEach(id=>{if(!S.cards[id]&&cardTrash[id]){S.cards[id]=cardTrash[id];delete cardTrash[id];}});
+}
 function pruneOrphans(){
   if(!S) return; const ref={};
   S.boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref[o.mid]=1;});});
   S.boards=S.boards.filter(b=>{if(b.type==='mm'&&!ref[b.id]&&b.id!==S.cur){mmTrash[b.id]=b;return false;}return true;});
+  const cr=cardRefs(); Object.keys(S.cards).forEach(id=>{if(!cr[id]&&id!==(typeof ui!=='undefined'&&ui.editorId)){cardTrash[id]=S.cards[id];delete S.cards[id];}});
 }
 function reidMm(n){n.id=uid('m');(n.children||[]).forEach(reidMm);return n;}
 function cloneMmBoard(mb){return {id:uid('b'),name:mb.name,type:'mm',view:null,root:reidMm(JSON.parse(JSON.stringify(mb.root)))};}
@@ -803,7 +823,7 @@ const hist={};
 const histOf=b=>hist[b.id]||(hist[b.id]={u:[],r:[]});
 const content=b=>{if(b.type!=='wb') return {root:b.root};const mms={};b.objs.forEach(o=>{if(o.t==='mm'){const m=boardById(o.mid);if(m) mms[o.mid]=m.root;}});return {objs:b.objs,links:b.links,mms:mms};};
 function snap(bb){const b=bb||board();const h=histOf(b);h.u.push(JSON.stringify(content(b)));if(h.u.length>80) h.u.shift();h.r=[];updHist();}
-function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;b.objs.forEach(o=>{if(o.t==='mm'&&!boardById(o.mid)&&mmTrash[o.mid]){S.boards.push(mmTrash[o.mid]);delete mmTrash[o.mid];}});if(c.mms) Object.keys(c.mms).forEach(k=>{const m=boardById(k);if(m) m.root=c.mms[k];});}else b.root=c.root;}
+function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;b.objs.forEach(o=>{if(o.t==='mm'&&!boardById(o.mid)&&mmTrash[o.mid]){S.boards.push(mmTrash[o.mid]);delete mmTrash[o.mid];}});if(c.mms) Object.keys(c.mms).forEach(k=>{const m=boardById(k);if(m) m.root=c.mms[k];});restoreCards();}else b.root=c.root;}
 function undo(){const b=board();const h=histOf(b);if(!h.u.length) return;h.r.push(JSON.stringify(content(b)));restore(b,h.u.pop());afterRestore();toast('已復原');}
 function redo(){const b=board();const h=histOf(b);if(!h.r.length) return;h.u.push(JSON.stringify(content(b)));restore(b,h.r.pop());afterRestore();toast('已重做');}
 function updHist(){const b=board();if(!b) return;const h=histOf(b);$('#tUndo').disabled=!h.u.length;$('#tRedo').disabled=!h.r.length;}
@@ -892,6 +912,7 @@ function normBoard(b,cards){
     else if(o.t==='sub'){if(!o.bid) return;objs.push(Object.assign(base,{t:'sub',bid:String(o.bid)}));}
     else if(o.t==='text') objs.push(Object.assign(base,{t:'text',text:String(o.text||'').slice(0,2000),color:col}));
     else if(o.t==='sec') objs.push(Object.assign(base,{t:'sec',title:String(o.title||'').slice(0,80),color:col}));
+    else if(o.t==='table') objs.push(tblNorm(Object.assign(base,{t:'table',rows:o.rows,hdr:o.hdr})));
     else if(o.t==='img'){if(!o.fid) return;objs.push(Object.assign(base,{t:'img',fid:String(o.fid),ar:clamp(num(o.ar,.75),.05,20),name:String(o.name||'').slice(0,120)}));}
     else if(o.t==='pdf'){if(!o.fid) return;objs.push(Object.assign(base,{t:'pdf',fid:String(o.fid),name:String(o.name||'文件.pdf').slice(0,160),size:num(o.size,0),pages:num(o.pages,0)|0}));}
     else if(o.t==='link'){
@@ -944,8 +965,9 @@ function normalizeWS(raw){
     if(!main.objs.length){a=-200;e=-100;}
     const n=main.objs.filter(q=>q._placed).length; o.x=a+(n%3)*300; o.y=e+60+Math.floor(n/3)*220; o._placed=1;
   };
-  wbs.forEach(b=>{if(b!==main) b.objs=b.objs.filter(o=>o.t!=='sub'); else b.objs=b.objs.filter(o=>o.t!=='sub'||(boards.some(x=>x.id===o.bid&&x.type==='wb'&&x!==main)));});
-  wbs.filter(b=>b!==main&&!main.objs.some(o=>o.t==='sub'&&o.bid===b.id)).forEach(b=>{const o={id:uid('o'),t:'sub',bid:b.id,x:0,y:0,w:260,h:190};place(o);main.objs.push(o);});
+  wbs.forEach(b=>{b.objs=b.objs.filter(o=>o.t!=='sub'||(o.bid!==b.id&&boards.some(x=>x.id===o.bid&&x.type==='wb'&&!x.main)));});
+  const reach={}; (function walk(b){if(reach[b.id]) return;reach[b.id]=1;b.objs.forEach(o=>{if(o.t==='sub'){const t=wbs.find(x=>x.id===o.bid);if(t) walk(t);}});})(main);
+  wbs.filter(b=>!reach[b.id]).forEach(b=>{if(reach[b.id]) return;const o={id:uid('o'),t:'sub',bid:b.id,x:0,y:0,w:260,h:190};place(o);main.objs.push(o);(function walk(c){if(reach[c.id]) return;reach[c.id]=1;c.objs.forEach(q=>{if(q.t==='sub'){const t=wbs.find(x=>x.id===q.bid);if(t) walk(t);}});})(b);});
   const ref2={}; boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref2[o.mid]=1;});});
   boards.filter(b=>b.type==='mm'&&!ref2[b.id]).forEach(m=>{const o={id:uid('o'),t:'mm',mid:m.id,x:0,y:0,w:340,h:240,frame:false,ox:null,oy:null};place(o);main.objs.push(o);});
   boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{delete o._placed;});});
@@ -1793,18 +1815,18 @@ $('#bddup').onclick=()=>{const b=boardById(bdId);if(!b) return;$('#bdlg').close(
 $('#bddel').onclick=async function(){
   const tb=boardById(bdId); if(!tb) return;
   if(tb.main){toast('主白板不能刪除');return;}
-  const nm=tb.objs?tb.objs.filter(o=>o.t==='mm').length:0;
-  const ok=await confirmDlg(tb.type==='wb'?'刪除這塊白板？':'刪除這張心智圖？','「'+tb.name+'」'+(tb.type==='wb'?'會被刪除'+(nm?'，白板上的 '+nm+' 張心智圖也會一併刪除':'')+'。卡片仍會保留在卡片庫。':'會從白板上移除。')+'此操作無法復原。','刪除');
+  const ds=tb.type==='wb'?boardDescendants(tb):{}; const nd=Object.keys(ds).length;
+  const ok=await confirmDlg(tb.type==='wb'?'刪除這塊 Board？':'刪除這張心智圖？','「'+tb.name+'」'+(tb.type==='wb'?'連同裡面的內容'+(nd?'與 '+nd+' 層以下的子 Board':'')+'都會被刪除（只存在於這些 Board 的卡片也會一併刪除）。':'會從白板上移除。'));
   if(!ok) return;
-  const i=S.boards.findIndex(b=>b.id===bdId); if(i<0) return;
-  const gone=S.boards[i], was=gone.id===S.cur; Object.keys(hist).forEach(k=>delete hist[k]); S.boards.splice(i,1); $('#bdlg').close();
-  if(gone.type==='mm') S.boards.forEach(w=>{if(w.type!=='wb') return;const dead={};w.objs=w.objs.filter(o=>{if(o.t==='mm'&&o.mid===gone.id){dead[o.id]=1;return false;}return true;});w.links=w.links.filter(l=>!dead[l.a]&&!dead[l.b]);});
-  S.boards.forEach(w=>{if(w.type==='wb'){const dead={};w.objs=w.objs.filter(o=>{if(o.t==='sub'&&o.bid===gone.id){dead[o.id]=1;return false;}return true;});w.links=w.links.filter(l=>!dead[l.a]&&!dead[l.b]);}});
-  if(was) showBoard(mainBoard().id);
-  if(ui.home||!was){renderSidebar();markDirty();}
-  if(ui.back===gone.id) ui.back=null;
-  if(ui.editorId) renderUse();
-  toast('已刪除（卡片仍在卡片庫）');
+  const goneIds=new Set([bdId,...Object.keys(ds)]);
+  const was=goneIds.has(S.cur); Object.keys(hist).forEach(k=>delete hist[k]);
+  S.boards=S.boards.filter(b=>!goneIds.has(b.id)); $('#bdlg').close();
+  S.boards.forEach(w=>{if(w.type!=='wb') return;const dead={};w.objs=w.objs.filter(o=>{if((o.t==='sub'&&goneIds.has(o.bid))||(o.t==='mm'&&goneIds.has(o.mid))){dead[o.id]=1;return false;}return true;});w.links=w.links.filter(l=>!dead[l.a]&&!dead[l.b]);});
+  pruneOrphans();
+  if(was) showBoard(mainBoard().id); else renderWB();
+  renderSidebar();markDirty();
+  if(goneIds.has(ui.back)) ui.back=null;
+  toast('已刪除');
 };
 $('#bName').onclick=()=>{if(!ui.home){const b=board();if(b&&b.type==='wb'&&!b.main) openBoardDlg(S.cur);}};
 
@@ -1880,6 +1902,9 @@ document.addEventListener('mousedown',e=>{
 },true);
 
 /* ----- 切換畫板 ----- */
+function boardParent(b){return S.boards.find(w=>w.type==='wb'&&w!==b&&w.objs.some(o=>o.t==='sub'&&o.bid===b.id));}
+function boardPath(b){const a=[];let c=b,k=0;while(c&&k++<50){a.unshift(c.main?'主白板':c.name);c=boardParent(c);}return a.join(' › ');}
+function boardDescendants(b,acc){acc=acc||{};b.objs.forEach(o=>{if(o.t==='sub'&&!acc[o.bid]){const t=boardById(o.bid);if(t&&t.type==='wb'){acc[t.id]=1;boardDescendants(t,acc);}}});return acc;}
 function showBoard(id,opts){
   opts=opts||{};
   if(!boardById(id)) return;
@@ -1892,9 +1917,9 @@ function showBoard(id,opts){
   inlClose(true); if(typeof mmEndEdit==='function') mmEndEdit(true); closePop();
   S.cur=id; const b=board(); ui.home=false; ui.lib=null; setTab(b.type==='mm'?'wb':b.type);
   ui.back=(opts.keepBack&&boardById(opts.keepBack)&&b.type==='wb')?opts.keepBack:null; if(b.type==='mm'){const ow=opts.keepBack&&boardById(opts.keepBack)?opts.keepBack:(S.boards.find(w=>w.type==='wb'&&w.objs.some(o=>o.t==='mm'&&o.mid===id))||{}).id; ui.back=ow||null;}
-  if(b.type==='wb'&&!b.main&&!ui.back) ui.back=mainBoard().id;
+  if(b.type==='wb'&&!b.main&&!ui.back){const pr=S.boards.find(w=>w.type==='wb'&&w.objs.some(o=>o.t==='sub'&&o.bid===b.id));ui.back=(pr||mainBoard()).id;}
   document.body.dataset.view=b.type;
-  $('#bName').textContent=b.main?'主白板':b.name;
+  $('#bName').textContent=b.main?'主白板':b.name; $('#bName').title=b.type==='wb'?boardPath(b):'';
   const bk=$('#bBack'), bb=ui.back&&boardById(ui.back); bk.hidden=!bb; if(bb) bk.textContent='‹ '+(bb.main?'主白板':bb.name);
   $$('.tgrp').forEach(g=>{g.hidden=g.dataset.for!==b.type;});
   if(b.type==='wb'){wbReset();renderWB();if(!b.view||!opts.keepView&&false) wbFit(); else wbApply();}
@@ -1964,6 +1989,7 @@ function wbThumb(b){
     if(o.t==='text') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="12" style="fill:var(--p'+(o.color==null?2:o.color)+')"/>';
     else if(o.t==='img') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="10" style="fill:var(--c1)" opacity=".55"/><circle cx="'+(o.x+o.w*.3)+'" cy="'+(o.y+o.h*.32)+'" r="'+Math.min(o.w,o.h)*.09+'" style="fill:var(--surface)"/><path d="M'+o.x+' '+(o.y+o.h)+'L'+(o.x+o.w*.4)+' '+(o.y+o.h*.55)+'L'+(o.x+o.w*.65)+' '+(o.y+o.h*.8)+'L'+(o.x+o.w*.8)+' '+(o.y+o.h*.65)+'L'+(o.x+o.w)+' '+(o.y+o.h)+'Z" style="fill:var(--surface)" opacity=".7"/>';
     else if(o.t==='pdf') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="14" style="fill:var(--surface);stroke:var(--line)" stroke-width="4"/><rect x="'+(o.x+o.w*.08)+'" y="'+(o.y+o.h*.12)+'" width="'+(o.w*.28)+'" height="'+(o.h*.2)+'" rx="6" style="fill:#d64545"/>';
+    else if(o.t==='table'){h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="8" style="fill:var(--surface);stroke:var(--line)" stroke-width="4"/>';for(let i=1;i<3;i++){h+='<line x1="'+o.x+'" x2="'+(o.x+o.w)+'" y1="'+(o.y+o.h*i/3)+'" y2="'+(o.y+o.h*i/3)+'" style="stroke:var(--line)" stroke-width="4"/><line y1="'+o.y+'" y2="'+(o.y+o.h)+'" x1="'+(o.x+o.w*i/3)+'" x2="'+(o.x+o.w*i/3)+'" style="stroke:var(--line)" stroke-width="4"/>';}}
     else if(o.t==='link') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="14" style="fill:#243247"/><path d="M'+(o.x+o.w*.42)+' '+(o.y+o.h*.3)+'L'+(o.x+o.w*.62)+' '+(o.y+o.h*.5)+'L'+(o.x+o.w*.42)+' '+(o.y+o.h*.7)+'Z" style="fill:#fff"/>';
     else if(o.t==='mm') h+='<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="16" style="fill:var(--surface);stroke:var(--c0)" stroke-width="6"/><circle cx="'+(o.x+o.w/2)+'" cy="'+(o.y+o.h/2)+'" r="'+Math.min(o.w,o.h)*0.12+'" style="fill:var(--c0)"/>';
     else{
@@ -2232,10 +2258,11 @@ function cardCtx(x,y){
 /* ===== 左側物件面板（Milanote 式）：點一下放到畫面中央，或拖曳到白板上 ===== */
 const PAL=[
   {k:'card',ic:'▤',n:'卡片',tip:'新增一張空白卡片'},
-  {k:'board',ic:'▦',n:'Board',tip:'新增 Board：可雙擊進入的子白板（只能放在主白板上）'},
+  {k:'board',ic:'❏',n:'Board',tip:'新增 Board：可雙擊進入的子白板（裡面還能再放 Board，層數不限）'},
   {k:'sec',ic:'⬚',n:'分區',tip:'新增分區，把相關內容框在一起'},
   {k:'arrow',ic:'↗',n:'箭頭',tip:'連線：依序點兩個物件，產生箭頭'},
   {k:'mm',ic:'✺',n:'心智圖',tip:'新增心智圖'},
+  {k:'table',ic:'▦',n:'表格',tip:'新增表格：雙擊儲存格輸入文字'},
   {k:'note',ic:'▭',n:'便利貼',tip:'新增便利貼'},
   {k:'img',ic:'▣',n:'圖片',tip:'上傳圖片'},
   {k:'pdf',ic:'▯',n:'PDF',tip:'上傳 PDF'},
@@ -2251,6 +2278,7 @@ function palRun(k,p){
   else if(k==='arrow') wbArrowStart();
   else if(k==='mm') wbNewMm(p);
   else if(k==='note') wbNewText(p);
+  else if(k==='table') wbNewTable(p);
   else if(k==='img'||k==='pdf'){wbUploadPos=p||null;$('#wfin').accept=k==='pdf'?'application/pdf':(k==='img'?'image/*':'image/*,application/pdf');$('#wfin').click();}
   else if(k==='video'||k==='url'){urlPos=p||null;$('#wUrl').click();}
 }
@@ -2268,9 +2296,9 @@ function palRun(k,p){
 
 /* 把選取的物件移到另一塊 Board（或移回主白板） */
 function wbMoveMenu(x,y){
-  const cur=board(), L=S.boards.filter(b=>b.type==='wb'&&b!==cur&&(cur.main?!b.main:b.main));
-  if(!L.length){toast(cur.main?'還沒有 Board，先新增一個':'找不到主白板');return;}
-  setTimeout(()=>ctxOpen(x,y,[{label:'移到'}].concat(L.map(bd=>({t:bd.main?'主白板':bd.name,fn:()=>wbMoveSel(bd.id)})))),0);
+  const cur=board(), L=S.boards.filter(b=>b.type==='wb'&&b!==cur);
+  if(!L.length){toast('還沒有 Board，先新增一個');return;}
+  setTimeout(()=>ctxOpen(x,y,[{label:'移到'}].concat(L.map(bd=>({t:boardPath(bd),fn:()=>wbMoveSel(bd.id)})))),0);
 }
 function wbMoveSel(tid){
   const b=board(), t=boardById(tid); if(!b||!t) return;
@@ -2326,6 +2354,7 @@ function makeObjEl(o){
   if(o.t==='card') el.innerHTML='<div class="cin"><div class="cprev prose"></div></div>';
   else if(o.t==='mm'){el.className='obj mmo bare';el.innerHTML='<div class="mmt"></div><div class="mmsv"></div>';}
   else if(o.t==='sub'){el.className='obj card sub';el.innerHTML='<div class="cin"><div class="sbh"><span class="sbi">▦</span><span class="sbn"></span></div><div class="sbt"></div></div>';}
+  else if(o.t==='table'){el.className='obj card tblo';el.innerHTML='<div class="tbl"></div><button class="tadd tc" data-tadd="c" title="新增一欄">＋</button><button class="tadd tr" data-tadd="r" title="新增一列">＋</button>';}
   else if(o.t==='text') el.innerHTML='<div class="tx"></div>';
   else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxMake(el,o);
   else el.innerHTML='<div class="stitle"><span class="sttx"></span></div>';
@@ -2369,6 +2398,8 @@ function updateObjEl(el,o){
     if(el._k!==key){el._k=key;wbMmLayout(el,o,mb,selN);}
   }else if(o.t==='img'||o.t==='pdf'||o.t==='link'){
     wbxUpdate(el,o);
+  }else if(o.t==='table'){
+    tblUpdate(el,o);
   }else if(o.t==='text'){
     const t=$('.tx',el); if(t.textContent!==o.text) t.textContent=o.text; el.dataset.c=o.color==null?'':o.color;
   }else{
@@ -2500,7 +2531,7 @@ function wbDelete(){
   snap(); const rm=wsel; const hadCard=b.objs.some(o=>rm.has(o.id)&&o.t==='card');
   b.objs=b.objs.filter(o=>!rm.has(o.id)); b.links=b.links.filter(l=>!rm.has(l.a)&&!rm.has(l.b));
   wsel=new Set(); renderWB(); markDirty(); refreshSidebar(); if(ui.editorId) renderUse();
-  toast(hadCard?'已移出白板（卡片仍保留在卡片庫）':'已刪除');
+  toast(hadCard?'已刪除（若卡片沒有放在其他地方，內容也會一併刪除，可按復原找回）':'已刪除');
 }
 function wbMmEditNode(o,nid){
   const mb=boardById(o.mid), el=wbEls[o.id]; if(!mb||!el) return;
@@ -2528,6 +2559,7 @@ function wbEditSec(id){
 function wbActivate(id){
   const o=wbObj(id); if(!o) return;
   if(o.t==='card') openCard(o.cid); else if(o.t==='mm'){const mb=boardById(o.mid);if(mb) wmPick(o,mb.root.id);} else if(o.t==='sub'){const sb=boardById(o.bid);if(sb) showBoard(sb.id,{keepBack:board().id});}
+  else if(o.t==='table') wbTblEdit(o,{r:0,c:0});
   else if(o.t==='text') wbEditText(id); else if(o.t==='img'||o.t==='pdf'||o.t==='link') wbxOpen(o); else wbEditSec(id);
 }
 function wbFocusCard(cid){
@@ -2575,13 +2607,12 @@ function wbAddCards(ids,p){
   toast('已加入 '+ids.length+' 張卡片');
 }
 function wbNewSub(p){
-  const cur=board();
-  if(!cur||!cur.main){toast('Board 只能放在主白板上，這裡不能再放 Board');return;}
+  const cur=board(); if(!cur||cur.type!=='wb') return;
   const n=S.boards.filter(b=>b.type==='wb'&&!b.main).length+1; let nm='Board '+n; while(S.boards.some(b=>b.name===nm)) nm='Board '+(++n);
   const nb={id:uid('b'),name:nm,type:'wb',main:false,view:null,objs:[],links:[]}; S.boards.push(nb);
   snap(); const c=p||wbCenter(), sp=freeSpot(c.x-130,c.y-95);
   const o={id:uid('o'),t:'sub',bid:nb.id,x:sp.x,y:sp.y,w:260,h:190}; cur.objs.push(o);
-  wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); toast('已新增「'+nm+'」，雙擊可進入編輯，裡面能放卡片、心智圖等所有物件');
+  wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); toast('已新增「'+nm+'」，雙擊進入；裡面可以再放 Board，層數不限');
 }
 function wbNewText(q){
   const b=board(); snap(); const p=q||wbCenter(), s=freeSpot(p.x-100,p.y-55);
@@ -2683,7 +2714,7 @@ wb.addEventListener('pointerdown',e=>{
     if(e.shiftKey||e.ctrlKey||e.metaKey||wMode){wLink=null;if(wsel.has(id)) wsel.delete(id);else wsel.add(id);wbRefreshSel();wDrag=null;return;}
     if(!wsel.has(id)){wsel=new Set([id]);wLink=null;wbBringFront(id);wbRefreshSel();}
     const ac=t.closest('[data-act]'), nn=t.closest('[data-nid]'), ad=t.closest('[data-add]'), tg=t.closest('[data-tog]');
-    wDrag={m:'move',id:id,sx:e.clientX,sy:e.clientY,moved:false,act:ac?ac.dataset.act:null,ttl:!!t.closest('.sttx'),nid:nn?nn.dataset.nid:null,add:ad?{id:ad.dataset.add,side:+ad.dataset.side}:null,tog:tg?tg.dataset.tog:null,ico:!!t.closest('[data-ico]')};
+    wDrag={m:'move',id:id,sx:e.clientX,sy:e.clientY,moved:false,act:ac?ac.dataset.act:null,ttl:!!t.closest('.sttx'),nid:nn?nn.dataset.nid:null,add:ad?{id:ad.dataset.add,side:+ad.dataset.side}:null,tog:tg?tg.dataset.tog:null,tadd:(t.closest('[data-tadd]')||{dataset:{}}).dataset.tadd||null,cell:(function(){const td=t.closest('td,th');return td?{r:+td.dataset.r,c:+td.dataset.c}:null;})(),ico:!!t.closest('[data-ico]')};
     if(nn&&!ad&&!tg&&wsel.size===1&&wmIsChild(id,nn.dataset.nid)) wDrag.m='nmove';
     if(e.pointerType==='touch'){const d0=wDrag,x0=e.clientX,y0=e.clientY;lpT=setTimeout(()=>wbLongPress(d0,x0,y0),520);}
     return;
@@ -2766,8 +2797,9 @@ function wbUp(e){
     if(d.add){wLast={};wmAdd(wbObj(d.id),d.add.id,d.add.side);return;}
     if(d.tog){wLast={};wmToggle(wbObj(d.id),d.tog);return;}
     if(d.act){wLast={};wbxAct(d.id,d.act);return;}
+    if(d.tadd){wLast={};wbTblAdd(wbObj(d.id),d.tadd);return;}
     const now=Date.now(), dbl=wLast.id===d.id&&now-wLast.t<350; wLast={id:d.id,t:now};
-    if(dbl){wLast={};const oo=wbObj(d.id);if(oo&&oo.t==='mm'&&d.nid) wbMmEditNode(oo,d.nid); else wbActivate(d.id);return;}
+    if(dbl){wLast={};const oo=wbObj(d.id);if(oo&&oo.t==='mm'&&d.nid) wbMmEditNode(oo,d.nid); else if(oo&&oo.t==='table') wbTblEdit(oo,d.cell||{r:0,c:0}); else wbActivate(d.id);return;}
     if(wsel.size>1){wsel=new Set([d.id]);wbRefreshSel();}
     if(d.nid){wmSel={oid:d.id,nid:d.nid};wbRefreshSel();}
     return;
@@ -2990,7 +3022,7 @@ const wbPtrWorld=()=>wbPtr?wbToWorld(wbPtr.x,wbPtr.y):null;
 function wbObjLabel(o){
   if(o.t==='card') return cardTitle(S.cards[o.cid]);
   if(o.t==='mm'){const m=boardById(o.mid);return '心智圖・'+(m?m.name:'');}
-  if(o.t==='text') return o.text; if(o.t==='sec') return o.title||'分區';
+  if(o.t==='table') return o.rows.map(r=>r.join('\t')).join('\n'); if(o.t==='text') return o.text; if(o.t==='sec') return o.title||'分區';
   if(o.t==='img') return o.name||'圖片'; if(o.t==='pdf') return o.name; return o.url;
 }
 function wbCopy(){
@@ -3012,6 +3044,7 @@ function wbPasteClip(pos){
   const made=[];
   wbClip.objs.forEach(o=>{
     if(o.t==='card'&&b.objs.some(x=>x.t==='card'&&x.cid===o.cid)){skipped++;return;}
+    if(o.t==='sub'){skipped++;return;}
     if(o.t==='card'&&!S.cards[o.cid]) return;
     if(o.t==='mm'&&!o.snap) return;
     if((o.t==='img'||o.t==='pdf')&&!fileUrl(o.fid)) return;
@@ -3246,6 +3279,67 @@ function wmMapItems(o){
     {t:'下載 PNG 圖片',fn:async()=>{try{saveBlob(await mmPngBlob(mb),nm+'.png');}catch(e){toast('無法產生圖片');}}},
     {t:'下載 SVG 向量圖',fn:()=>saveBlob(new Blob([mmSvgExport(mb,1).svg],{type:'image/svg+xml'}),nm+'.svg')}
   ];
+}
+
+/* ===== 白板表格：rows 為二維文字陣列，雙擊儲存格編輯 ===== */
+function tblNorm(o){
+  let rows=Array.isArray(o.rows)?o.rows.slice(0,100).map(r=>Array.isArray(r)?r.slice(0,30).map(c=>String(c==null?'':c).slice(0,1000)):[]):[];
+  if(!rows.length) rows=[['',''],['','']];
+  const n=Math.max(1,Math.max.apply(null,rows.map(r=>r.length)));
+  rows.forEach(r=>{while(r.length<n) r.push('');});
+  o.rows=rows; o.hdr=o.hdr!==false; return o;
+}
+function wbNewTable(q){
+  const b=board(); if(!b||b.type!=='wb') return;
+  snap(); const p=q||wbCenter(), s=freeSpot(p.x-190,p.y-80);
+  const rows=[]; for(let r=0;r<3;r++){rows.push(['','','']);}
+  const o={id:uid('o'),t:'table',x:s.x,y:s.y,w:380,h:132,rows:rows,hdr:true}; b.objs.push(o);
+  wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); setTimeout(()=>wbTblEdit(o,{r:0,c:0}),0);
+}
+function tblHtml(o){
+  const nc=o.rows[0].length; let h='<table><tbody>';
+  o.rows.forEach((r,ri)=>{h+='<tr>';r.forEach((c,ci)=>{const tg=(o.hdr&&ri===0)?'th':'td';h+='<'+tg+' data-r="'+ri+'" data-c="'+ci+'">'+esc(c)+'</'+tg+'>';});h+='</tr>';});
+  return h+'</tbody></table>';
+}
+function tblUpdate(el,o){
+  tblNorm(o); const key=JSON.stringify([o.rows,o.hdr]);
+  if(el._k!==key){
+    el._k=key; const box=$('.tbl',el); box.innerHTML=tblHtml(o);
+  }
+  el.querySelector('.tbl table').style.width=o.w+'px';
+  const h=el.querySelector('.tbl').offsetHeight; if(h&&Math.abs(h-o.h)>1){o.h=h;el.style.height=h+'px';}
+}
+function wbTblEdit(o,cell){
+  const el=wbEls[o.id]; if(!el) return;
+  const td=el.querySelector('[data-r="'+cell.r+'"][data-c="'+cell.c+'"]'); if(!td) return;
+  const r=td.getBoundingClientRect(), k=wbV().k;
+  inlOpen(r,(o.rows[cell.r]||[])[cell.c]||'',{multi:false,size:13*k,minH:r.height,bg:'var(--surface)',weight:(o.hdr&&cell.r===0)?'700':'400',
+    onDone:v=>{if(v!==o.rows[cell.r][cell.c]){snap();o.rows[cell.r][cell.c]=v.slice(0,1000);}updateObjEl(el,o);markDirty();}});
+}
+function wbTblAdd(o,kind){
+  if(!o) return; snap(); tblNorm(o);
+  if(kind==='r') o.rows.push(o.rows[0].map(()=>'')); else o.rows.forEach(r=>r.push(''));
+  wbRefreshSel(); markDirty();
+}
+function wbTblOp(o,op,cell){
+  if(!o) return; tblNorm(o); snap(); const R=o.rows, nc=R[0].length;
+  if(op==='rowA') R.splice(cell.r,0,new Array(nc).fill(''));
+  else if(op==='rowB') R.splice(cell.r+1,0,new Array(nc).fill(''));
+  else if(op==='colA') R.forEach(r=>r.splice(cell.c,0,''));
+  else if(op==='colB') R.forEach(r=>r.splice(cell.c+1,0,''));
+  else if(op==='rowD'){if(R.length<2){toast('至少要保留一列');return;}R.splice(cell.r,1);}
+  else if(op==='colD'){if(nc<2){toast('至少要保留一欄');return;}R.forEach(r=>r.splice(cell.c,1));}
+  else if(op==='hdr') o.hdr=!o.hdr;
+  wbRefreshSel(); markDirty();
+}
+function tblCtxItems(o,x,y){
+  const el0=document.elementFromPoint(x,y), td=el0&&el0.closest&&el0.closest('td,th'); if(!td) return [];
+  const cell={r:+td.dataset.r,c:+td.dataset.c};
+  return [{t:'編輯儲存格',fn:()=>wbTblEdit(o,cell)},'-',
+    {t:'在上方插入列',fn:()=>wbTblOp(o,'rowA',cell)},{t:'在下方插入列',fn:()=>wbTblOp(o,'rowB',cell)},
+    {t:'在左側插入欄',fn:()=>wbTblOp(o,'colA',cell)},{t:'在右側插入欄',fn:()=>wbTblOp(o,'colB',cell)},
+    {t:'刪除這一列',danger:true,fn:()=>wbTblOp(o,'rowD',cell)},{t:'刪除這一欄',danger:true,fn:()=>wbTblOp(o,'colD',cell)},
+    {t:o.hdr?'取消標題列':'第一列設為標題列',fn:()=>wbTblOp(o,'hdr',cell)},'-'];
 }
 
 /* ================= 心智圖：階層式自動排版，節點可連結卡片 ================= */
@@ -4103,8 +4197,9 @@ function wbCtxAt(x,y,id){
   }
   if(sel.length){
     if(one){
-      const lbl={card:'開啟卡片',mm:'選取中心主題',sub:'開啟 Board',text:'編輯文字',img:'放大檢視',pdf:'開啟 PDF',link:'開啟連結'}[one.t];
+      const lbl={card:'開啟卡片',mm:'選取中心主題',sub:'開啟 Board',text:'編輯文字',img:'放大檢視',pdf:'開啟 PDF',link:'開啟連結',table:'編輯表格'}[one.t];
       I.push({t:lbl,k:'Enter',fn:()=>wbActivate(one.id)});
+      if(one.t==='table'){const ti=tblCtxItems(one,x,y);if(ti.length){I.length=0;ti.forEach(i=>I.push(i));}}
       if(one.t==='pdf') I.push({t:'下載 PDF',fn:()=>wbxAct(one.id,'save')});
       if(one.t==='card') I.push({t:'製作卡片副本',fn:()=>wbDupCard(one.id)});
       if(one.t==='mm'){wmMapItems(one).forEach(i=>I.push(i));}
@@ -4127,7 +4222,8 @@ function wbCtxAt(x,y,id){
     I.push('-');
     I.push({t:'新增卡片',fn:()=>wbNewCard(w)});
     I.push({t:'新增心智圖',fn:()=>wbNewMm(w)});
-    if(b.main) I.push({t:'新增 Board',fn:()=>wbNewSub(w)});
+    I.push({t:'新增 Board',fn:()=>wbNewSub(w)});
+    I.push({t:'新增表格',fn:()=>wbNewTable(w)});
     I.push({t:'新增便利貼',fn:()=>wbNewText(w)});
     I.push({t:'新增分區',fn:()=>wbNewSec(w)});
     I.push('-');
