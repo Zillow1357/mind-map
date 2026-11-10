@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>卡片工作台</title>
+<title>Board note</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* 版面：左側導覽（白板／心智圖／卡片庫）｜中間畫板｜右側卡片編輯器。手機上導覽與編輯器改為覆蓋式。
@@ -612,6 +612,36 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
 .srEmpty b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
 .srTog.on{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
 
+/* 卡片：直向、圓角、整張變色 */
+.obj.kcard,.obj.kcard[data-c]:not([data-c=""]){border-radius:14px;border:1px solid var(--line);border-top-width:1px}
+.obj.kcard .cin{border-radius:inherit}
+.obj.kcard{--kc:var(--surface);background:var(--kc)}
+.obj.kcard[data-c="0"]{--kc:var(--p0)}.obj.kcard[data-c="1"]{--kc:var(--p1)}.obj.kcard[data-c="2"]{--kc:var(--p2)}.obj.kcard[data-c="3"]{--kc:var(--p3)}.obj.kcard[data-c="4"]{--kc:var(--p4)}.obj.kcard[data-c="5"]{--kc:var(--p5)}
+
+/* Column（欄） */
+.obj.sec{border:0;border-radius:16px;background:color-mix(in srgb,var(--sc) 55%,var(--surface));box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.obj.sec::before{display:none}
+.stitle{height:46px;padding:12px 16px;font-size:15px;background:transparent;border-radius:16px 16px 0 0}
+.obj.sec.empty::after{content:"把物件拖進來";position:absolute;left:12px;right:12px;top:46px;bottom:12px;border:2px dashed color-mix(in srgb,var(--sc) 80%,var(--ink));border-radius:12px;display:grid;place-items:center;color:var(--muted);font-size:13px;opacity:.8;pointer-events:none}
+.obj.sec.drop{outline:2px dashed var(--accent);outline-offset:3px}
+
+#srdlg .srh{gap:12px}#srTabs{display:flex;gap:2px;flex:1;justify-content:center}
+#srTabs button{padding:6px 14px;border:0;border-radius:16px;background:none;color:var(--muted)}#srTabs button.on{background:var(--panel);color:var(--ink);font-weight:600}
+#srBody{min-height:380px;max-height:78vh;overflow:auto}
+.srCnt{display:flex;gap:14px;align-items:center;font-weight:600;font-size:13px}.srCnt .n{color:#2f6fed}.srCnt .l{color:#d64545}.srCnt .r{color:#2f9d5a}.srCnt .cur{text-decoration:underline;text-underline-offset:4px}
+.srCnt select{margin-left:auto;font-size:12.5px;max-width:45%}
+.clz{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent);border-radius:5px;padding:0 6px;font-weight:600}
+.clr{background:color-mix(in srgb,#2f9d5a 22%,transparent);color:#2f9d5a;border-radius:5px;padding:0 6px;font-weight:600}
+.srTools{display:flex;gap:6px;margin-top:10px;justify-content:center;flex-wrap:wrap}.srTools button{font-size:12.5px;padding:4px 10px;background:none;border:0;color:var(--muted)}.srTools button:hover:not(:disabled){color:var(--accent)}.srTools button:disabled{opacity:.35}
+.srBack:empty{display:none}
+#srBody h3{font-size:13px;margin:18px 0 8px;color:var(--muted);font-weight:600}
+.srGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.srGrid div{background:var(--panel);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}.srGrid b{font-size:19px}.srGrid span{font-size:12px;color:var(--muted)}
+.srBars{display:flex;align-items:flex-end;gap:3px;height:96px}.srBars .sb{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}.srBars i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}.srBars.past i{background:#2f9d5a}.srBars small{font-size:9.5px;color:var(--muted);height:12px;white-space:nowrap;overflow:visible}
+.srStack{display:flex;height:26px;border-radius:8px;overflow:hidden;gap:2px}.srStack span{display:grid;place-items:center;font-size:11.5px;color:#fff;min-width:22px}.srStack .n{background:#2f6fed}.srStack .l{background:#d64545}.srStack .y{background:#7fc8a0}.srStack .m{background:#2f9d5a}.srStack .s{background:#8893a4}.srLg{font-size:12px;color:var(--muted);margin-top:6px}
+.srSet{display:flex;flex-direction:column;gap:2px;margin-top:10px}.srSet label{display:flex;align-items:center;gap:12px;padding:8px 2px;border-bottom:1px solid var(--line)}.srSet label span{flex:1;display:flex;flex-direction:column}.srSet small{color:var(--muted);font-size:11.5px}.srSet input[type=number],.srSet input[type=text]{width:110px;text-align:right}
+.srAct2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+@media (max-width:640px){.srGrid{grid-template-columns:repeat(2,1fr)}}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -649,13 +679,13 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
         <button id="wNew" class="pri" title="建立一張新卡片並放到白板上">＋ 新卡片</button>
         <button id="wMm" title="在這塊白板新增一張心智圖，所有編輯都直接在白板上進行">＋ 心智圖</button>
         <button id="wText" title="新增便利貼">便利貼</button>
-        <button id="wSec" title="新增分區，用來把相關卡片框在一起">分區</button>
+        <button id="wSec" title="新增欄，用來整理一疊物件">欄</button>
         <button id="wFile" title="上傳圖片或 PDF（也可直接貼上或拖入）">圖片／PDF</button>
         <button id="wUrl" title="貼上網址或影片連結，產生縮圖卡">網址／影片</button>
         <span class="sepv"></span>
         <button id="wOpen" title="開啟編輯（卡片、便利貼、圖片；也可雙擊）">開啟</button>
         <button id="wAlign" title="對齊與等距分布（選取兩個以上項目）">對齊 ▾</button>
-        <button id="wColor" title="改變便利貼或分區的顏色">顏色</button>
+        <button id="wColor" title="改變卡片、便利貼或欄的顏色">顏色</button>
         <button id="wLbl" title="替選取的連線加文字">連線文字</button>
         <button id="wLs" title="連線樣式：顏色、粗細、虛線、兩端箭頭、文字大小／字體／顏色">連線樣式</button>
         <button id="wDel" class="dng" title="移除選取的項目（卡片也會一併刪除，可按復原找回）"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg> 移除</button>
@@ -760,7 +790,7 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
   <p id="ioHint" style="margin-top:10px">匯入時，貼上 JSON 或選擇檔案後按「匯入」，內容會合併進目前的工作區。也能匯入舊版心智圖工具匯出的 JSON，每一頁會變成一張心智圖。</p>
   <div class="row"><button id="ioClose">關閉</button><button id="ioRep" class="dng">取代全部資料</button><button id="ioImp" class="pri">匯入（合併）</button></div>
   <input type="file" id="iofile" accept=".json,application/json,text/plain" hidden></dialog>
-<dialog id="srdlg"><div class="srh"><h2>間隔複習</h2><button id="srx" class="ib" aria-label="關閉">✕</button></div>
+<dialog id="srdlg"><div class="srh"><h2>間隔複習</h2><div id="srTabs" role="tablist"></div><button id="srx" class="ib" aria-label="關閉">✕</button></div>
   <div id="srBody"></div></dialog>
 <dialog id="kdlg"><h2>快捷鍵</h2><div class="kgrid">
 <b>白板</b><span></span>
@@ -779,7 +809,7 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
 </div><div class="row"><button id="kclose" class="pri">關閉</button></div></dialog>
 <dialog id="hdlg"><h2>操作說明</h2>
   <ul>
-    <li><b>主白板與 Board</b>：開啟就是一張主白板。左側「物件」面板可拖曳（或點一下）新增卡片、Board、分區、箭頭、心智圖、便利貼、圖片、PDF、影片、網址。Board 是可雙擊進入的子白板，Board 裡還能再放 Board，層數不限；選取物件後按右鍵「移到其他 Board」可搬過去。沒有白板庫，也沒有卡片庫：卡片就是白板上的物件，從白板移除就等於刪除。</li>
+    <li><b>主白板與 Board</b>：開啟就是一張主白板。左側「物件」面板可拖曳（或點一下）新增卡片、Board、欄、箭頭、心智圖、便利貼、圖片、PDF、影片、網址。Board 是可雙擊進入的子白板，Board 裡還能再放 Board，層數不限；選取物件後按右鍵「移到其他 Board」可搬過去。沒有白板庫，也沒有卡片庫：卡片就是白板上的物件，從白板移除就等於刪除。</li>
     <li><b>卡片</b>：卡片就是筆記。同一張卡片可以放在多個地方，也可以接在心智圖節點上，改一處，每個地方都會更新。</li>
     <li><b>寫筆記</b>：輸入「# 」變標題、「- 」變清單、「1. 」變編號、「[] 」變待辦、「&gt; 」變引用、「---」加 Enter 變分隔線、「```」加 Enter 變程式碼區塊；輸入「/」開啟區塊選單。可貼上或拖入圖片。</li>
     <li><b>行內格式</b>：輸入 **粗體**、*斜體*、`程式碼`、~~刪除線~~、==標亮== 後自動套用；網址後按空白自動變連結；選取文字會出現快速工具列。</li>
@@ -789,7 +819,7 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
     <li><b>心智圖快捷鍵</b>：Tab 新增子節點、Enter 新增同層、Delete 刪除、Alt＋↑↓ 調整順序、Ctrl＋C／X／V 複製、剪下、貼上節點（也能貼上縮排文字變成節點）。</li>
     <li><b>心智圖樣式與卡片</b>：選取節點後按「顏色」可改填色、外框、文字色、字級、字體、粗細；右鍵可轉成卡片或連結既有卡片，轉成卡片的節點，雙擊或點文件圖示就能開啟卡片編輯；「外框」把整張心智圖像卡片一樣框起來；右鍵可匯出 PNG／SVG／Markdown。</li>
     <li><b>連線</b>：從卡片邊緣的圓點拖到另一個物件；選取連線後按「連線樣式」可改顏色、粗細、實線／虛線／點線、兩端箭頭（無／實心／空心），以及文字大小、字體、顏色。心智圖不能自由連線。</li>
-    <li><b>分區</b>：分區像一個「包裹」，裡面的卡片、心智圖、連線在白板上都完整顯示；移動分區，裡面的內容會一起移動。要「開進去」編輯的內容請用 Board。</li>
+    <li><b>欄（Column）</b>：像 Milanote 的欄。把卡片、便利貼、圖片、表格等物件拖進欄裡，它們會自動直向排列、寬度跟著欄走；拖出欄外就脫離。拖欄的標題可整欄一起移動，拖右下角調整欄的寬度。心智圖與其他欄不能放進欄裡。</li>
     <li><b>表格</b>：從「物件」面板拖曳「表格」。雙擊儲存格輸入文字；點選儲存格後，邊緣的「＋欄」「＋列」可擴充，右鍵可插入或刪除列與欄、切換標題列。</li>
     <li><b>右鍵選單</b>：在白板或節點上按右鍵（觸控長按），可複製、剪下、貼上，也能新增卡片、心智圖、便利貼、分區。</li>
     <li><b>圖片、PDF、影片</b>：直接貼上（Ctrl＋V）或拖入圖片、PDF、影片網址，會變成白板物件，同樣能拖曳圓點連到卡片和心智圖。</li>
@@ -994,7 +1024,7 @@ function normBoard(b,cards){
   (Array.isArray(b.objs)?b.objs:[]).slice(0,3000).forEach(o=>{
     if(!o||typeof o!=='object') return;
     const oid=String(o.id||uid('o')); if(ids[oid]) return;
-    const base={id:oid,x:num(o.x,0),y:num(o.y,0),w:Math.max(60,num(o.w,260)),h:Math.max(40,num(o.h,160))};
+    const base={id:oid,x:num(o.x,0),y:num(o.y,0),w:Math.max(60,num(o.w,260)),h:Math.max(40,num(o.h,160)),pc:o.pc?String(o.pc):null,pi:num(o.pi,0)};
     const col=(typeof o.color==='number'&&o.color>=0&&o.color<6)?(o.color|0):null;
     if(o.t==='card'){if(!cards[o.cid]) return;objs.push(Object.assign(base,{t:'card',cid:String(o.cid),color:col}));}
     else if(o.t==='mm'){if(!o.mid) return;objs.push(Object.assign(base,{t:'mm',mid:String(o.mid),frame:false,ox:num(o.ox,null),oy:num(o.oy,null)}));}
@@ -1012,13 +1042,31 @@ function normBoard(b,cards){
     else return;
     ids[oid]=1;
   });
+  (function(){ // 欄：驗證歸屬；舊版「分區」第一次載入時，把框內物件收進欄
+    const secs=objs.filter(o=>o.t==='sec'), sid={}; secs.forEach(s=>{sid[s.id]=1;});
+    if(!b.colv&&secs.length){
+      objs.forEach(o=>{if(o.t==='sec'||o.t==='mm') return;const cx=o.x+o.w/2,cy=o.y+o.h/2;const s=secs.find(z=>cx>z.x&&cx<z.x+z.w&&cy>z.y&&cy<z.y+z.h);o.pc=s?s.id:null;o.pi=o.y;});
+    }
+    objs.forEach(o=>{if(o.pc&&(!sid[o.pc]||o.t==='sec'||o.t==='mm')) o.pc=null;});
+    colLayout({type:'wb',objs:objs});
+  })();
   const links=[], mmIds={}; objs.forEach(o=>{if(o.t==='mm') mmIds[o.id]=1;});
   (Array.isArray(b.links)?b.links:[]).slice(0,6000).forEach(l=>{
     if(l&&ids[l.a]&&ids[l.b]&&l.a!==l.b&&!mmIds[l.a]&&!mmIds[l.b]) links.push(normLink(l));
   });
-  return {id,name,type:'wb',main:!!b.main,view,objs,links};
+  return {id,name,type:'wb',main:!!b.main,colv:1,view,objs,links};
 }
-function normSr(s){if(!s||typeof s!=='object') return null;return {due:num(s.due,Date.now()),ivl:Math.max(0,num(s.ivl,0)),ease:clamp(num(s.ease,2.5),1.3,3.5),reps:Math.max(0,num(s.reps,0)|0)};}
+function normSr(s){
+  if(!s||typeof s!=='object') return null;
+  const reps=Math.max(0,num(s.reps,0)|0), st=/^(new|learn|relearn|review)$/.test(s.st)?s.st:(reps>0?'review':'new');
+  return {st:st,step:Math.max(0,num(s.step,0)|0),due:num(s.due,Date.now()),ivl:Math.max(0,num(s.ivl,0)),ease:clamp(num(s.ease,2.5),1.3,3.5),reps:reps,lapses:Math.max(0,num(s.lapses,0)|0),susp:!!s.susp,added:num(s.added,Date.now())};
+}
+function normSrData(r){
+  const o=r&&typeof r==='object'?r:{}, op=o.opts&&typeof o.opts==='object'?o.opts:{}, st=k=>Array.isArray(op[k])?op[k].map(Number).filter(x=>x>0&&x<=10080).slice(0,6):undefined;
+  const opts={}; ['newPerDay','revPerDay','grad','easy','maxIvl','leech'].forEach(k=>{if(typeof op[k]==='number'&&isFinite(op[k])) opts[k]=op[k];}); if(st('steps')) opts.steps=st('steps'); if(st('relearn')) opts.relearn=st('relearn'); if(typeof op.fuzz==='boolean') opts.fuzz=op.fuzz;
+  const log=(Array.isArray(o.log)?o.log:[]).slice(-20000).filter(x=>x&&typeof x.t==='number'&&typeof x.c==='string').map(x=>({t:x.t,c:x.c,q:clamp(num(x.q,0)|0,0,3),s:/^(new|learn|relearn|review)$/.test(x.s)?x.s:'review',i:num(x.i,0)}));
+  return {opts:opts,log:log,extra:{d:0,n:0}};
+}
 function normTags(t){const o=[];(Array.isArray(t)?t:[]).forEach(x=>{x=String(x||'').replace(/^#+/,'').replace(/\s+/g,' ').trim().slice(0,24);if(x&&o.indexOf(x)<0&&o.length<12) o.push(x);});return o;}
 function normCards(raw){
   const out={},cs=raw&&typeof raw==='object'?raw:{};
@@ -1062,7 +1110,7 @@ function normalizeWS(raw){
   const ref2={}; boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref2[o.mid]=1;});});
   boards.filter(b=>b.type==='mm'&&!ref2[b.id]).forEach(m=>{const o={id:uid('o'),t:'mm',mid:m.id,x:0,y:0,w:340,h:240,frame:false,ox:null,oy:null};place(o);main.objs.push(o);});
   boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{delete o._placed;});});
-  return {v:1,cards,boards,files,cur:boards.some(b=>b.id===raw.cur&&b.type==='wb')?raw.cur:main.id};
+  return {v:1,sr:normSrData(raw.sr),cards,boards,files,cur:boards.some(b=>b.id===raw.cur&&b.type==='wb')?raw.cur:main.id};
 }
 
 /* ================= 卡片編輯器（所見即所得，支援 Markdown 捷徑） ================= */
@@ -2326,7 +2374,7 @@ function searchAll(q){
     if(b.type==='wb'){
       b.objs.forEach(o=>{
         if(o.t==='text'&&o.text&&sMatch(o.text,toks)) out.push({k:'wb',id:b.id,oid:o.id,tag:'便利貼',title:sSnip(o.text,toks),snip:'',meta:'白板・'+b.name,score:55});
-        else if(o.t==='sec'&&o.title&&sMatch(o.title,toks)) out.push({k:'wb',id:b.id,oid:o.id,tag:'分區',title:o.title,snip:'',meta:'白板・'+b.name,score:60});
+        else if(o.t==='sec'&&o.title&&sMatch(o.title,toks)) out.push({k:'wb',id:b.id,oid:o.id,tag:'欄',title:o.title,snip:'',meta:'白板・'+b.name,score:60});
       });
       b.links.forEach(l=>{if(l.label&&sMatch(l.label,toks)&&b.objs.some(o=>o.id===l.a)) out.push({k:'wb',id:b.id,oid:l.a,tag:'連線文字',title:l.label,snip:'',meta:'白板・'+b.name,score:45});});
     }else{
@@ -2445,7 +2493,7 @@ function cardCtx(x,y){
 const PAL=[
   {k:'card',ic:'▤',n:'卡片',tip:'新增一張空白卡片'},
   {k:'board',ic:'❏',n:'Board',tip:'新增 Board：可雙擊進入的子白板（裡面還能再放 Board，層數不限）'},
-  {k:'sec',ic:'⬚',n:'分區',tip:'新增分區，把相關內容框在一起'},
+  {k:'sec',ic:'⬚',n:'欄',tip:'新增欄：物件可以拖進去、拖出來，在欄裡自動直向排列'},
   {k:'arrow',ic:'↗',n:'箭頭',tip:'連線：依序點兩個物件，產生箭頭'},
   {k:'mm',ic:'✺',n:'心智圖',tip:'新增心智圖'},
   {k:'table',ic:'▦',n:'表格',tip:'新增表格：雙擊儲存格輸入文字'},
@@ -2489,14 +2537,16 @@ function wbMoveMenu(x,y){
 }
 function wbMoveSel(tid){
   const b=board(), t=boardById(tid); if(!b||!t) return;
-  const sel=b.objs.filter(o=>wsel.has(o.id)&&o.t!=='sub'); if(!sel.length) return;
+  const want=new Set(wsel); b.objs.forEach(o=>{if(o.pc&&wsel.has(o.pc)) want.add(o.id);});
+  const sel=b.objs.filter(o=>want.has(o.id)&&o.t!=='sub'); if(!sel.length) return;
   const ids=new Set(sel.map(o=>o.id));
+  sel.forEach(o=>{if(o.pc&&!ids.has(o.pc)) o.pc=null;});
   let a=1e9,c=1e9; sel.forEach(o=>{a=Math.min(a,o.x);c=Math.min(c,o.y);});
   let ty=0,tx=0; if(t.objs.length){tx=1e9;ty=-1e9;t.objs.forEach(o=>{tx=Math.min(tx,o.x);ty=Math.max(ty,o.y+o.h);});ty+=60;}
   const dx=tx-a, dy=ty-c;
   const links=b.links.filter(l=>ids.has(l.a)&&ids.has(l.b));
   b.objs=b.objs.filter(o=>!ids.has(o.id)); b.links=b.links.filter(l=>!ids.has(l.a)&&!ids.has(l.b));
-  sel.forEach(o=>{o.x+=dx;o.y+=dy;t.objs.push(o);}); links.forEach(l=>t.links.push(l));
+  sel.forEach(o=>{o.x+=dx;o.y+=dy;if(o.pc&&!ids.has(o.pc)) o.pc=null;t.objs.push(o);}); links.forEach(l=>t.links.push(l));
   Object.keys(hist).forEach(k=>delete hist[k]);
   wsel=new Set(); wLink=null; renderWB(); markDirty(); renderSidebar(); updHist();
   toast('已移到「'+(t.main?'主白板':t.name)+'」（這個動作無法復原）');
@@ -2591,19 +2641,21 @@ function updateObjEl(el,o){
   }else if(o.t==='text'){
     const t=$('.tx',el); if(t.textContent!==o.text) t.textContent=o.text; el.dataset.c=o.color==null?'':o.color;
   }else{
-    const t=$('.sttx',el), s=o.title||'分區'; if(t.textContent!==s) t.textContent=s; el.dataset.c=o.color==null?'':o.color;
+    el.classList.toggle('empty',!board().objs.some(k=>k.pc===o.id));
+    const t=$('.sttx',el), s=o.title||'欄'; if(t.textContent!==s) t.textContent=s; el.dataset.c=o.color==null?'':o.color;
   }
 }
 function renderWB(){
   const b=board(); if(!b||b.type!=='wb') return;
   const dead={}; b.objs=b.objs.filter(o=>{if((o.t==='card'&&!S.cards[o.cid])||(o.t==='mm'&&!(boardById(o.mid)&&boardById(o.mid).type==='mm'))){dead[o.id]=1;return false;}return true;});
   if(Object.keys(dead).length) b.links=b.links.filter(l=>!dead[l.a]&&!dead[l.b]);
-  const seen={};
+  const seen={}; if(!(wDrag&&wDrag.m==='move'&&wDrag.moved)) colLayout(b);
   b.objs.forEach(o=>{
     let el=wbEls[o.id];
     if(!el){el=makeObjEl(o);wbEls[o.id]=el;(o.t==='sec'?secL:objL).appendChild(el);}
     updateObjEl(el,o); seen[o.id]=1;
   });
+  if(!(wDrag&&wDrag.m==='move'&&wDrag.moved)){colLayout(b);b.objs.forEach(posEl);}
   Object.keys(wbEls).forEach(id=>{if(!seen[id]){wbEls[id].remove();delete wbEls[id];wsel.delete(id);}});
   if(wLink&&!b.links.some(l=>l.id===wLink)) wLink=null;
   renderLinks(); $('#emptyHint').hidden=b.objs.length>0; wbUpdTools();
@@ -2707,7 +2759,7 @@ function addCardToBoard(cid,x,y){
   const b=board(); if(!b||b.type!=='wb'){toast('請先切換到白板');return null;}
   const ex=b.objs.find(o=>o.t==='card'&&o.cid===cid);
   if(ex){wsel=new Set([ex.id]);wLink=null;wbRefreshSel();wbCenterOn(ex);toast('這張卡片已經在這塊白板上');return ex;}
-  snap(); const w=280,h=200, p=(x==null)?wbCenter():{x:x,y:y}, s=freeSpot(p.x-w/2,p.y-h/2);
+  snap(); const w=220,h=300, p=(x==null)?wbCenter():{x:x,y:y}, s=freeSpot(p.x-w/2,p.y-h/2);
   const o={id:uid('o'),t:'card',cid:cid,x:s.x,y:s.y,w:w,h:h};
   b.objs.push(o); wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); refreshSidebar(); if(ui.editorId) renderUse();
   return o;
@@ -2810,7 +2862,7 @@ function wbNewText(q){
 $('#wText').onclick=()=>wbNewText();
 function wbNewSec(q){
   const b=board(); snap(); const p=q||wbCenter();
-  const o={id:uid('o'),t:'sec',x:p.x-260,y:p.y-170,w:520,h:340,title:'新分區',color:null}; b.objs.push(o);
+  const o={id:uid('o'),t:'sec',x:p.x-150,y:p.y-100,w:300,h:140,title:'新欄',color:null,pc:null,pi:0}; b.objs.push(o);
   wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); setTimeout(()=>wbEditSec(o.id),0);
 }
 $('#wSec').onclick=()=>wbNewSec();
@@ -2849,7 +2901,7 @@ function wbMoveSet(){
   const b=board(), set={}; wsel.forEach(id=>{set[id]=1;});
   b.objs.forEach(s=>{
     if(s.t==='sec'&&set[s.id]) b.objs.forEach(o=>{
-      if(o.t!=='sec'&&!set[o.id]){const cx=o.x+o.w/2,cy=o.y+o.h/2;if(cx>s.x&&cx<s.x+s.w&&cy>s.y&&cy<s.y+s.h) set[o.id]=1;}
+      if(o.pc===s.id) set[o.id]=1;
     });
   });
   return Object.keys(set).map(id=>{const o=wbObj(id);return {o:o,x:o.x,y:o.y};});
@@ -2947,6 +2999,7 @@ wb.addEventListener('pointermove',e=>{
     let dx=(e.clientX-d.sx)/v.k, dy=(e.clientY-d.sy)/v.k;
     if(!e.altKey){const sn=wbSnap(d.items,dx,dy,v.k);dx=sn.dx;dy=sn.dy;$('#gdP').setAttribute('d',sn.path);}else $('#gdP').setAttribute('d','');
     d.items.forEach(it=>{it.o.x=it.x+dx;it.o.y=it.y+dy;posEl(it.o);});
+    colHover(wbToWorld(e.clientX,e.clientY),new Set(d.items.map(it=>it.o.id)));
     renderLinks(); return;
   }
   if(d.m==='rz'){
@@ -2954,7 +3007,8 @@ wb.addEventListener('pointermove',e=>{
     const o=wbObj(d.id); if(!o) return;
     const mw=(o.t==='card'||o.t==='mm')?180:(o.t==='img'?60:(o.t==='pdf'||o.t==='link')?200:110);
     o.w=Math.max(mw,d.ow+(e.clientX-d.sx)/v.k); o.h=o.t==='img'?o.w*(o.ar||.75):Math.max(o.t==='sec'?90:60,d.oh+(e.clientY-d.sy)/v.k);
-    posEl(o); renderLinks(); return;
+    if(o.t==='sec'){o.w=Math.max(200,o.w);}
+    posEl(o); colRelayout(); return;
   }
   if(d.m==='link'){
     d.moved=true; const o=wbObj(d.id); if(!o) return;
@@ -2983,7 +3037,7 @@ function wbUp(e){
   }
   if(d.m==='nmove'){wmUp(d,up);return;}
   if(d.m==='move'){
-    if(d.moved){markDirty();renderLinks();return;}
+    if(d.moved){const ch=up&&colDrop(d.items,wbToWorld(e.clientX,e.clientY));colLayout(board());board().objs.forEach(posEl);board().objs.forEach(s=>{if(wbEls[s.id]) wbEls[s.id].classList.remove('drop');});markDirty();renderWB();return;}
     if(!up) return;
     if(d.ico&&d.nid){const oo=wbObj(d.id),mm0=oo&&boardById(oo.mid),ff=mm0&&mmFind(d.nid,mm0);if(ff&&ff.n.cid&&S.cards[ff.n.cid]){wLast={};openCard(ff.n.cid);return;}}
     if(d.add){wLast={};wmAdd(wbObj(d.id),d.add.id,d.add.side);return;}
@@ -2996,7 +3050,7 @@ function wbUp(e){
     if(d.nid){wmSel={oid:d.id,nid:d.nid};wbRefreshSel();}
     return;
   }
-  if(d.m==='rz'){if(d.moved) markDirty();return;}
+  if(d.m==='rz'){if(d.moved){markDirty();renderWB();}return;}
   if(d.m==='link'){
     if(!d.moved||!up) return;
     const el=document.elementFromPoint(e.clientX,e.clientY), ob=el&&el.closest&&el.closest('.obj'), tid=ob&&ob.dataset.id, to=tid&&wbObj(tid);
@@ -3012,7 +3066,7 @@ wb.addEventListener('wheel',e=>{
 wb.addEventListener('dragover',e=>{if(e.dataTransfer&&Array.from(e.dataTransfer.types||[]).some(t=>t==='text/x-pal'||t==='text/x-card'||t==='text/x-cards'||t==='text/x-mm'||t==='Files'||t==='text/uri-list')){e.preventDefault();e.dataTransfer.dropEffect='copy';}});
 wb.addEventListener('drop',e=>{
   const pk=e.dataTransfer&&e.dataTransfer.getData('text/x-pal');
-  if(pk){e.preventDefault();palRun(pk,wbToWorld(e.clientX,e.clientY));return;}
+  if(pk){e.preventDefault();const pw=wbToWorld(e.clientX,e.clientY);palRun(pk,pw);colAdoptSel(pw);return;}
   if(wbxDrop(e)) return;
   const multi=e.dataTransfer&&e.dataTransfer.getData('text/x-cards');
   if(multi){e.preventDefault();let ids=[];try{ids=JSON.parse(multi);}catch(_){}wbAddCards(ids,wbToWorld(e.clientX,e.clientY));return;}
@@ -3219,7 +3273,8 @@ function wbObjLabel(o){
 }
 function wbCopy(){
   const b=board(); if(!b||b.type!=='wb'||!wsel.size) return false;
-  const objs=b.objs.filter(o=>wsel.has(o.id)).map(o=>{const c=JSON.parse(JSON.stringify(o));if(o.t==='mm'){const mb=boardById(o.mid);if(mb){c.snap=JSON.parse(JSON.stringify(mb.root));c.mname=mb.name;}}return c;});
+  const want=new Set(wsel); b.objs.forEach(o=>{if(o.pc&&wsel.has(o.pc)) want.add(o.id);});
+  const objs=b.objs.filter(o=>want.has(o.id)).map(o=>{const c=JSON.parse(JSON.stringify(o));if(o.t==='mm'){const mb=boardById(o.mid);if(mb){c.snap=JSON.parse(JSON.stringify(mb.root));c.mname=mb.name;}}return c;});
   if(!objs.length) return false;
   const ids={}; objs.forEach(o=>{ids[o.id]=1;});
   const links=b.links.filter(l=>ids[l.a]&&ids[l.b]).map(l=>({a:l.a,b:l.b,label:l.label}));
@@ -3243,6 +3298,7 @@ function wbPasteClip(pos){
     const n=JSON.parse(JSON.stringify(o)); n.id=uid('o');
     if(o.t==='mm'){const nb={id:uid('b'),name:o.mname||'心智圖',type:'mm',view:null,root:reidMm(JSON.parse(JSON.stringify(o.snap)))};S.boards.push(nb);n.mid=nb.id;delete n.snap;delete n.mname;} n.x=o.x+dx; n.y=o.y+dy; map[o.id]=n.id; b.objs.push(n); made.push(n.id);
   });
+  made.forEach(id=>{const n=wbObj(id);if(n&&n.pc) n.pc=map[n.pc]||null;});
   wbClip.links.forEach(l=>{if(map[l.a]&&map[l.b]) b.links.push({id:uid('l'),a:map[l.a],b:map[l.b],label:l.label||''});});
   if(!made.length){toast(skipped?'這些卡片已經在這塊白板上':'沒有可貼上的內容');return false;}
   wsel=new Set(made); wLink=null; renderWB(); markDirty(); refreshSidebar(); if(ui.editorId) renderUse();
@@ -3579,6 +3635,46 @@ function tblCtxItems(o,x,y){
     {t:'在左側插入欄',fn:()=>wbTblOp(o,'colA',cell)},{t:'在右側插入欄',fn:()=>wbTblOp(o,'colB',cell)},
     {t:'刪除這一列',danger:true,fn:()=>wbTblOp(o,'rowD',cell)},{t:'刪除這一欄',danger:true,fn:()=>wbTblOp(o,'colD',cell)},
     {t:o.hdr?'取消標題列':'第一列設為標題列',fn:()=>wbTblOp(o,'hdr',cell)},'-'];
+}
+
+/* ===== Column（欄）：像 Milanote 的欄，物件可以拖進去、拖出來，在欄裡自動直向排列 ===== */
+const COL_PAD=12, COL_HEAD=46, COL_GAP=10, COL_OK=o=>o.t!=='sec'&&o.t!=='mm';
+function colKids(b,c){return b.objs.filter(o=>o.pc===c.id).sort((p,q)=>(p.pi||0)-(q.pi||0));}
+function colLayout(b){
+  b=b||board(); if(!b||b.type!=='wb') return;
+  const sid={}; b.objs.forEach(o=>{if(o.t==='sec') sid[o.id]=1;});
+  b.objs.forEach(o=>{if(o.pc&&(!sid[o.pc]||!COL_OK(o))) o.pc=null;});
+  b.objs.forEach(s=>{
+    if(s.t!=='sec') return;
+    const ks=colKids(b,s); let y=s.y+COL_HEAD;
+    ks.forEach((o,i)=>{o.pi=i;o.x=s.x+COL_PAD;o.w=Math.max(60,s.w-COL_PAD*2);if(o.t==='img') o.h=o.w*(o.ar||.75);o.y=y;y+=o.h+COL_GAP;});
+    s.h=ks.length?y-COL_GAP+COL_PAD-s.y:140;
+  });
+}
+function colRelayout(){const b=board();colLayout(b);b.objs.forEach(posEl);renderLinks();}
+function colAt(b,pt,skip){
+  let best=null; b.objs.forEach(s=>{if(s.t!=='sec'||(skip&&skip.has(s.id))) return;if(pt.x>=s.x&&pt.x<=s.x+s.w&&pt.y>=s.y&&pt.y<=s.y+s.h) best=s;});
+  return best;
+}
+/* 放開滑鼠：把拖動的物件放進（或拖出）欄 */
+function colDrop(items,pt){
+  const b=board(), moved=new Set(items.map(it=>it.o.id)); let changed=false;
+  const target=colAt(b,pt,moved);
+  const list=items.map(it=>it.o).filter(o=>COL_OK(o)&&!(o.pc&&moved.has(o.pc)));
+  if(target){
+    const others=colKids(b,target).filter(k=>!moved.has(k.id)); let idx=0;
+    others.forEach(k=>{if(k.y+k.h/2<pt.y) idx++;});
+    list.sort((p,q)=>p.y-q.y).forEach((o,i)=>{o.pc=target.id;o.pi=idx-0.5+i*0.01;});changed=true;
+  }else list.forEach(o=>{if(o.pc){o.pc=null;changed=true;}});
+  colLayout(b); b.objs.forEach(posEl); return changed;
+}
+function colAdoptSel(pt){
+  const b=board(); if(!b||b.type!=='wb'||!pt) return; const o=b.objs.filter(x=>wsel.has(x.id)); if(!o.length) return;
+  snap(); if(colDrop(o.map(x=>({o:x})),pt)){renderWB();markDirty();}
+}
+function colHover(pt,moved){
+  const b=board(), t=colAt(b,pt,moved);
+  b.objs.forEach(s=>{if(s.t==='sec'&&wbEls[s.id]) wbEls[s.id].classList.toggle('drop',!!t&&t.id===s.id);});
 }
 
 /* ================= 心智圖：階層式自動排版，節點可連結卡片 ================= */
@@ -4464,7 +4560,7 @@ function wbCtxAt(x,y,id){
     I.push({t:'新增 Board',fn:()=>wbNewSub(w)});
     I.push({t:'新增表格',fn:()=>wbNewTable(w)});
     I.push({t:'新增便利貼',fn:()=>wbNewText(w)});
-    I.push({t:'新增分區',fn:()=>wbNewSec(w)});
+    I.push({t:'新增欄',fn:()=>wbNewSec(w)});
     I.push('-');
     I.push({t:'上傳圖片或 PDF…',fn:()=>{wbUploadPos=w;$('#wfin').accept='image/*,application/pdf';$('#wfin').click();}});
     I.push({t:'貼上網址或影片…',fn:()=>{urlPos=w;$('#wUrl').click();}});
@@ -4623,7 +4719,7 @@ function bxSvg(b){
     const id='bxc'+(ci++), clip='<clipPath id="'+id+'"><rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'"/></clipPath>';
     if(o.t==='card'){
       const c=S.cards[o.cid]; const col=o.color==null?V('--accent'):V('--c'+o.color);
-      g+=clip+'<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="3" fill="'+surf+'" stroke="'+line+'"/><rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="5" fill="'+col+'"/><g clip-path="url(#'+id+')">';
+      g+=clip+'<rect x="'+o.x+'" y="'+o.y+'" width="'+o.w+'" height="'+o.h+'" rx="14" fill="'+(o.color==null?surf:V('--p'+o.color))+'" stroke="'+line+'"/><g clip-path="url(#'+id+')">';
       let y=o.y+36; const im=c&&c.html?firstImgSrc(c.html):null;
       if(im&&/^data:image\//.test(im)) g+='<image href="'+im+'" x="'+o.x+'" y="'+(o.y+5)+'" width="'+o.w+'" height="'+(o.h-5)+'" preserveAspectRatio="xMidYMid slice"/>';
       else if(c){bxCardBlocks(c.html||'').slice(0,40).forEach((bk,i)=>{if(y>o.y+o.h) return;const fs=bk.h?(i===0?20:16):13;bxWrap(bk.t,o.w-32,fs,bk.h?2:4).forEach(l=>{g+=T(o.x+16,y,l,fs,bk.h?ink:muted,bk.h?700:400);y+=fs*1.5;});y+=bk.h?4:2;});}
@@ -4683,67 +4779,205 @@ $('#bExp').onclick=function(){
   openPop(this,p=>{const h=document.createElement('div');h.className='ph';h.textContent='匯出「'+(b.main?'主白板':b.name)+'」整張白板';p.appendChild(h);items.forEach(it=>{const bt=document.createElement('button');bt.className='mi';bt.textContent=it[0];bt.onclick=()=>{closePop();it[1]();};p.appendChild(bt);});});
 };
 
-/* ===== 間隔複習（Spaced repetition）：到期的卡片先看標題，想答案，再翻面自評 ===== */
-const SR_MIN=10*60*1000, SR_DAY=864e5;
-function srNext(sr,q){ // q: 0 重來 1 困難 2 良好 3 簡單 → 回傳新狀態
-  let ivl=sr.ivl, ease=sr.ease, reps=sr.reps;
-  if(q===0){reps=0;ivl=0;ease=Math.max(1.3,ease-.2);}
-  else if(q===1){ivl=Math.max(1,ivl*1.2);ease=Math.max(1.3,ease-.15);reps++;}
-  else if(q===2){ivl=reps===0?1:reps===1?3:Math.max(1,ivl*ease);reps++;}
-  else{ivl=reps===0?3:Math.max(2,ivl*ease*1.3);ease=Math.min(3.5,ease+.15);reps++;}
-  ivl=Math.round(ivl*10)/10;
-  return {ivl:ivl,ease:ease,reps:reps,due:Date.now()+(q===0?SR_MIN:ivl*SR_DAY)};
+/* ===== 間隔複習（參考 Anki）：學習階段、重學、每日上限、填空、統計、設定 ===== */
+const SR_DAY=864e5, SR_MIN=6e4;
+const SR_DEF={newPerDay:20,revPerDay:200,steps:[1,10],relearn:[10],grad:1,easy:4,maxIvl:36500,fuzz:true,leech:8};
+function srData(){
+  if(!S.sr||typeof S.sr!=='object') S.sr={opts:{},log:[]};
+  S.sr.opts=Object.assign({},SR_DEF,S.sr.opts||{}); if(!Array.isArray(S.sr.log)) S.sr.log=[]; if(!S.sr.extra) S.sr.extra={d:0,n:0};
+  return S.sr;
 }
-function srLabel(sr,q){const n=srNext(sr,q);return q===0?'10 分鐘':n.ivl<30?(n.ivl<1.5?'1 天':Math.round(n.ivl)+' 天'):Math.round(n.ivl/30*10)/10+' 個月';}
-function srCards(){return Object.values(S.cards).filter(c=>c.sr);}
-function srDue(){const t=Date.now();return srCards().filter(c=>c.sr.due<=t).sort((a,b)=>a.sr.due-b.sr.due);}
-function srBadge(){if(!S) return;const n=srDue().length,e=$('#srN');e.hidden=!n;e.textContent=n>99?'99+':n;}
+const srOpts=()=>srData().opts;
+const dayStart=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime();};
+function srFmt(mins){
+  if(mins<1) return '<1 分'; if(mins<60) return Math.round(mins)+' 分'; if(mins<1440) return Math.round(mins/60*10)/10+' 小時';
+  const d=mins/1440; if(d<30) return Math.round(d)+' 天'; if(d<365) return Math.round(d/30*10)/10+' 個月'; return Math.round(d/365*10)/10+' 年';
+}
+/* 排程：回傳新狀態（不改動原物件）與下次間隔（分鐘，標籤用） */
+function srNext(sr,q,fuzz){
+  const o=srOpts(), now=Date.now(), t0=dayStart(now), n=Object.assign({},sr); let mins=0;
+  const fz=v=>{if(!fuzz||!o.fuzz||v<3) return v;const r=Math.max(1,Math.round(v*.05));return v+Math.floor(Math.random()*(2*r+1))-r;};
+  const grad=(ivl)=>{ivl=Math.min(o.maxIvl,Math.max(1,Math.round(fz(ivl))));n.st='review';n.ivl=ivl;n.due=t0+ivl*SR_DAY;n.step=0;n.reps=(n.reps||0)+1;mins=ivl*1440;};
+  const stepIn=(steps,i)=>{n.step=i;n.due=now+steps[i]*SR_MIN;mins=steps[i];};
+  if(sr.st==='new'||sr.st==='learn'||sr.st==='relearn'){
+    const steps=(sr.st==='relearn'?o.relearn:o.steps), idx=sr.st==='new'?0:Math.min(sr.step||0,Math.max(0,steps.length-1));
+    const isRe=sr.st==='relearn'; n.st=isRe?'relearn':'learn';
+    if(!steps.length){ if(q===0&&isRe){stepIn([10],0);} else grad(isRe?sr.ivl:(q===3?o.easy:o.grad)); return {s:n,mins:mins}; }
+    if(q===0) stepIn(steps,0);
+    else if(q===1){const m=(idx===0&&steps.length>1)?(steps[0]+steps[1])/2:steps[idx];n.step=idx;n.due=now+m*SR_MIN;mins=m;}
+    else if(q===2){ if(idx+1<steps.length) stepIn(steps,idx+1); else grad(isRe?sr.ivl:o.grad); }
+    else grad(isRe?sr.ivl+1:o.easy);
+    return {s:n,mins:mins};
+  }
+  // review
+  const ivl=sr.ivl||1;
+  if(q===0){
+    n.lapses=(sr.lapses||0)+1; n.ease=Math.max(1.3,sr.ease-.2); n.ivl=Math.max(1,Math.round(ivl*.2));
+    if(o.relearn.length){n.st='relearn';stepIn(o.relearn,0);} else {n.due=t0+n.ivl*SR_DAY;mins=n.ivl*1440;}
+  }else if(q===1){n.ease=Math.max(1.3,sr.ease-.15);grad0(ivl*1.2);}
+  else if(q===2){grad0(ivl*sr.ease);}
+  else{n.ease=Math.min(3.5,sr.ease+.15);grad0(ivl*sr.ease*1.3);}
+  function grad0(v){v=Math.max(ivl+1,v);v=Math.min(o.maxIvl,Math.round(fz(v)));n.ivl=Math.max(ivl+1>o.maxIvl?o.maxIvl:ivl+1,v);n.due=t0+n.ivl*SR_DAY;n.reps=(sr.reps||0)+1;mins=n.ivl*1440;}
+  return {s:n,mins:mins};
+}
+const srCards=()=>Object.values(S.cards).filter(c=>c.sr);
+const srTagsOf=()=>{const m={};srCards().forEach(c=>(c.tags||[]).forEach(t=>{m[t]=(m[t]||0)+1;}));return m;};
+let srDeck='';
+const srPool=()=>srCards().filter(c=>!c.sr.susp&&(!srDeck||(c.tags||[]).indexOf(srDeck)>=0));
+function srToday(){
+  const t0=dayStart(Date.now()), L=srData().log; let nw=0,rv=0;
+  for(let i=L.length-1;i>=0&&L[i].t>=t0;i--){if(L[i].s==='new') nw++; else if(L[i].s==='review') rv++;}
+  return {nw:nw,rv:rv};
+}
+function srQueue(){
+  const o=srOpts(), now=Date.now(), t0=dayStart(now), end=t0+SR_DAY, pool=srPool(), td=srToday(), d=srData();
+  if(d.extra.d!==t0) d.extra={d:t0,n:0};
+  const learn=pool.filter(c=>(c.sr.st==='learn'||c.sr.st==='relearn')&&c.sr.due<=now).sort((a,b)=>a.sr.due-b.sr.due);
+  const ahead=pool.filter(c=>(c.sr.st==='learn'||c.sr.st==='relearn')&&c.sr.due>now&&c.sr.due<=now+20*SR_MIN).sort((a,b)=>a.sr.due-b.sr.due);
+  const rev=pool.filter(c=>c.sr.st==='review'&&c.sr.due<end).sort((a,b)=>a.sr.due-b.sr.due).slice(0,Math.max(0,o.revPerDay-td.rv));
+  const neu=pool.filter(c=>c.sr.st==='new').sort((a,b)=>(a.sr.added||0)-(b.sr.added||0)).slice(0,Math.max(0,o.newPerDay+d.extra.n-td.nw));
+  return {learn:learn,ahead:ahead,rev:rev,neu:neu};
+}
+function srPick(q){return q.learn[0]||q.rev[0]||q.neu[0]||q.ahead[0]||null;}
+function srBadge(){
+  if(!S) return; const prev=srDeck; srDeck=''; const q=srQueue(); srDeck=prev;
+  const n=q.learn.length+q.rev.length+q.neu.length, e=$('#srN'); e.hidden=!n; e.textContent=n>99?'99+':n;
+}
 function srChip(box,c){
   const b=document.createElement('button'); b.className='tg srTog'+(c.sr?' on':''); b.style.cssText='border:0;border-radius:12px;font-size:12.5px;padding:4px 10px;background:var(--panel);color:var(--ink)';
-  b.textContent=c.sr?'◷ 複習中':'◷ 加入間隔複習'; b.title=c.sr?'點一下移出間隔複習':'加入後會依記憶程度安排複習時間';
-  b.onclick=()=>{c.sr=c.sr?null:{due:Date.now(),ivl:0,ease:2.5,reps:0};markDirty();tagRender();srBadge();toast(c.sr?'已加入間隔複習，現在就能複習':'已移出間隔複習');};
+  const lab={new:'新卡',learn:'學習中',relearn:'重學中',review:'複習中'};
+  b.textContent=c.sr?'◷ '+(c.sr.susp?'已擱置':lab[c.sr.st]||'複習中'):'◷ 加入間隔複習';
+  b.title=c.sr?'點一下移出間隔複習（進度會清除）':'加入後會依記憶程度安排複習時間。卡片內容可用 {{答案}} 做填空。';
+  b.onclick=()=>{c.sr=c.sr?null:{st:'new',step:0,due:Date.now(),ivl:0,ease:2.5,reps:0,lapses:0,susp:false,added:Date.now()};markDirty();tagRender();srBadge();toast(c.sr?'已加入間隔複習':'已移出間隔複習');};
   box.appendChild(b);
 }
-let srCur=null, srShown=false, srReveal=null;
-function srRender(){
-  const box=$('#srBody'); box.textContent='';
-  const due=srDue(), all=srCards();
-  if(!due.length){
-    srCur=null; const nx=all.map(c=>c.sr.due).sort((a,b)=>a-b)[0];
+/* ---- 複習畫面 ---- */
+let srCur=null, srShown=false, srTab='rev', srUndo=[];
+const srQ=(sel)=>$(sel,$('#srBody'));
+function srCloze(html,reveal){
+  return html.replace(/\{\{([^{}]{1,200}?)\}\}/g,(m,x)=>{const p=x.split('::');return reveal?'<span class="clr">'+p[0]+'</span>':'<span class="clz">'+(p[1]?'['+p[1]+']':'[…]')+'</span>';});
+}
+function srHead(){
+  const t=$('#srTabs'); t.textContent='';
+  [['rev','複習'],['stat','統計'],['set','設定']].forEach(x=>{const b=document.createElement('button');b.textContent=x[1];b.className=srTab===x[0]?'on':'';b.onclick=()=>{srTab=x[0];srRender();};t.appendChild(b);});
+}
+function srRender(){srHead();const box=$('#srBody');box.textContent='';if(srTab==='stat') srStats(box);else if(srTab==='set') srSettings(box);else srReview(box);}
+function srCounts(q,cur){
+  const c=document.createElement('div'); c.className='srCnt';
+  [['新',q.neu.length,'n',cur&&cur.sr.st==='new'],['學習',q.learn.length+(q.learn.length?0:q.ahead.length),'l',cur&&(cur.sr.st==='learn'||cur.sr.st==='relearn')],['複習',q.rev.length,'r',cur&&cur.sr.st==='review']].forEach(x=>{const s=document.createElement('span');s.className=x[2]+(x[3]?' cur':'');s.textContent=x[0]+' '+x[1];c.appendChild(s);});
+  const tags=srTagsOf(), keys=Object.keys(tags);
+  if(keys.length){const sel=document.createElement('select');sel.setAttribute('aria-label','牌組');sel.innerHTML='<option value="">全部卡片</option>'+keys.map(k=>'<option value="'+esc(k)+'">#'+esc(k)+'（'+tags[k]+'）</option>').join('');sel.value=srDeck;sel.onchange=()=>{srDeck=sel.value;srRender();};c.appendChild(sel);}
+  return c;
+}
+function srReview(box){
+  const q=srQueue(), c=srPick(q), all=srCards(); srCur=c; srShown=false;
+  box.appendChild(srCounts(q,c));
+  if(!c){
     const d=document.createElement('div'); d.className='srEmpty';
-    d.innerHTML=all.length?'<b>今天都複習完了 🎉</b>':'<b>還沒有複習中的卡片</b>';
+    const pend=srPool().filter(x=>x.sr.st==='review'&&x.sr.due>=dayStart(Date.now())+SR_DAY).sort((a,b)=>a.sr.due-b.sr.due)[0];
+    d.innerHTML=all.length?'<b>今天的複習完成了 🎉</b>':'<b>還沒有複習中的卡片</b>';
     const p=document.createElement('div');
-    p.textContent=all.length?('複習中共 '+all.length+' 張；下一張在 '+fmtTime(nx)+' 到期。'):'打開任一張卡片，在底部點「◷ 加入間隔複習」，它就會依你的記憶程度安排複習。';
-    d.appendChild(p); box.appendChild(d); return;
+    p.textContent=all.length?(pend?'下一次複習：'+new Date(pend.sr.due).toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})+'。':'目前沒有排定的複習。'):'打開任一張卡片，在底部點「◷ 加入間隔複習」。內容可以用 {{答案}} 做填空。';
+    d.appendChild(p);
+    if(all.some(x=>x.sr.st==='new'&&!x.sr.susp)){const b=document.createElement('button');b.textContent='再多學 5 張新卡';b.style.marginTop='12px';b.onclick=()=>{srData().extra.d=dayStart(Date.now());srData().extra.n+=5;markDirty();srRender();srBadge();};d.appendChild(b);}
+    box.appendChild(d); return;
   }
-  srCur=due[0]; srShown=false;
-  const c=srCur, st=document.createElement('div'); st.className='srStat'; st.textContent='待複習 '+due.length+' 張・共 '+all.length+' 張複習中'; box.appendChild(st);
+  const cloze=/\{\{[^{}]+\}\}/.test(c.html||'');
   const f=document.createElement('div'); f.className='srFront'; f.textContent=cardTitle(c); box.appendChild(f);
-  const back=document.createElement('div'); back.className='srBack prose'; back.hidden=true;
-  back.innerHTML=c.html||''; const h=back.querySelector('h1'); if(h) h.remove();
-  if(!back.textContent.trim()&&!back.querySelector('img,table')) back.innerHTML='<p style="color:var(--muted)">（這張卡片沒有內容）</p>';
-  back.querySelectorAll('a.cl').forEach(a=>a.removeAttribute('contenteditable'));
-  box.appendChild(back);
+  const body=document.createElement('div'); body.className='srBack prose';
+  const mk=reveal=>{const t=document.createElement('div');t.innerHTML=c.html||'';const h=t.querySelector('h1');if(h) h.remove();let s=t.innerHTML;if(cloze) s=srCloze(s,reveal);body.innerHTML=s;body.querySelectorAll('a.cl').forEach(a=>a.removeAttribute('contenteditable'));
+    if(!body.textContent.trim()&&!body.querySelector('img,table')) body.innerHTML='<p style="color:var(--muted)">（這張卡片沒有內容）</p>';};
+  mk(false); body.hidden=!cloze; box.appendChild(body);
   const act=document.createElement('div'); act.className='srAct'; box.appendChild(act);
-  const show=document.createElement('button'); show.className='pri'; show.textContent='顯示答案（空白鍵）';
-  const reveal=()=>{if(srShown) return;srShown=true;back.hidden=false;act.textContent='';
-    [['重來','again'],['困難',''],['良好',''],['簡單','easy']].forEach((x,q)=>{const b=document.createElement('button');b.className=x[1];b.innerHTML='<span></span><small></small>';b.firstChild.textContent=(q+1)+' '+x[0];b.lastChild.textContent=srLabel(c.sr,q);b.onclick=()=>srRate(q);act.appendChild(b);});};
-  show.onclick=reveal; act.appendChild(show); srReveal=reveal;
+  const reveal=()=>{if(srShown) return;srShown=true;mk(true);body.hidden=false;act.textContent='';
+    [['重來','again'],['困難',''],['良好',''],['簡單','easy']].forEach((x,i)=>{const b=document.createElement('button');b.className=x[1];b.innerHTML='<span></span><small></small>';b.firstChild.textContent=(i+1)+' '+x[0];b.lastChild.textContent=srFmt(srNext(c.sr,i,false).mins);b.onclick=()=>srRate(i);act.appendChild(b);});};
+  const show=document.createElement('button'); show.className='pri'; show.textContent='顯示答案（空白鍵）'; show.onclick=reveal; act.appendChild(show); srRevealFn=reveal;
+  const tools=document.createElement('div'); tools.className='srTools';
+  const tb=(t,tip,fn,dis)=>{const b=document.createElement('button');b.textContent=t;b.title=tip;b.disabled=!!dis;b.onclick=fn;tools.appendChild(b);};
+  tb('↶ 復原','復原上一次評分（Z）',srUndoLast,!srUndo.length);
+  tb('✎ 編輯','開啟這張卡片編輯（E）',()=>{$('#srdlg').close();openCard(c.id);});
+  tb('⏸ 擱置','暫時不再出現（S）',()=>{c.sr.susp=true;markDirty();srBadge();srRender();toast('已擱置這張卡片；可在「設定」恢復');});
+  box.appendChild(tools);
 }
-function srRate(q){
-  const c=srCur; if(!c||!c.sr) return; Object.assign(c.sr,srNext(c.sr,q)); markDirty(); srBadge(); srRender();
+let srRevealFn=null;
+function srRate(qv){
+  const c=srCur; if(!c||!c.sr) return; const d=srData(), prev=JSON.stringify(c.sr), res=srNext(c.sr,qv,true);
+  d.log.push({t:Date.now(),c:c.id,q:qv,s:c.sr.st,i:Math.round(res.mins)}); if(d.log.length>20000) d.log.splice(0,d.log.length-20000);
+  srUndo.push({id:c.id,prev:prev}); if(srUndo.length>30) srUndo.shift();
+  c.sr=res.s;
+  if(c.sr.lapses>=srOpts().leech&&!c.sr.susp&&qv===0){c.sr.susp=true;toast('這張卡片已答錯 '+c.sr.lapses+' 次（頑固卡），已自動擱置；建議改寫它');}
+  markDirty(); srBadge(); srRender();
 }
-function srOpen(){$('#srdlg').showModal();srRender();}
+function srUndoLast(){
+  const u=srUndo.pop(); if(!u) return; const c=S.cards[u.id]; if(!c) return;
+  c.sr=JSON.parse(u.prev); const L=srData().log; for(let i=L.length-1;i>=0;i--){if(L[i].c===u.id){L.splice(i,1);break;}}
+  markDirty(); srBadge(); srRender();
+}
+/* ---- 統計 ---- */
+function srBars(vals,labels,cls){
+  const mx=Math.max(1,...vals), w=document.createElement('div'); w.className='srBars '+(cls||'');
+  vals.forEach((v,i)=>{const b=document.createElement('div');b.className='sb';b.title=labels[i]+'：'+v;const bar=document.createElement('i');bar.style.height=(v/mx*100)+'%';b.appendChild(bar);const l=document.createElement('small');l.textContent=(i%Math.ceil(vals.length/7)===0||vals.length<=8)?labels[i]:'';b.appendChild(l);w.appendChild(b);});
+  return w;
+}
+function srStats(box){
+  const d=srData(), L=d.log, now=Date.now(), t0=dayStart(now), all=srCards();
+  const sec=(t,el)=>{const h=document.createElement('h3');h.textContent=t;box.appendChild(h);box.appendChild(el);};
+  const today=L.filter(x=>x.t>=t0), ok=today.filter(x=>x.q>0).length;
+  const days=new Set(L.map(x=>dayStart(x.t))); let streak=0, tt=days.has(t0)?t0:t0-SR_DAY; while(days.has(tt)){streak++;tt-=SR_DAY;}
+  const l30=L.filter(x=>x.t>=t0-29*SR_DAY), ok30=l30.filter(x=>x.q>0).length;
+  const g=document.createElement('div'); g.className='srGrid';
+  [['今天複習',today.length+' 張'],['今天正確率',today.length?Math.round(ok/today.length*100)+'%':'—'],['連續天數',streak+' 天'],['30 天正確率',l30.length?Math.round(ok30/l30.length*100)+'%':'—'],['複習中卡片',all.length+' 張'],['平均難度係數',all.filter(c=>c.sr.st==='review').length?(all.filter(c=>c.sr.st==='review').reduce((a,c)=>a+c.sr.ease,0)/all.filter(c=>c.sr.st==='review').length).toFixed(2):'—']].forEach(x=>{const e=document.createElement('div');e.innerHTML='<b></b><span></span>';e.firstChild.textContent=x[1];e.lastChild.textContent=x[0];g.appendChild(e);});
+  box.appendChild(g);
+  // 未來 14 天
+  const f=new Array(14).fill(0), fl=[]; all.filter(c=>!c.sr.susp).forEach(c=>{if(c.sr.st==='review'){const k=Math.max(0,Math.round((c.sr.due-t0)/SR_DAY));if(k<14) f[k]++;}else if(c.sr.st!=='new') f[0]++;});
+  for(let i=0;i<14;i++){const dt=new Date(t0+i*SR_DAY);fl.push(i===0?'今':(dt.getMonth()+1)+'/'+dt.getDate());}
+  sec('未來 14 天到期',srBars(f,fl));
+  const h=new Array(30).fill(0), hl=[]; L.forEach(x=>{const k=Math.floor((t0-dayStart(x.t))/SR_DAY);if(k>=0&&k<30) h[29-k]++;});
+  for(let i=0;i<30;i++){const dt=new Date(t0-(29-i)*SR_DAY);hl.push((dt.getMonth()+1)+'/'+dt.getDate());}
+  sec('最近 30 天複習量',srBars(h,hl,'past'));
+  const cnt={new:0,learn:0,young:0,mature:0,susp:0}; all.forEach(c=>{if(c.sr.susp) cnt.susp++;else if(c.sr.st==='new') cnt.new++;else if(c.sr.st==='review') (c.sr.ivl>=21?cnt.mature++:cnt.young++);else cnt.learn++;});
+  const st=document.createElement('div'); st.className='srStack'; const tot=Math.max(1,all.length);
+  [['新卡',cnt.new,'n'],['學習中',cnt.learn,'l'],['年輕（<21 天）',cnt.young,'y'],['成熟（≥21 天）',cnt.mature,'m'],['擱置',cnt.susp,'s']].forEach(x=>{if(!x[1]) return;const e=document.createElement('span');e.className=x[2];e.style.flex=x[1]/tot;e.title=x[0]+' '+x[1];e.textContent=x[1];st.appendChild(e);});
+  const lg=document.createElement('div'); lg.className='srLg'; lg.textContent='新卡 '+cnt.new+'・學習中 '+cnt.learn+'・年輕 '+cnt.young+'・成熟 '+cnt.mature+'・擱置 '+cnt.susp;
+  const wrap=document.createElement('div'); wrap.appendChild(st); wrap.appendChild(lg); sec('卡片組成',wrap);
+}
+/* ---- 設定 ---- */
+function srSettings(box){
+  const d=srData(), o=d.opts, F=document.createElement('div'); F.className='srSet';
+  const row=(label,hint,input)=>{const r=document.createElement('label');r.innerHTML='<span><b></b><small></small></span>';r.querySelector('b').textContent=label;r.querySelector('small').textContent=hint||'';r.appendChild(input);F.appendChild(r);};
+  const num=(k,min,max)=>{const i=document.createElement('input');i.type='number';i.min=min;i.max=max;i.value=o[k];i.onchange=()=>{const v=Math.min(max,Math.max(min,+i.value||min));o[k]=v;i.value=v;markDirty();srBadge();};return i;};
+  const steps=k=>{const i=document.createElement('input');i.type='text';i.value=o[k].join(' ');i.placeholder='例如 1 10';i.onchange=()=>{o[k]=i.value.split(/[\s,，]+/).map(Number).filter(x=>x>0&&x<=10080).slice(0,6);i.value=o[k].join(' ');markDirty();};return i;};
+  row('每天新卡上限','每天最多開始學幾張新卡',num('newPerDay',0,500));
+  row('每天複習上限','每天最多複習幾張到期卡片',num('revPerDay',0,2000));
+  row('學習階段（分鐘）','新卡的間隔，空白分隔；清空則直接畢業',steps('steps'));
+  row('重學階段（分鐘）','答錯「重來」後的間隔',steps('relearn'));
+  row('畢業間隔（天）','學習階段選「良好」畢業後的第一個間隔',num('grad',1,365));
+  row('簡單間隔（天）','新卡直接選「簡單」的間隔',num('easy',1,365));
+  row('最大間隔（天）','間隔不會超過這個天數',num('maxIvl',30,36500));
+  row('頑固卡門檻（次）','答錯達這個次數會自動擱置',num('leech',2,50));
+  const fz=document.createElement('input');fz.type='checkbox';fz.checked=!!o.fuzz;fz.onchange=()=>{o.fuzz=fz.checked;markDirty();};
+  row('間隔隨機微調','讓同一天學的卡片不要總是同一天到期',fz);
+  box.appendChild(F);
+  const sus=srCards().filter(c=>c.sr.susp), act=document.createElement('div'); act.className='srAct2';
+  const b1=document.createElement('button'); b1.textContent='恢復全部擱置的卡片（'+sus.length+'）'; b1.disabled=!sus.length; b1.onclick=()=>{sus.forEach(c=>{c.sr.susp=false;});markDirty();srBadge();srRender();toast('已恢復');}; act.appendChild(b1);
+  const b2=document.createElement('button'); b2.textContent='重置所有學習進度'; b2.className='dng'; b2.onclick=async()=>{if(!(await confirmDlg('重置所有進度？','所有複習中的卡片會回到「新卡」，複習紀錄與統計會清除。卡片內容不受影響。','重置'))) return;srCards().forEach(c=>{c.sr={st:'new',step:0,due:Date.now(),ivl:0,ease:2.5,reps:0,lapses:0,susp:false,added:Date.now()};});d.log=[];srUndo=[];markDirty();srBadge();srRender();toast('已重置');}; act.appendChild(b2);
+  box.appendChild(act);
+}
+function srOpen(){srTab='rev';$('#srdlg').showModal();srRender();}
 $('#bSr').onclick=srOpen; $('#srx').onclick=()=>$('#srdlg').close();
 $('#srdlg').addEventListener('keydown',e=>{
-  if(!srCur) return;
-  if(e.key===' '||e.key==='Enter'){if(!srShown){e.preventDefault();srReveal();}}
+  if(e.target&&/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if(srTab!=='rev'||!srCur) return;
+  if(e.key===' '||e.key==='Enter'){if(!srShown){e.preventDefault();srRevealFn&&srRevealFn();}}
   else if(srShown&&/^[1-4]$/.test(e.key)){e.preventDefault();srRate(+e.key-1);}
+  else if(e.key==='z'||e.key==='Z'){e.preventDefault();srUndoLast();}
+  else if(e.key==='e'||e.key==='E'){e.preventDefault();$('#srdlg').close();openCard(srCur.id);}
+  else if(e.key==='s'||e.key==='S'){e.preventDefault();srCur.sr.susp=true;markDirty();srBadge();srRender();}
 });
 setInterval(srBadge,60000); setTimeout(srBadge,1200);
 
 /* ================= 匯出／匯入、範例資料、啟動 ================= */
-function exportText(){pruneOrphans();flushAll();return JSON.stringify({app:'cardbench',v:1,cards:S.cards,boards:S.boards,files:S.files||{},cur:S.cur},null,1);}
+function exportText(){pruneOrphans();flushAll();return JSON.stringify({app:'cardbench',v:1,cards:S.cards,boards:S.boards,files:S.files||{},sr:S.sr||null,cur:S.cur},null,1);}
 
 /* 舊版心智圖工具的 JSON → 新版心智圖（每一頁一張，媒體節點轉成文字） */
 function legacyNode(o,d){
@@ -4846,19 +5080,19 @@ $('#ioRep').onclick=async()=>{
 function sampleWS(){
   const t=Date.now(), cards={};
   const mk=(title,html)=>{const id=uid('c');cards[id]={id:id,title:title,html:html,created:t,updated:t};return id;};
-  const c1=mk('歡迎使用卡片工作台','<h2>卡片就是筆記</h2><p>同一張卡片可以放在<strong>多個地方</strong>，也能接在<strong>心智圖</strong>節點上。改一個地方，每個地方都會更新。</p><ul><li>在這裡寫內容，輸入「# 」變標題、「- 」變清單</li><li>貼上或拖入圖片也可以</li></ul>');
-  const c2=mk('白板怎麼用','<p>拖曳卡片移動，拖右下角調整大小。選取卡片後，拖曳四邊的圓點到另一張卡片就能連線。</p><ul class="check"><li data-done="1">打開這張卡片</li><li data-done="0">拖一條連線</li><li data-done="0">新增一個分區</li></ul>');
+  const c1=mk('歡迎使用 Board note','<h2>卡片就是筆記</h2><p>同一張卡片可以放在<strong>多個地方</strong>，也能接在<strong>心智圖</strong>節點上。改一個地方，每個地方都會更新。</p><ul><li>在這裡寫內容，輸入「# 」變標題、「- 」變清單</li><li>貼上或拖入圖片也可以</li></ul>');
+  const c2=mk('白板怎麼用','<p>拖曳卡片移動，拖右下角調整大小。選取卡片後，拖曳四邊的圓點到另一張卡片就能連線。</p><ul class="check"><li data-done="1">打開這張卡片</li><li data-done="0">拖一條連線</li><li data-done="0">新增一個欄</li></ul>');
   const c3=mk('心智圖怎麼用','<p>選取節點，點兩側的「＋」新增子節點；雙擊節點改文字；拖曳節點到別的節點上可以改變階層。</p><p>在節點上按右鍵，可以把節點轉成卡片，或連結到既有卡片；Tab 新增子節點、Enter 新增同層。</p>');
   const c4=mk('我的第一個想法','<p>在這裡寫下任何想法。</p>');
   const sec=uid('o'), o1=uid('o'), o2=uid('o'), o3=uid('o'), o4=uid('o'), o5=uid('o');
-  const wbd={id:uid('b'),name:'開始使用',type:'wb',view:null,
+  const wbd={id:uid('b'),name:'開始使用',type:'wb',colv:1,view:null,
     objs:[
-      {id:sec,t:'sec',x:-340,y:-230,w:760,h:330,title:'先看這三張',color:0},
-      {id:o1,t:'card',cid:c1,x:-310,y:-170,w:280,h:230},
-      {id:o2,t:'card',cid:c2,x:20,y:-170,w:280,h:230},
-      {id:o3,t:'card',cid:c3,x:-130,y:150,w:280,h:200},
-      {id:o4,t:'text',x:340,y:-120,w:170,h:90,text:'雙擊便利貼可以編輯文字',color:2},
-      {id:o5,t:'card',cid:c4,x:340,y:20,w:230,h:120}
+      {id:sec,t:'sec',x:430,y:-190,w:250,h:300,title:'拖進來試試',color:0,pc:null,pi:0},
+      {id:o1,t:'card',cid:c1,x:-330,y:-190,w:230,h:310},
+      {id:o2,t:'card',cid:c2,x:-80,y:-190,w:230,h:310},
+      {id:o3,t:'card',cid:c3,x:170,y:-190,w:230,h:310},
+      {id:o4,t:'text',x:0,y:0,w:170,h:90,text:'雙擊便利貼可以編輯文字',color:2,pc:sec,pi:0},
+      {id:o5,t:'card',cid:c4,x:0,y:0,w:230,h:150,pc:sec,pi:1}
     ],
     links:[{id:uid('l'),a:o1,b:o2,label:'接著看'},{id:uid('l'),a:o2,b:o3,label:''}]};
   const root=newMmRoot('我的專案');
