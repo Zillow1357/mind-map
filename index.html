@@ -642,6 +642,27 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
 .srAct2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 @media (max-width:640px){.srGrid{grid-template-columns:repeat(2,1fr)}}
 
+/* 容器卡 */
+.obj.kcard.boxc{box-shadow:5px 5px 0 -1px var(--surface),5px 5px 0 0 var(--line),10px 10px 0 -1px var(--surface),10px 10px 0 0 var(--line)}
+.obj.kcard.drop{outline:2px dashed var(--accent);outline-offset:4px}
+.bxl{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;color:var(--ink);font-size:12.5px}
+.bxh{font-weight:700;color:var(--accent);margin-bottom:4px}
+.bxr{padding:3px 0;display:flex;gap:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.bxr i{font-style:normal;opacity:.7}.bxr.more{color:var(--muted)}
+#editor.isbox #edBody{flex:0 0 auto;max-height:36%}
+#edBox{display:none}
+#editor.isbox #edBox{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:auto;padding:6px 22px 14px;background:color-mix(in srgb,var(--panel) 70%,transparent);border-top:0}
+.bxHead{display:flex;align-items:center;gap:10px;padding:8px 0;position:sticky;top:0;background:inherit;z-index:1}.bxHead b{flex:1}
+.bxView{display:flex;background:var(--panel);border-radius:14px;padding:2px}.bxView button{border:0;background:none;padding:3px 10px;border-radius:12px;font-size:12.5px;color:var(--muted)}.bxView button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.bxList{display:flex;flex-direction:column;gap:8px}
+.bxi{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}.bxi.dg{opacity:.5}.bxi.ov{outline:2px solid var(--accent)}
+.bxih{display:flex;align-items:center;gap:8px;padding:8px 10px}.bxih i{font-style:normal;opacity:.7}
+.bxn{flex:1;text-align:left;border:0;background:none;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);padding:2px 0}.bxn:hover{color:var(--accent)}
+.bxm{color:var(--muted);font-size:12px;white-space:nowrap}.bxx{border:0;background:none;color:var(--muted);padding:2px 6px}.bxx:hover{color:#d64545}
+.bxb{border-top:1px solid var(--line);padding:6px 14px 10px;max-height:240px;overflow:hidden;cursor:pointer;font-size:14px;line-height:1.7;-webkit-mask-image:linear-gradient(#000 calc(100% - 28px),transparent)}
+.bxb.thumb{height:170px;padding:6px}.bxb.thumb svg{width:100%;height:100%}
+.bxEmpty{color:var(--muted);font-size:13px;padding:10px 2px}
+.bxPick{min-width:260px}.bxPick input{width:100%;margin-bottom:6px}.bxPL{max-height:260px;overflow:auto;display:flex;flex-direction:column}
+
 </style></head><body>
 <div id="app">
   <aside id="sb" aria-label="導覽">
@@ -740,7 +761,7 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
   <aside id="editor" aria-label="卡片編輯">
     <div class="edHead"><button id="edClose" class="ib" aria-label="關閉" title="關閉"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="edMeta"></span><button id="edInfo" class="ib" aria-label="卡片資訊" title="卡片資訊"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.2v.1"/></svg></button><button id="edFull" class="ib" aria-label="放大" aria-pressed="false" title="放大（Esc 離開）"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button><button id="edDel" class="ib dng" aria-label="刪除卡片" title="永久刪除這張卡片"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>
     <div id="edBody" class="prose" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="卡片內容"></div>
-    <div id="edUse"></div><div id="edTags"></div>
+    <div id="edBox"></div><div id="edUse"></div><div id="edTags"></div>
     <div id="blkH" hidden><button id="blkBtn" aria-label="區塊選單，拖曳可移動" title="拖曳移動，點一下開啟選單">⋮⋮</button></div>
     <div id="blkDrop" hidden></div>
     <div id="slash" hidden role="listbox" aria-label="插入區塊"></div>
@@ -820,6 +841,7 @@ a.cl.dead{color:var(--muted);text-decoration:line-through}
     <li><b>心智圖樣式與卡片</b>：選取節點後按「顏色」可改填色、外框、文字色、字級、字體、粗細；右鍵可轉成卡片或連結既有卡片，轉成卡片的節點，雙擊或點文件圖示就能開啟卡片編輯；「外框」把整張心智圖像卡片一樣框起來；右鍵可匯出 PNG／SVG／Markdown。</li>
     <li><b>連線</b>：從卡片邊緣的圓點拖到另一個物件；選取連線後按「連線樣式」可改顏色、粗細、實線／虛線／點線、兩端箭頭（無／實心／空心），以及文字大小、字體、顏色。心智圖不能自由連線。</li>
     <li><b>欄（Column）</b>：像 Milanote 的欄。把卡片、便利貼、圖片、表格等物件拖進欄裡，它們會自動直向排列、寬度跟著欄走；拖出欄外就脫離。拖欄的標題可整欄一起移動，拖右下角調整欄的寬度。心智圖與其他欄不能放進欄裡。</li>
+    <li><b>容器卡</b>：最頂層的特殊卡片。從「物件」面板拖出來，雙擊開啟後上方可以像一般卡片一樣打字，下方是「內容」區，可用「＋ 新增」放入新卡片、Board，或加入既有的；內容可切換「列表」或「展開」，也能拖曳排序。在白板上把卡片或 Board 拖到容器卡上也會放進去；按內容旁的 ✕ 會放回主白板。容器卡裡不能再放容器卡。</li>
     <li><b>表格</b>：從「物件」面板拖曳「表格」。雙擊儲存格輸入文字；點選儲存格後，邊緣的「＋欄」「＋列」可擴充，右鍵可插入或刪除列與欄、切換標題列。</li>
     <li><b>右鍵選單</b>：在白板或節點上按右鍵（觸控長按），可複製、剪下、貼上，也能新增卡片、心智圖、便利貼、分區。</li>
     <li><b>圖片、PDF、影片</b>：直接貼上（Ctrl＋V）或拖入圖片、PDF、影片網址，會變成白板物件，同樣能拖曳圓點連到卡片和心智圖。</li>
@@ -877,7 +899,7 @@ function cardRefs(){
   const r={}, walk=n=>{if(!n) return;if(n.cid) r[n.cid]=1;(n.children||[]).forEach(walk);};
   S.boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='card') r[o.cid]=1;}); else walk(b.root);});
   Object.keys(mmTrash).forEach(k=>walk(mmTrash[k].root));
-  const q=Object.keys(r); while(q.length){const c=S.cards[q.pop()]; if(!c||!c.html) continue; const re=/data-cid="([\w-]+)"/g; let m; while((m=re.exec(c.html))){if(!r[m[1]]&&(S.cards[m[1]]||cardTrash[m[1]])){r[m[1]]=1;q.push(m[1]);}}}
+  const q=Object.keys(r); while(q.length){const c=S.cards[q.pop()]; if(!c) continue; if(c.box) c.box.items.forEach(it=>{if(it.t==='card'&&!r[it.id]&&(S.cards[it.id]||cardTrash[it.id])){r[it.id]=1;q.push(it.id);}}); if(!c.html) continue; const re=/data-cid="([\w-]+)"/g; let m; while((m=re.exec(c.html))){if(!r[m[1]]&&(S.cards[m[1]]||cardTrash[m[1]])){r[m[1]]=1;q.push(m[1]);}}}
   return r;
 }
 function restoreCards(){
@@ -887,7 +909,11 @@ function pruneOrphans(){
   if(!S) return; const ref={};
   S.boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref[o.mid]=1;});});
   S.boards=S.boards.filter(b=>{if(b.type==='mm'&&!ref[b.id]&&b.id!==S.cur){mmTrash[b.id]=b;return false;}return true;});
-  const cr=cardRefs(); Object.keys(S.cards).forEach(id=>{if(!cr[id]&&id!==(typeof ui!=='undefined'&&ui.editorId)){cardTrash[id]=S.cards[id];delete S.cards[id];}});
+  let cr=cardRefs(); let rel=false;
+  Object.keys(S.cards).forEach(id=>{const c=S.cards[id];if(!cr[id]&&c.box&&id!==(typeof ui!=='undefined'&&ui.editorId)){bxRelease(c);rel=true;}});
+  if(rel) cr=cardRefs();
+  Object.values(S.cards).forEach(c=>{if(c.box) c.box.items=c.box.items.filter(it=>it.t==='card'?!!S.cards[it.id]:S.boards.some(b=>b.id===it.id));});
+  Object.keys(S.cards).forEach(id=>{if(!cr[id]&&id!==(typeof ui!=='undefined'&&ui.editorId)){cardTrash[id]=S.cards[id];delete S.cards[id];}});
 }
 function reidMm(n){n.id=uid('m');(n.children||[]).forEach(reidMm);return n;}
 function cloneMmBoard(mb){return {id:uid('b'),name:mb.name,type:'mm',view:null,root:reidMm(JSON.parse(JSON.stringify(mb.root)))};}
@@ -939,9 +965,9 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 /* ----- 復原／重做（每個畫板各自一份，只記畫板內容） ----- */
 const hist={};
 const histOf=b=>hist[b.id]||(hist[b.id]={u:[],r:[]});
-const content=b=>{if(b.type!=='wb') return {root:b.root};const mms={};b.objs.forEach(o=>{if(o.t==='mm'){const m=boardById(o.mid);if(m) mms[o.mid]=m.root;}});return {objs:b.objs,links:b.links,mms:mms};};
+const content=b=>{if(b.type!=='wb') return {root:b.root};const mms={};b.objs.forEach(o=>{if(o.t==='mm'){const m=boardById(o.mid);if(m) mms[o.mid]=m.root;}});const bx={};Object.values(S.cards).forEach(c=>{if(c.box) bx[c.id]=c.box;});return {objs:b.objs,links:b.links,mms:mms,bx:bx};};
 function snap(bb){const b=bb||board();const h=histOf(b);h.u.push(JSON.stringify(content(b)));if(h.u.length>80) h.u.shift();h.r=[];updHist();}
-function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;b.objs.forEach(o=>{if(o.t==='mm'&&!boardById(o.mid)&&mmTrash[o.mid]){S.boards.push(mmTrash[o.mid]);delete mmTrash[o.mid];}});if(c.mms) Object.keys(c.mms).forEach(k=>{const m=boardById(k);if(m) m.root=c.mms[k];});restoreCards();}else b.root=c.root;}
+function restore(b,str){const c=JSON.parse(str);if(b.type==='wb'){b.objs=c.objs;b.links=c.links;b.objs.forEach(o=>{if(o.t==='mm'&&!boardById(o.mid)&&mmTrash[o.mid]){S.boards.push(mmTrash[o.mid]);delete mmTrash[o.mid];}});if(c.mms) Object.keys(c.mms).forEach(k=>{const m=boardById(k);if(m) m.root=c.mms[k];});restoreCards();if(c.bx) Object.values(S.cards).forEach(k=>{k.box=c.bx[k.id]?normBox(c.bx[k.id]):null;});}else b.root=c.root;}
 function undo(){const b=board();const h=histOf(b);if(!h.u.length) return;h.r.push(JSON.stringify(content(b)));restore(b,h.u.pop());afterRestore();toast('已復原');}
 function redo(){const b=board();const h=histOf(b);if(!h.r.length) return;h.u.push(JSON.stringify(content(b)));restore(b,h.r.pop());afterRestore();toast('已重做');}
 function updHist(){const b=board();if(!b) return;const h=histOf(b);$('#tUndo').disabled=!h.u.length;$('#tRedo').disabled=!h.r.length;}
@@ -1067,6 +1093,11 @@ function normSrData(r){
   const log=(Array.isArray(o.log)?o.log:[]).slice(-20000).filter(x=>x&&typeof x.t==='number'&&typeof x.c==='string').map(x=>({t:x.t,c:x.c,q:clamp(num(x.q,0)|0,0,3),s:/^(new|learn|relearn|review)$/.test(x.s)?x.s:'review',i:num(x.i,0)}));
   return {opts:opts,log:log,extra:{d:0,n:0}};
 }
+function normBox(b){
+  if(!b||typeof b!=='object') return null; const seen={}, items=[];
+  (Array.isArray(b.items)?b.items:[]).forEach(it=>{if(!it||typeof it.id!=='string'||(it.t!=='card'&&it.t!=='board')) return;const k=it.t+it.id;if(seen[k]||items.length>=300) return;seen[k]=1;items.push({t:it.t,id:it.id});});
+  return {items:items,view:b.view==='expand'?'expand':'list'};
+}
 function normTags(t){const o=[];(Array.isArray(t)?t:[]).forEach(x=>{x=String(x||'').replace(/^#+/,'').replace(/\s+/g,' ').trim().slice(0,24);if(x&&o.indexOf(x)<0&&o.length<12) o.push(x);});return o;}
 function normCards(raw){
   const out={},cs=raw&&typeof raw==='object'?raw:{};
@@ -1075,7 +1106,7 @@ function normCards(raw){
     const id=String(c.id||k);
     let html=sanitizeHtml(String(c.html||'')); const old=String(c.title||'').replace(/\s+/g,' ').trim().slice(0,200);
     if(c.v!==2&&old) html='<h1>'+esc(old)+'</h1>'+html;
-    out[id]={id,v:2,title:htmlTitle(html),html:html,created:num(c.created,Date.now()),updated:num(c.updated,Date.now()),tags:normTags(c.tags),sr:normSr(c.sr)};
+    out[id]={id,v:2,title:htmlTitle(html),html:html,created:num(c.created,Date.now()),updated:num(c.updated,Date.now()),tags:normTags(c.tags),sr:normSr(c.sr),box:normBox(c.box)};
   });
   return out;
 }
@@ -1105,7 +1136,9 @@ function normalizeWS(raw){
     const n=main.objs.filter(q=>q._placed).length; o.x=a+(n%3)*300; o.y=e+60+Math.floor(n/3)*220; o._placed=1;
   };
   wbs.forEach(b=>{b.objs=b.objs.filter(o=>o.t!=='sub'||(o.bid!==b.id&&boards.some(x=>x.id===o.bid&&x.type==='wb'&&!x.main)));});
-  const reach={}; (function walk(b){if(reach[b.id]) return;reach[b.id]=1;b.objs.forEach(o=>{if(o.t==='sub'){const t=wbs.find(x=>x.id===o.bid);if(t) walk(t);}});})(main);
+  Object.keys(cards).forEach(k=>{const c=cards[k];if(c.box) c.box.items=c.box.items.filter(it=>it.t==='card'?(!!cards[it.id]&&it.id!==k&&!cards[it.id].box):wbs.some(b=>b.id===it.id&&!b.main));});
+  const reach={}; const walkR=function(b){if(reach[b.id]) return;reach[b.id]=1;b.objs.forEach(o=>{if(o.t==='sub'){const t=wbs.find(x=>x.id===o.bid);if(t) walkR(t);}});};
+  walkR(main); Object.keys(cards).forEach(k=>{const c=cards[k];if(c.box) c.box.items.forEach(it=>{if(it.t==='board'){const t=wbs.find(x=>x.id===it.id);if(t) walkR(t);}});});
   wbs.filter(b=>!reach[b.id]).forEach(b=>{if(reach[b.id]) return;const o={id:uid('o'),t:'sub',bid:b.id,x:0,y:0,w:260,h:190};place(o);main.objs.push(o);(function walk(c){if(reach[c.id]) return;reach[c.id]=1;c.objs.forEach(q=>{if(q.t==='sub'){const t=wbs.find(x=>x.id===q.bid);if(t) walk(t);}});})(b);});
   const ref2={}; boards.forEach(b=>{if(b.type==='wb') b.objs.forEach(o=>{if(o.t==='mm') ref2[o.mid]=1;});});
   boards.filter(b=>b.type==='mm'&&!ref2[b.id]).forEach(m=>{const o={id:uid('o'),t:'mm',mid:m.id,x:0,y:0,w:340,h:240,frame:false,ox:null,oy:null};place(o);main.objs.push(o);});
@@ -1217,7 +1250,7 @@ function renderUse(){
   bs.forEach(b=>{const btn=document.createElement('button');btn.textContent=(b.type==='wb'?'白板・':'心智圖・')+b.name;btn.onclick=()=>gotoBoard(b.id,c.id);box.appendChild(btn);});
   edMetaBase='更新於 '+fmtTime(c.updated); updCount();
   if(!bs.length&&board()&&board().type==='wb'&&!ui.home){const pb=document.createElement('button');pb.textContent='放到目前白板';pb.className='pri';pb.onclick=()=>{const w=wbCenter();addCardToBoard(c.id,w.x-130,w.y-100);renderUse();toast('已放到目前白板');};box.appendChild(pb);}
-  clBacklinks(box,c); tagRender();
+  clBacklinks(box,c); bxBacklinks(box,c); bxRender(); tagRender();
 }
 function deleteCard(id){
   const c=S.cards[id]; if(!c) return;
@@ -1920,6 +1953,125 @@ function tagRender(){
   box.appendChild(inp);
 }
 
+/* ===== 容器卡：最頂層的特殊卡片。可以打字，也能像欄一樣放入白板與卡片 ===== */
+const bxIs=c=>!!(c&&c.box);
+function bxIcon(t){return t==='board'?'❏':'▤';}
+function bxAdd(c,t,id){
+  if(!c||!c.box) return false; if(c.box.items.some(i=>i.t===t&&i.id===id)) return false;
+  if(t==='card'){const k=S.cards[id];if(!k||k.box||id===c.id) return false;}
+  c.box.items.push({t:t,id:id}); return true;
+}
+function bxPlaceMain(it){
+  const m=mainBoard(); if(!m) return;
+  let a=1e9,e=-1e9; m.objs.forEach(q=>{a=Math.min(a,q.x);e=Math.max(e,q.y+q.h);}); if(!m.objs.length){a=-200;e=-100;}
+  if(it.t==='card'){
+    if(S.boards.some(b=>b.type==='wb'&&b.objs.some(o=>o.t==='card'&&o.cid===it.id))) return;
+    m.objs.push({id:uid('o'),t:'card',cid:it.id,x:a,y:e+60,w:220,h:300,pc:null,pi:0});
+  }else{
+    if(S.boards.some(b=>b.type==='wb'&&b.objs.some(o=>o.t==='sub'&&o.bid===it.id))) return;
+    m.objs.push({id:uid('o'),t:'sub',bid:it.id,x:a,y:e+60,w:260,h:190,pc:null,pi:0});
+  }
+}
+function bxRelease(c){if(!c.box) return;c.box.items.forEach(bxPlaceMain);c.box=null;}
+function bxContainers(t,id){return Object.values(S.cards).filter(c=>c.box&&c.box.items.some(i=>i.t===t&&i.id===id));}
+function bxOpen(it){
+  if(it.t==='card'){if(!S.cards[it.id]) return;flushEditor();openCard(it.id);}
+  else{const b=boardById(it.id);if(!b) return;const from=board();closeEditor();showBoard(b.id,{keepBack:from&&from.type==='wb'?from.id:null});}
+}
+function wbNewBox(q){
+  const b=board(); if(!b||b.type!=='wb') return;
+  const c=newCard('新容器卡'); c.box={items:[],view:'list'}; S.cards[c.id]=c;
+  snap(); const p=q||wbCenter(), s=freeSpot(p.x-130,p.y-170);
+  const o={id:uid('o'),t:'card',cid:c.id,x:s.x,y:s.y,w:260,h:340,pc:null,pi:0}; b.objs.push(o);
+  wsel=new Set([o.id]); wLink=null; renderWB(); markDirty(); toast('已新增容器卡：雙擊開啟，可輸入文字並放入白板與卡片；也能把卡片或 Board 拖到它上面');
+}
+/* 把白板上拖動的卡片、Board 圖塊放進容器卡 */
+function bxDrop(items,pt){
+  const b=board(), moved=new Set(items.map(i=>i.o.id));
+  const tgt=b.objs.find(o=>o.t==='card'&&!moved.has(o.id)&&S.cards[o.cid]&&S.cards[o.cid].box&&pt.x>=o.x&&pt.x<=o.x+o.w&&pt.y>=o.y&&pt.y<=o.y+o.h);
+  if(!tgt) return false; const bc=S.cards[tgt.cid]; let n=0;
+  items.forEach(it=>{const o=it.o;
+    if(o.t==='card'&&bxAdd(bc,'card',o.cid)) n++; else if(o.t==='sub'&&bxAdd(bc,'board',o.bid)) n++; else return;
+    b.objs=b.objs.filter(x=>x.id!==o.id); b.links=b.links.filter(l=>l.a!==o.id&&l.b!==o.id); wsel.delete(o.id);
+  });
+  if(n){toast('已放進「'+bc.title+'」');wbCardUpdate&&wbCardUpdate(bc.id);} return n>0;
+}
+function bxHover(pt,moved){
+  const b=board(); const t=b.objs.find(o=>o.t==='card'&&!moved.has(o.id)&&S.cards[o.cid]&&S.cards[o.cid].box&&pt.x>=o.x&&pt.x<=o.x+o.w&&pt.y>=o.y&&pt.y<=o.y+o.h);
+  b.objs.forEach(o=>{if(o.t==='card'&&wbEls[o.id]) wbEls[o.id].classList.toggle('drop',!!t&&t.id===o.id);}); return !!t;
+}
+/* 白板上的容器卡預覽：列出內容 */
+function bxPreviewHtml(c){
+  const n=c.box.items.length; let h='<div class="bxl"><div class="bxh">▦ 容器・'+n+' 項</div>';
+  c.box.items.slice(0,7).forEach(it=>{const nm=it.t==='card'?(S.cards[it.id]?cardTitle(S.cards[it.id]):'？'):(boardById(it.id)?boardById(it.id).name:'？');h+='<div class="bxr"><i>'+bxIcon(it.t)+'</i>'+esc(nm)+'</div>';});
+  if(n>7) h+='<div class="bxr more">⋯ 還有 '+(n-7)+' 項</div>';
+  return h+'</div>';
+}
+/* ---- 編輯器下方的「內容」區 ---- */
+function bxRender(){
+  const wrap=$('#edBox'), ed=$('#editor'), c=S.cards[ui.editorId]; wrap.textContent='';
+  ed.classList.toggle('isbox',bxIs(c)); if(!bxIs(c)) return;
+  const bx=c.box, head=document.createElement('div'); head.className='bxHead';
+  const t=document.createElement('b'); t.textContent='內容（'+bx.items.length+'）'; head.appendChild(t);
+  const vw=document.createElement('div'); vw.className='bxView';
+  [['list','列表'],['expand','展開']].forEach(x=>{const b=document.createElement('button');b.textContent=x[1];b.className=bx.view===x[0]?'on':'';b.onclick=()=>{bx.view=x[0];markDirty();bxRender();};vw.appendChild(b);}); head.appendChild(vw);
+  const add=document.createElement('button'); add.className='pri'; add.textContent='＋ 新增'; add.onclick=function(){bxAddMenu(this,c);}; head.appendChild(add);
+  wrap.appendChild(head);
+  const list=document.createElement('div'); list.className='bxList '+bx.view; wrap.appendChild(list);
+  if(!bx.items.length){const e=document.createElement('div');e.className='bxEmpty';e.textContent='這裡還是空的。按「＋ 新增」，或把卡片、Board 拖到白板上的這張容器卡。';list.appendChild(e);}
+  bx.items.forEach((it,i)=>{
+    const card=it.t==='card'?S.cards[it.id]:null, bd=it.t==='board'?boardById(it.id):null; if(!card&&!bd) return;
+    const row=document.createElement('div'); row.className='bxi'; row.draggable=true; row.dataset.i=i;
+    const hd=document.createElement('div'); hd.className='bxih';
+    const ic=document.createElement('i'); ic.textContent=bxIcon(it.t); hd.appendChild(ic);
+    const nm=document.createElement('button'); nm.className='bxn'; nm.textContent=card?cardTitle(card):bd.name; nm.onclick=()=>bxOpen(it); hd.appendChild(nm);
+    const meta=document.createElement('span'); meta.className='bxm'; meta.textContent=card?(card.sr?'◷ ':'')+(card.tags||[]).map(x=>'#'+x).join(' '):(bd.objs.length+' 個物件'); hd.appendChild(meta);
+    const rm=document.createElement('button'); rm.className='bxx'; rm.textContent='✕'; rm.title='移出容器（會放回主白板，不會刪除）'; rm.setAttribute('aria-label','移出容器');
+    rm.onclick=()=>{bx.items.splice(i,1);bxPlaceMain(it);markDirty();toast('已移出，放回主白板');bxRender();renderUse&&0;}; hd.appendChild(rm);
+    row.appendChild(hd);
+    if(bx.view==='expand'){
+      const body=document.createElement('div'); body.className='bxb';
+      if(card){const p=document.createElement('div');p.className='prose';p.innerHTML=card.html||'';const h=p.querySelector('h1');if(h) h.remove();p.querySelectorAll('a.cl').forEach(a=>a.removeAttribute('contenteditable'));if(!p.textContent.trim()&&!p.querySelector('img,table')) p.innerHTML='<span class="bxEmpty">（沒有內容）</span>';body.appendChild(p);body.onclick=()=>bxOpen(it);}
+      else{body.innerHTML=bd.objs.length?wbThumb(bd):'<span class="bxEmpty">（空的 Board）</span>';body.classList.add('thumb');body.onclick=()=>bxOpen(it);}
+      row.appendChild(body);
+    }
+    row.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/x-bxi',String(i));e.dataTransfer.effectAllowed='move';row.classList.add('dg');});
+    row.addEventListener('dragend',()=>{row.classList.remove('dg');list.querySelectorAll('.ov').forEach(x=>x.classList.remove('ov'));});
+    row.addEventListener('dragover',e=>{if(e.dataTransfer.types.indexOf('text/x-bxi')<0) return;e.preventDefault();list.querySelectorAll('.ov').forEach(x=>x.classList.remove('ov'));row.classList.add('ov');});
+    row.addEventListener('drop',e=>{const f=e.dataTransfer.getData('text/x-bxi');if(f===''||f==null) return;e.preventDefault();const from=+f;if(from===i) return;const m=bx.items.splice(from,1)[0];bx.items.splice(i,0,m);markDirty();bxRender();});
+    list.appendChild(row);
+  });
+}
+function bxAddMenu(anchor,c){
+  const items=[
+    ['＋ 新卡片',()=>{const k=newCard('');bxAdd(c,'card',k.id);flushEditor();markDirty();openCard(k.id);}],
+    ['＋ 新 Board',()=>{const n=S.boards.filter(b=>b.type==='wb'&&!b.main).length+1;let nm='Board '+n;while(S.boards.some(b=>b.name===nm)) nm='Board '+(++n);const nb={id:uid('b'),name:nm,type:'wb',main:false,colv:1,view:null,objs:[],links:[]};S.boards.push(nb);bxAdd(c,'board',nb.id);markDirty();bxRender();}],
+    ['加入既有卡片…',()=>setTimeout(()=>bxPick(anchor,c,'card'),0)],
+    ['加入既有 Board…',()=>setTimeout(()=>bxPick(anchor,c,'board'),0)]
+  ];
+  openPop(anchor,p=>{items.forEach(it=>{const b=document.createElement('button');b.className='mi';b.textContent=it[0];b.onclick=()=>{closePop();it[1]();};p.appendChild(b);});});
+}
+function bxPick(anchor,c,t){
+  openPop(anchor,p=>{
+    p.classList.add('bxPick'); const inp=document.createElement('input'); inp.placeholder=t==='card'?'搜尋卡片…':'搜尋 Board…'; p.appendChild(inp);
+    const L=document.createElement('div'); L.className='bxPL'; p.appendChild(L);
+    const draw=()=>{const q=inp.value.trim().toLowerCase(); L.textContent='';
+      const src=t==='card'?Object.values(S.cards).filter(k=>k.id!==c.id&&!k.box&&!c.box.items.some(i=>i.t==='card'&&i.id===k.id)).sort((a,b)=>b.updated-a.updated).map(k=>({id:k.id,n:cardTitle(k)}))
+        :S.boards.filter(b=>b.type==='wb'&&!b.main&&!c.box.items.some(i=>i.t==='board'&&i.id===b.id)).map(b=>({id:b.id,n:b.name}));
+      const f=src.filter(x=>!q||x.n.toLowerCase().indexOf(q)>=0).slice(0,30);
+      if(!f.length){const e=document.createElement('div');e.className='bxEmpty';e.textContent='沒有可加入的項目';L.appendChild(e);}
+      f.forEach(x=>{const b=document.createElement('button');b.className='mi';b.textContent=bxIcon(t)+' '+x.n;b.onclick=()=>{
+        bxAdd(c,t,x.id); if(t==='card'){/* 從所在白板拿掉，避免同時出現兩處 */S.boards.forEach(w=>{if(w.type==='wb'){const rm=w.objs.filter(o=>o.t==='card'&&o.cid===x.id).map(o=>o.id);if(rm.length){w.objs=w.objs.filter(o=>rm.indexOf(o.id)<0);w.links=w.links.filter(l=>rm.indexOf(l.a)<0&&rm.indexOf(l.b)<0);}}});}
+        else{S.boards.forEach(w=>{if(w.type==='wb') w.objs=w.objs.filter(o=>!(o.t==='sub'&&o.bid===x.id));});}
+        closePop();markDirty();renderWB();bxRender();};L.appendChild(b);});};
+    inp.oninput=draw; draw(); setTimeout(()=>inp.focus(),0);
+  });
+}
+/* 在一般卡片的底部標出它放在哪些容器卡 */
+function bxBacklinks(box,c){
+  bxContainers('card',c.id).forEach(x=>{const b=document.createElement('button');b.textContent='▦ '+cardTitle(x);b.title='回到所在的容器卡';b.onclick=()=>{flushEditor();openCard(x.id);};box.appendChild(b);});
+}
+
 /* ================= 介面：側邊欄、浮層、畫板切換 ================= */
 function usageMap(){
   const m={};
@@ -2491,6 +2643,7 @@ function cardCtx(x,y){
 
 /* ===== 左側物件面板（Milanote 式）：點一下放到畫面中央，或拖曳到白板上 ===== */
 const PAL=[
+  {k:'box',n:'容器卡',tip:'容器卡：最頂層的卡片，可打字，也能放入卡片與 Board'},
   {k:'card',ic:'▤',n:'卡片',tip:'新增一張空白卡片'},
   {k:'board',ic:'❏',n:'Board',tip:'新增 Board：可雙擊進入的子白板（裡面還能再放 Board，層數不限）'},
   {k:'sec',ic:'⬚',n:'欄',tip:'新增欄：物件可以拖進去、拖出來，在欄裡自動直向排列'},
@@ -2513,10 +2666,11 @@ function palRun(k,p){
   else if(k==='mm') wbNewMm(p);
   else if(k==='note') wbNewText(p);
   else if(k==='table') wbNewTable(p);
+  else if(k==='box') wbNewBox(p);
   else if(k==='img'||k==='pdf'){wbUploadPos=p||null;$('#wfin').accept=k==='pdf'?'application/pdf':(k==='img'?'image/*':'image/*,application/pdf');$('#wfin').click();}
   else if(k==='video'||k==='url'){urlPos=p||null;$('#wUrl').click();}
 }
-const PALSVG={"card": "<rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M8.5 8h7M8.5 12h7M8.5 16h4\"/>", "board": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><rect x=\"6.5\" y=\"8\" width=\"5\" height=\"4\" rx=\"1\"/><rect x=\"13\" y=\"8\" width=\"4.5\" height=\"8\" rx=\"1\"/>", "sec": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"3\" stroke-dasharray=\"3 3\"/><path d=\"M7 9h6\"/>", "arrow": "<path d=\"M5 19L19 5\"/><path d=\"M9 5h10v10\"/>", "mm": "<circle cx=\"12\" cy=\"12\" r=\"2.6\"/><circle cx=\"4.5\" cy=\"6\" r=\"1.8\"/><circle cx=\"4.5\" cy=\"18\" r=\"1.8\"/><circle cx=\"19.5\" cy=\"6\" r=\"1.8\"/><circle cx=\"19.5\" cy=\"18\" r=\"1.8\"/><path d=\"M9.6 10.8L6 7M9.6 13.2L6 17M14.4 10.8L18 7M14.4 13.2L18 17\"/>", "table": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M3 15h18M9.5 4v16M15 4v16\"/>", "note": "<path d=\"M5 4h14v11l-5 5H5z\"/><path d=\"M14 20v-5h5\"/>", "img": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><circle cx=\"9\" cy=\"10\" r=\"1.8\"/><path d=\"M21 16l-5-5-9 9\"/>", "pdf": "<path d=\"M6 3h8l5 5v13H6z\"/><path d=\"M14 3v5h5\"/><path d=\"M9 14h6M9 17.5h4\"/>", "video": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"3\"/><path d=\"M10 9.5v5l4.5-2.5z\" fill=\"currentColor\"/>", "url": "<path d=\"M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1\"/><path d=\"M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1\"/>"};
+const PALSVG={"box":"<rect x='6' y='3.5' width='14' height='14' rx='2' opacity='.5'/><rect x='3.5' y='6.5' width='14' height='14' rx='2'/><path d='M7 12h7M7 15.5h4'/>","card": "<rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M8.5 8h7M8.5 12h7M8.5 16h4\"/>", "board": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><rect x=\"6.5\" y=\"8\" width=\"5\" height=\"4\" rx=\"1\"/><rect x=\"13\" y=\"8\" width=\"4.5\" height=\"8\" rx=\"1\"/>", "sec": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"3\" stroke-dasharray=\"3 3\"/><path d=\"M7 9h6\"/>", "arrow": "<path d=\"M5 19L19 5\"/><path d=\"M9 5h10v10\"/>", "mm": "<circle cx=\"12\" cy=\"12\" r=\"2.6\"/><circle cx=\"4.5\" cy=\"6\" r=\"1.8\"/><circle cx=\"4.5\" cy=\"18\" r=\"1.8\"/><circle cx=\"19.5\" cy=\"6\" r=\"1.8\"/><circle cx=\"19.5\" cy=\"18\" r=\"1.8\"/><path d=\"M9.6 10.8L6 7M9.6 13.2L6 17M14.4 10.8L18 7M14.4 13.2L18 17\"/>", "table": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M3 15h18M9.5 4v16M15 4v16\"/>", "note": "<path d=\"M5 4h14v11l-5 5H5z\"/><path d=\"M14 20v-5h5\"/>", "img": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><circle cx=\"9\" cy=\"10\" r=\"1.8\"/><path d=\"M21 16l-5-5-9 9\"/>", "pdf": "<path d=\"M6 3h8l5 5v13H6z\"/><path d=\"M14 3v5h5\"/><path d=\"M9 14h6M9 17.5h4\"/>", "video": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"3\"/><path d=\"M10 9.5v5l4.5-2.5z\" fill=\"currentColor\"/>", "url": "<path d=\"M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1\"/><path d=\"M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1\"/>"};
 (function(){
   const g=$('#palGrid'); if(!g) return;
   PAL.forEach(it=>{
@@ -2617,7 +2771,8 @@ function updateObjEl(el,o){
   el.classList.toggle('solo',wsel.size===1&&wsel.has(o.id));
   if(o.t==='card'){
     el.dataset.c=o.color==null?'':o.color;
-    const c=S.cards[o.cid], key=c?c.updated+'|'+(c.html||'').length:'x';
+    const c=S.cards[o.cid], key=c?c.updated+'|'+(c.html||'').length+'|'+(c.box?JSON.stringify(c.box.items)+Object.keys(S.cards).length+S.boards.length:''):'x';
+    el.classList.toggle('boxc',!!(c&&c.box));
     if(el._k!==key){
       el._k=key; const pv=$('.cprev',el); pv.textContent=''; pv.classList.remove('cimg'); pv.style.backgroundImage='';
       if(c&&c.html){
@@ -2625,6 +2780,7 @@ function updateObjEl(el,o){
         if(im){pv.classList.add('cimg');pv.style.backgroundImage='url("'+im.replace(/["\\\n]/g,encodeURIComponent)+'")';}
         else pv.innerHTML=c.html;
       }
+      if(c&&c.box) pv.insertAdjacentHTML('beforeend',bxPreviewHtml(c));
     }
   }else if(o.t==='sub'){
     const sb=boardById(o.bid), key=sb?sb.name+'|'+sb.objs.length+'|'+sb.links.length+'|'+sb.objs.map(x=>(x.x|0)+','+(x.y|0)+','+(x.w|0)).join(';'):'x';
@@ -2999,7 +3155,7 @@ wb.addEventListener('pointermove',e=>{
     let dx=(e.clientX-d.sx)/v.k, dy=(e.clientY-d.sy)/v.k;
     if(!e.altKey){const sn=wbSnap(d.items,dx,dy,v.k);dx=sn.dx;dy=sn.dy;$('#gdP').setAttribute('d',sn.path);}else $('#gdP').setAttribute('d','');
     d.items.forEach(it=>{it.o.x=it.x+dx;it.o.y=it.y+dy;posEl(it.o);});
-    colHover(wbToWorld(e.clientX,e.clientY),new Set(d.items.map(it=>it.o.id)));
+    {const pw=wbToWorld(e.clientX,e.clientY),mv=new Set(d.items.map(it=>it.o.id));if(!bxHover(pw,mv)) colHover(pw,mv); else board().objs.forEach(s=>{if(s.t==='sec'&&wbEls[s.id]) wbEls[s.id].classList.remove('drop');});}
     renderLinks(); return;
   }
   if(d.m==='rz'){
@@ -3037,7 +3193,7 @@ function wbUp(e){
   }
   if(d.m==='nmove'){wmUp(d,up);return;}
   if(d.m==='move'){
-    if(d.moved){const ch=up&&colDrop(d.items,wbToWorld(e.clientX,e.clientY));colLayout(board());board().objs.forEach(posEl);board().objs.forEach(s=>{if(wbEls[s.id]) wbEls[s.id].classList.remove('drop');});markDirty();renderWB();return;}
+    if(d.moved){const pw=wbToWorld(e.clientX,e.clientY);let ch=false;if(up&&bxDrop(d.items,pw)) ch=true; else ch=up&&colDrop(d.items,pw);board().objs.forEach(s=>{if(wbEls[s.id]) wbEls[s.id].classList.remove('drop');});colLayout(board());board().objs.forEach(posEl);board().objs.forEach(s=>{if(wbEls[s.id]) wbEls[s.id].classList.remove('drop');});markDirty();renderWB();return;}
     if(!up) return;
     if(d.ico&&d.nid){const oo=wbObj(d.id),mm0=oo&&boardById(oo.mid),ff=mm0&&mmFind(d.nid,mm0);if(ff&&ff.n.cid&&S.cards[ff.n.cid]){wLast={};openCard(ff.n.cid);return;}}
     if(d.add){wLast={};wmAdd(wbObj(d.id),d.add.id,d.add.side);return;}
@@ -4559,6 +4715,7 @@ function wbCtxAt(x,y,id){
     I.push({t:'新增心智圖',fn:()=>wbNewMm(w)});
     I.push({t:'新增 Board',fn:()=>wbNewSub(w)});
     I.push({t:'新增表格',fn:()=>wbNewTable(w)});
+    I.push({t:'新增容器卡',fn:()=>wbNewBox(w)});
     I.push({t:'新增便利貼',fn:()=>wbNewText(w)});
     I.push({t:'新增欄',fn:()=>wbNewSec(w)});
     I.push('-');
